@@ -16,7 +16,7 @@ export function GameHUD() {
   const reportedToDan = useGame((s) => s.reportedToDan);
   const activeDialogue = useGame((s) => s.activeDialogue);
   const tasksActive = useGame((s) => s.tasksActive);
-  const carriedItem = useGame((s) => s.carriedItem);
+  const carriedItemInfo = useGame((s) => s.carriedItem);
   const hurricaneTasks = useGame((s) => s.hurricaneTasks);
   const wildfireTasks = useGame((s) => s.wildfireTasks);
   const earthquakeTasks = useGame((s) => s.earthquakeTasks);
@@ -111,7 +111,7 @@ export function GameHUD() {
       </div>
 
       {/* Carried item indicator */}
-      {carriedItem && (
+      {carriedItemInfo && (
         <div
           style={{
             position: "absolute",
@@ -140,7 +140,7 @@ export function GameHUD() {
             Carrying
           </div>
           <div style={{ fontSize: 16, fontWeight: 600 }}>
-            {ITEM_LABELS[carriedItem]}
+            {ITEM_LABELS[carriedItemInfo.type]}
           </div>
           <div
             style={{
@@ -325,7 +325,7 @@ export function GameHUD() {
           zIndex: 50,
         }}
       >
-        WASD / Arrows to move | E to interact{carriedItem ? " | Q to drop" : ""}
+        WASD / Arrows to move | E to interact{carriedItemInfo ? " | Q to drop" : ""}
       </div>
     </>
   );

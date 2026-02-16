@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useGame, ItemType } from "@/lib/stores/useGame";
 
 interface WorldItemProps {
+  itemId: string;
   itemType: ItemType;
   position: [number, number, number];
   playerPosition: THREE.Vector3;
@@ -20,26 +21,21 @@ const ITEM_CONFIGS: Record<ItemType, { label: string; color: string; shape: "box
   book: { label: "Book", color: "#e74c3c", shape: "box", size: [0.3, 0.25, 0.2] },
 };
 
-export function WorldItem({ itemType, position, playerPosition, pickupRadius = 2.5 }: WorldItemProps) {
+export function WorldItem({ itemId, itemType, position, playerPosition, pickupRadius = 2.5 }: WorldItemProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [isNear, setIsNear] = useState(false);
-  const [pickedUp, setPickedUp] = useState(false);
   const carriedItem = useGame((s) => s.carriedItem);
   const pickUpItem = useGame((s) => s.pickUpItem);
   const activeDialogue = useGame((s) => s.activeDialogue);
-  const prevCarriedRef = useRef<ItemType | null>(null);
+  const consumedItems = useGame((s) => s.consumedItems);
 
   const config = ITEM_CONFIGS[itemType];
 
-  useEffect(() => {
-    if (prevCarriedRef.current === itemType && carriedItem === null && pickedUp) {
-      setPickedUp(false);
-    }
-    prevCarriedRef.current = carriedItem;
-  }, [carriedItem, itemType, pickedUp]);
+  const isThisItemCarried = carriedItem?.id === itemId;
+  const isConsumed = consumedItems.has(itemId);
 
   useFrame((_, delta) => {
-    if (pickedUp || !groupRef.current) return;
+    if (isThisItemCarried || isConsumed || !groupRef.current) return;
     const itemPos = new THREE.Vector3(...position);
     const dist = itemPos.distanceTo(playerPosition);
     setIsNear(dist < pickupRadius);
@@ -54,19 +50,19 @@ export function WorldItem({ itemType, position, playerPosition, pickupRadius = 2
       if (
         (e.key === "e" || e.key === "E") &&
         isNear &&
-        !pickedUp &&
+        !isThisItemCarried &&
+        !isConsumed &&
         !carriedItem &&
         !activeDialogue
       ) {
-        setPickedUp(true);
-        pickUpItem(itemType);
+        pickUpItem(itemType, itemId);
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, pickedUp, carriedItem, activeDialogue, itemType, pickUpItem]);
+  }, [isNear, isThisItemCarried, isConsumed, carriedItem, activeDialogue, itemType, itemId, pickUpItem]);
 
-  if (pickedUp) return null;
+  if (isThisItemCarried || isConsumed) return null;
 
   return (
     <group ref={groupRef} position={[position[0], position[1] + 0.3, position[2]]}>

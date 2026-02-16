@@ -28,7 +28,7 @@ export function InteractionTarget({
   const [isNear, setIsNear] = useState(false);
   const carriedItem = useGame((s) => s.carriedItem);
   const activeDialogue = useGame((s) => s.activeDialogue);
-  const hasCorrectItem = carriedItem === requiredItem;
+  const hasCorrectItem = carriedItem?.type === requiredItem;
 
   useFrame(() => {
     if (completed) return;

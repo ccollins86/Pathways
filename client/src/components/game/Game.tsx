@@ -8,7 +8,7 @@ import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { USCStand } from "./USCStand";
-import { House, getHousePosition } from "./House";
+import { House, HOUSE_POS } from "./House";
 import { WorldItem } from "./WorldItem";
 import { InteractionTarget } from "./InteractionTarget";
 import { useGame } from "@/lib/stores/useGame";
@@ -43,7 +43,7 @@ export function Game() {
     setPlayerPos(pos);
   }, []);
 
-  const hp = getHousePosition();
+  const hp = HOUSE_POS;
 
   const handleDanInteract = useCallback(() => {
     if (activeDialogue) return;
@@ -332,36 +332,32 @@ export function Game() {
       {tasksActive && knownDisaster === "hurricane" && (
         <>
           {/* Sandbags to pick up - near the house */}
-          {!hurricaneTasks.frontDoorSandbagged && (
-            <WorldItem
-              itemType="sandbag"
-              position={[hp[0] + 7, 0, hp[2] + 2]}
-              playerPosition={playerPos}
-            />
-          )}
-          {!hurricaneTasks.backDoorSandbagged && (
-            <WorldItem
-              itemType="sandbag"
-              position={[hp[0] + 7, 0, hp[2] - 2]}
-              playerPosition={playerPos}
-            />
-          )}
+          <WorldItem
+            itemId="sandbag-front"
+            itemType="sandbag"
+            position={[hp[0] + 7, 0, hp[2] + 2]}
+            playerPosition={playerPos}
+          />
+          <WorldItem
+            itemId="sandbag-back"
+            itemType="sandbag"
+            position={[hp[0] + 7, 0, hp[2] - 2]}
+            playerPosition={playerPos}
+          />
 
           {/* Wood boards to pick up */}
-          {!hurricaneTasks.window1Boarded && (
-            <WorldItem
-              itemType="wood_board"
-              position={[hp[0] - 7, 0, hp[2] + 3]}
-              playerPosition={playerPos}
-            />
-          )}
-          {!hurricaneTasks.window2Boarded && (
-            <WorldItem
-              itemType="wood_board"
-              position={[hp[0] - 7, 0, hp[2] - 3]}
-              playerPosition={playerPos}
-            />
-          )}
+          <WorldItem
+            itemId="board-w1"
+            itemType="wood_board"
+            position={[hp[0] - 7, 0, hp[2] + 3]}
+            playerPosition={playerPos}
+          />
+          <WorldItem
+            itemId="board-w2"
+            itemType="wood_board"
+            position={[hp[0] - 7, 0, hp[2] - 3]}
+            playerPosition={playerPos}
+          />
 
           {/* Interaction targets for placing sandbags */}
           <InteractionTarget
@@ -408,22 +404,20 @@ export function Game() {
       {tasksActive && knownDisaster === "wildfire" && (
         <>
           {/* Flame retardant bottle */}
-          {!wildfireTasks.houseSprayed && (
-            <WorldItem
-              itemType="flame_retardant"
-              position={[hp[0] + 8, 0, hp[2]]}
-              playerPosition={playerPos}
-            />
-          )}
+          <WorldItem
+            itemId="flame-retardant"
+            itemType="flame_retardant"
+            position={[hp[0] + 8, 0, hp[2]]}
+            playerPosition={playerPos}
+          />
 
           {/* Rake */}
-          {!wildfireTasks.vegetationCleared && (
-            <WorldItem
-              itemType="rake"
-              position={[hp[0] + 8, 0, hp[2] + 4]}
-              playerPosition={playerPos}
-            />
-          )}
+          <WorldItem
+            itemId="rake"
+            itemType="rake"
+            position={[hp[0] + 8, 0, hp[2] + 4]}
+            playerPosition={playerPos}
+          />
 
           {/* Spray house target */}
           <InteractionTarget
@@ -454,23 +448,21 @@ export function Game() {
       {tasksActive && knownDisaster === "earthquake" && (
         <>
           {/* Safety straps */}
-          {!earthquakeTasks.furnitureStrapped && (
-            <WorldItem
-              itemType="safety_strap"
-              position={[hp[0] + 7, 0, hp[2] + 2]}
-              playerPosition={playerPos}
-            />
-          )}
+          <WorldItem
+            itemId="safety-strap"
+            itemType="safety_strap"
+            position={[hp[0] + 7, 0, hp[2] + 2]}
+            playerPosition={playerPos}
+          />
 
           {/* Book interaction - inside the house near bookshelf */}
-          {!earthquakeTasks.booksInBag && (
-            <WorldItem
-              itemType="book"
-              position={[hp[0] + 2, 0.3, hp[2] - 1.5]}
-              playerPosition={playerPos}
-              pickupRadius={2}
-            />
-          )}
+          <WorldItem
+            itemId="books"
+            itemType="book"
+            position={[hp[0] + 2, 0.3, hp[2] - 1.5]}
+            playerPosition={playerPos}
+            pickupRadius={2}
+          />
 
           {/* Furniture strap target - at the cabinet */}
           <InteractionTarget

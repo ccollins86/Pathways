@@ -12,6 +12,11 @@ export type ItemType =
   | "safety_strap"
   | "book";
 
+export interface CarriedItemInfo {
+  type: ItemType;
+  id: string;
+}
+
 interface DialogueLine {
   speaker: string;
   text: string;
@@ -45,7 +50,8 @@ interface GameState {
   dialogueIndex: number;
   activeNpc: string | null;
 
-  carriedItem: ItemType | null;
+  carriedItem: CarriedItemInfo | null;
+  consumedItems: Set<string>;
   hurricaneTasks: HurricaneTasks;
   wildfireTasks: WildfireTasks;
   earthquakeTasks: EarthquakeTasks;
@@ -64,8 +70,9 @@ interface GameState {
   advanceDialogue: () => void;
   closeDialogue: () => void;
 
-  pickUpItem: (item: ItemType) => void;
+  pickUpItem: (type: ItemType, id: string) => void;
   dropItem: () => void;
+  isItemConsumed: (id: string) => boolean;
   completeHurricaneTask: (task: keyof HurricaneTasks) => void;
   completeWildfireTask: (task: keyof WildfireTasks) => void;
   completeEarthquakeTask: (task: keyof EarthquakeTasks) => void;
@@ -88,6 +95,7 @@ export const useGame = create<GameState>()(
     activeNpc: null,
 
     carriedItem: null,
+    consumedItems: new Set<string>(),
     hurricaneTasks: {
       frontDoorSandbagged: false,
       backDoorSandbagged: false,
@@ -126,6 +134,7 @@ export const useGame = create<GameState>()(
         dialogueIndex: 0,
         activeNpc: null,
         carriedItem: null,
+        consumedItems: new Set<string>(),
         hurricaneTasks: {
           frontDoorSandbagged: false,
           backDoorSandbagged: false,
@@ -175,35 +184,51 @@ export const useGame = create<GameState>()(
     closeDialogue: () =>
       set({ activeDialogue: null, dialogueIndex: 0, activeNpc: null }),
 
-    pickUpItem: (item) => {
+    pickUpItem: (type, id) => {
       const { carriedItem } = get();
       if (!carriedItem) {
-        set({ carriedItem: item });
+        set({ carriedItem: { type, id } });
       }
     },
 
     dropItem: () => set({ carriedItem: null }),
 
+    isItemConsumed: (id) => {
+      return get().consumedItems.has(id);
+    },
+
     completeHurricaneTask: (task) => {
+      const { carriedItem, consumedItems } = get();
+      const newConsumed = new Set(consumedItems);
+      if (carriedItem) newConsumed.add(carriedItem.id);
       set((state) => ({
         hurricaneTasks: { ...state.hurricaneTasks, [task]: true },
         carriedItem: null,
+        consumedItems: newConsumed,
       }));
       setTimeout(() => get().checkQuestCompletion(), 0);
     },
 
     completeWildfireTask: (task) => {
+      const { carriedItem, consumedItems } = get();
+      const newConsumed = new Set(consumedItems);
+      if (carriedItem) newConsumed.add(carriedItem.id);
       set((state) => ({
         wildfireTasks: { ...state.wildfireTasks, [task]: true },
         carriedItem: null,
+        consumedItems: newConsumed,
       }));
       setTimeout(() => get().checkQuestCompletion(), 0);
     },
 
     completeEarthquakeTask: (task) => {
+      const { carriedItem, consumedItems } = get();
+      const newConsumed = new Set(consumedItems);
+      if (carriedItem) newConsumed.add(carriedItem.id);
       set((state) => ({
         earthquakeTasks: { ...state.earthquakeTasks, [task]: true },
         carriedItem: null,
+        consumedItems: newConsumed,
       }));
       setTimeout(() => get().checkQuestCompletion(), 0);
     },
