@@ -299,7 +299,7 @@ export function Game() {
       {/* Bob - on the other side of town */}
       <NPC
         name="Bob"
-        position={[-12, 0, -16]}
+        position={[18, 0, -18]}
         bodyColor="#34495e"
         shirtColor="#2196F3"
         playerPosition={playerPos}
@@ -329,7 +329,7 @@ export function Game() {
       {/* Lisa */}
       <NPC
         name="Lisa"
-        position={[-8, 0, -15]}
+        position={[-5, 0, -22]}
         bodyColor="#4e342e"
         shirtColor="#9c27b0"
         playerPosition={playerPos}
@@ -560,7 +560,7 @@ export function Game() {
       )}
 
       <PracticeBooth
-        position={[-18, 0, -2]}
+        position={[20, 0, 8]}
         playerPosition={playerPos}
         practiceUnlocked={practiceUnlocked}
         practiceActive={practiceActive}
