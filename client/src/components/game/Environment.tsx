@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import * as THREE from "three";
+import { HOUSE_POS } from "./House";
 
 interface TreeProps {
   position: [number, number, number];
@@ -65,7 +66,12 @@ export function Environment() {
       const radius = 15 + (i % 5) * 4;
       const x = Math.cos(angle) * radius + (((i * 7) % 5) - 2);
       const z = Math.sin(angle) * radius + (((i * 13) % 5) - 2);
-      positions.push([x, 0, z]);
+      const distToHouse = Math.sqrt(
+        (x - HOUSE_POS[0]) ** 2 + (z - HOUSE_POS[2]) ** 2
+      );
+      if (distToHouse > 12) {
+        positions.push([x, 0, z]);
+      }
     }
     return positions;
   }, []);
@@ -75,7 +81,10 @@ export function Environment() {
     for (let i = 0; i < 15; i++) {
       const x = ((i * 17 + 5) % 30) - 15;
       const z = ((i * 23 + 3) % 30) - 15;
-      if (Math.abs(x) > 3 && Math.abs(z) > 3) {
+      const distToHouse = Math.sqrt(
+        (x - HOUSE_POS[0]) ** 2 + (z - HOUSE_POS[2]) ** 2
+      );
+      if (Math.abs(x) > 3 && Math.abs(z) > 3 && distToHouse > 12) {
         positions.push([x, 0, z]);
       }
     }
