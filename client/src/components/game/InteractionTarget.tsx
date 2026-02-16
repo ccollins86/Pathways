@@ -65,7 +65,7 @@ export function InteractionTarget({
   if (completed) {
     return completedLabel ? (
       <Text
-        position={[position[0], position[1] + 0.8, position[2]]}
+        position={[position[0], 3.5, position[2]]}
         fontSize={0.35}
         color="#66bb6a"
         anchorX="center"
@@ -90,7 +90,7 @@ export function InteractionTarget({
       </mesh>
 
       <Text
-        position={[position[0], position[1] + 0.6, position[2]]}
+        position={[position[0], 3.2, position[2]]}
         fontSize={0.3}
         color={isNear ? (hasCorrectItem ? "#66bb6a" : hasAnyItem ? "#ff9800" : "#ffffff") : "#cccccc"}
         anchorX="center"
@@ -103,7 +103,7 @@ export function InteractionTarget({
 
       {isNear && (
         <Text
-          position={[position[0], position[1] + 1.1, position[2]]}
+          position={[position[0], 3.7, position[2]]}
           fontSize={0.28}
           color={hasCorrectItem ? "#66bb6a" : hasAnyItem ? "#ff9800" : "#aaaaaa"}
           anchorX="center"

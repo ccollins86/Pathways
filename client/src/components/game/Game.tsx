@@ -303,7 +303,7 @@ export function Game() {
       {/* Sara */}
       <NPC
         name="Sara"
-        position={[-5, 0, 8]}
+        position={[8, 0, 14]}
         bodyColor="#5d4037"
         shirtColor="#e91e63"
         playerPosition={playerPos}
