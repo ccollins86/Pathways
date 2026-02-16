@@ -1,5 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+import { Text } from "@react-three/drei";
 import { Ground } from "./Ground";
 import { Lights } from "./Lights";
 import { Sky } from "./Sky";
@@ -11,6 +13,7 @@ import { USCStand } from "./USCStand";
 import { House, HOUSE_POS } from "./House";
 import { WorldItem } from "./WorldItem";
 import { InteractionTarget } from "./InteractionTarget";
+import { PracticeBooth } from "./PracticeBooth";
 import { useGame } from "@/lib/stores/useGame";
 
 export function Game() {
@@ -29,6 +32,9 @@ export function Game() {
   const earthquakeTasks = useGame((s) => s.earthquakeTasks);
   const questCompleted = useGame((s) => s.questCompleted);
   const questFailed = useGame((s) => s.questFailed);
+  const practiceUnlocked = useGame((s) => s.practiceUnlocked);
+  const practiceActive = useGame((s) => s.practiceActive);
+  const openPractice = useGame((s) => s.openPractice);
 
   const setTalkedToDan = useGame((s) => s.setTalkedToDan);
   const setTalkedToBob = useGame((s) => s.setTalkedToBob);
@@ -552,6 +558,14 @@ export function Game() {
           />
         </>
       )}
+
+      <PracticeBooth
+        position={[-15, 0, -8]}
+        playerPosition={playerPos}
+        practiceUnlocked={practiceUnlocked}
+        practiceActive={practiceActive}
+        onInteract={openPractice}
+      />
     </>
   );
 }

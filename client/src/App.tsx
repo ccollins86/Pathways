@@ -4,6 +4,7 @@ import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
+import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -100,6 +101,7 @@ function StartScreen() {
 
 function App() {
   const phase = useGame((s) => s.phase);
+  const practiceActive = useGame((s) => s.practiceActive);
 
   return (
     <div
@@ -135,6 +137,7 @@ function App() {
           <>
             <GameHUD />
             <DialogueUI />
+            {practiceActive && <PracticeQuizUI />}
           </>
         )}
       </KeyboardControls>

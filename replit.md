@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-16: Added Practice Station booth with 8 if/else-if/else quiz questions, unlocked after quest completion + lesson
 - 2026-02-16: Replaced earthquake "books in bag" task with "shut off gas lines with wrench"
 - 2026-02-16: Added wrong-choice failure mechanic - all items from all disasters now spawn, using wrong items fails the quest
 - 2026-02-16: Initial build of the game with full quest flow, NPC interactions, and dialogue system
@@ -33,6 +34,8 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/components/game/WorldItem.tsx` - Pickupable items with unique IDs, consumed tracking
 - `client/src/components/game/InteractionTarget.tsx` - Use-item-at-location targets with correct/wrong item handling
 - `client/src/components/game/House.tsx` - House with interior, exports HOUSE_POS constant
+- `client/src/components/game/PracticeBooth.tsx` - Interactive booth for programming practice quiz
+- `client/src/components/game/PracticeQuizUI.tsx` - 8 multiple-choice questions on if/else-if/else branching
 
 ### Game Flow
 1. Start screen -> click "Start Game"
@@ -43,6 +46,9 @@ A 3D educational game built with React Three Fiber where players learn about nat
 6. Player must pick correct items and use them at correct targets
 7. Using wrong items or doing wrong disaster prep = quest failure
 8. Completing all correct tasks = quest success
+9. Programming lesson screen shows if/else-if/else analogy to disaster prep choices
+10. "Continue Playing" button unlocks the Practice Station booth
+11. Player visits booth and takes 8-question quiz on branching statements (10 pts each)
 
 ### NPCs
 - **Dan** (USC stand) - Quest giver, disaster prep instructions

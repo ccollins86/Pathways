@@ -26,6 +26,10 @@ export function GameHUD() {
   const failReason = useGame((s) => s.failReason);
   const dropItem = useGame((s) => s.dropItem);
   const restart = useGame((s) => s.restart);
+  const practiceUnlocked = useGame((s) => s.practiceUnlocked);
+  const practiceActive = useGame((s) => s.practiceActive);
+  const practiceScore = useGame((s) => s.practiceScore);
+  const unlockPractice = useGame((s) => s.unlockPractice);
 
   const [showLesson, setShowLesson] = useState(false);
 
@@ -34,6 +38,8 @@ export function GameHUD() {
   let objective = "Find Dan at the USC Apparel stand and talk to him.";
   if (questFailed) {
     objective = "Quest Failed! You made the wrong preparation choice.";
+  } else if (questCompleted && practiceUnlocked) {
+    objective = "Visit the Practice Station booth to test your programming knowledge!";
   } else if (questCompleted) {
     objective = "Quest Complete! You successfully prepared for the disaster!";
   } else if (tasksActive && knownDisaster) {
@@ -203,26 +209,26 @@ export function GameHUD() {
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <div
-              onClick={() => setShowLesson(false)}
+              onClick={() => { setShowLesson(false); unlockPractice(); }}
               style={{
                 padding: "10px 24px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.3)",
+                background: "#4fc3f7",
+                border: "none",
                 borderRadius: 8,
-                color: "white",
+                color: "#0d47a1",
                 fontSize: 14,
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: "pointer",
               }}
             >
-              Back
+              Continue Playing
             </div>
             <div
               onClick={() => { setShowLesson(false); restart(); }}
               style={{
                 padding: "10px 24px",
-                background: "#66bb6a",
-                border: "none",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.3)",
                 borderRadius: 8,
                 color: "white",
                 fontSize: 14,

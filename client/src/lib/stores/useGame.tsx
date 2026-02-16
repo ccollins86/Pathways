@@ -59,6 +59,9 @@ interface GameState {
   questFailed: boolean;
   failReason: string | null;
   tasksActive: boolean;
+  practiceUnlocked: boolean;
+  practiceActive: boolean;
+  practiceScore: number;
 
   start: () => void;
   restart: () => void;
@@ -81,6 +84,11 @@ interface GameState {
   failQuest: (reason: string) => void;
   activateTasks: () => void;
   checkQuestCompletion: () => void;
+  unlockPractice: () => void;
+  openPractice: () => void;
+  closePractice: () => void;
+  addPracticeScore: (points: number) => void;
+  resetPracticeScore: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -117,6 +125,9 @@ export const useGame = create<GameState>()(
     questFailed: false,
     failReason: null,
     tasksActive: false,
+    practiceUnlocked: false,
+    practiceActive: false,
+    practiceScore: 0,
 
     start: () => {
       set((state) => {
@@ -158,6 +169,9 @@ export const useGame = create<GameState>()(
         questFailed: false,
         failReason: null,
         tasksActive: false,
+        practiceUnlocked: false,
+        practiceActive: false,
+        practiceScore: 0,
       }));
     },
 
@@ -253,6 +267,12 @@ export const useGame = create<GameState>()(
     },
 
     activateTasks: () => set({ tasksActive: true }),
+
+    unlockPractice: () => set({ practiceUnlocked: true }),
+    openPractice: () => set({ practiceActive: true }),
+    closePractice: () => set({ practiceActive: false }),
+    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points })),
+    resetPracticeScore: () => set({ practiceScore: 0 }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
