@@ -389,7 +389,7 @@ export function Game() {
 
           {/* ---- HURRICANE TARGETS ---- */}
           <InteractionTarget
-            position={[hp[0], 0.1, hp[2] + 4]}
+            position={[hp[0], 0.1, hp[2] + 6]}
             label="Place sandbag at front door"
             requiredItem="sandbag"
             playerPosition={playerPos}
@@ -403,7 +403,7 @@ export function Game() {
             completedLabel="Front door sandbagged!"
           />
           <InteractionTarget
-            position={[hp[0] + 2, 0.1, hp[2] - 4]}
+            position={[hp[0], 0.1, hp[2] - 6]}
             label="Place sandbag at back door"
             requiredItem="sandbag"
             playerPosition={playerPos}
@@ -417,7 +417,7 @@ export function Game() {
             completedLabel="Back door sandbagged!"
           />
           <InteractionTarget
-            position={[hp[0] - 5, 0.1, hp[2] - 0.5]}
+            position={[hp[0] - 7, 0.1, hp[2]]}
             label="Board up window 1"
             requiredItem="wood_board"
             playerPosition={playerPos}
@@ -431,7 +431,7 @@ export function Game() {
             completedLabel="Window 1 boarded!"
           />
           <InteractionTarget
-            position={[hp[0] + 5, 0.1, hp[2] - 0.5]}
+            position={[hp[0] + 7, 0.1, hp[2]]}
             label="Board up window 2"
             requiredItem="wood_board"
             playerPosition={playerPos}
@@ -447,8 +447,8 @@ export function Game() {
 
           {/* ---- WILDFIRE TARGETS ---- */}
           <InteractionTarget
-            position={[hp[0] + 5, 0.1, hp[2] + 3]}
-            label="Spray house with flame retardant"
+            position={[hp[0] + 7, 0.1, hp[2] + 5]}
+            label="Spray flame retardant"
             requiredItem="flame_retardant"
             interactRadius={3}
             playerPosition={playerPos}
@@ -462,8 +462,8 @@ export function Game() {
             completedLabel="House sprayed!"
           />
           <InteractionTarget
-            position={[hp[0] - 6, 0.1, hp[2] + 5]}
-            label="Clear vegetation with rake"
+            position={[hp[0] - 7, 0.1, hp[2] + 5]}
+            label="Clear vegetation"
             requiredItem="rake"
             interactRadius={3}
             playerPosition={playerPos}
@@ -479,10 +479,10 @@ export function Game() {
 
           {/* ---- EARTHQUAKE TARGETS ---- */}
           <InteractionTarget
-            position={[hp[0] - 3, 0.1, hp[2] + 1]}
-            label="Strap furniture to wall"
+            position={[hp[0] - 4, 0.1, hp[2] - 5]}
+            label="Strap furniture"
             requiredItem="safety_strap"
-            interactRadius={3.5}
+            interactRadius={3}
             playerPosition={playerPos}
             onUse={() =>
               knownDisaster === "earthquake"
@@ -494,8 +494,8 @@ export function Game() {
             completedLabel="Furniture secured!"
           />
           <InteractionTarget
-            position={[hp[0] + 3, 0.1, hp[2] + 1]}
-            label="Put books in brown bag"
+            position={[hp[0] + 4, 0.1, hp[2] - 5]}
+            label="Store books safely"
             requiredItem="book"
             interactRadius={3}
             playerPosition={playerPos}

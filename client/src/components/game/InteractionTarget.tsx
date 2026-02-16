@@ -60,7 +60,7 @@ export function InteractionTarget({
     return () => window.removeEventListener("keydown", handleKey);
   }, [isNear, hasCorrectItem, hasAnyItem, completed, activeDialogue, onUse, onWrongUse]);
 
-  const ringRadius = Math.min(interactRadius, 1.5);
+  const ringRadius = Math.min(interactRadius, 1.0);
 
   if (completed) {
     return completedLabel ? (
