@@ -476,6 +476,48 @@ export function Game() {
             completed={wildfireTasks.vegetationCleared}
             completedLabel="Vegetation cleared!"
           />
+          {!wildfireTasks.vegetationCleared && (
+            <group>
+              {/* Bushes around the vegetation clearing spot */}
+              <mesh position={[hp[0] - 7.5, 0.4, hp[2] + 5.5]}>
+                <sphereGeometry args={[0.5, 8, 6]} />
+                <meshStandardMaterial color="#2d6b2d" />
+              </mesh>
+              <mesh position={[hp[0] - 6.3, 0.35, hp[2] + 5.8]}>
+                <sphereGeometry args={[0.4, 8, 6]} />
+                <meshStandardMaterial color="#3a7a3a" />
+              </mesh>
+              <mesh position={[hp[0] - 7.8, 0.3, hp[2] + 4.3]}>
+                <sphereGeometry args={[0.45, 8, 6]} />
+                <meshStandardMaterial color="#2a5e2a" />
+              </mesh>
+              <mesh position={[hp[0] - 6.5, 0.3, hp[2] + 4.5]}>
+                <sphereGeometry args={[0.35, 8, 6]} />
+                <meshStandardMaterial color="#357835" />
+              </mesh>
+              <mesh position={[hp[0] - 7, 0.35, hp[2] + 6]}>
+                <sphereGeometry args={[0.4, 8, 6]} />
+                <meshStandardMaterial color="#2f6f2f" />
+              </mesh>
+              {/* Tall grass / weeds */}
+              <mesh position={[hp[0] - 6.8, 0.4, hp[2] + 5.2]} rotation={[0, 0.3, 0.1]}>
+                <boxGeometry args={[0.06, 0.8, 0.06]} />
+                <meshStandardMaterial color="#4a8c4a" />
+              </mesh>
+              <mesh position={[hp[0] - 7.3, 0.35, hp[2] + 4.8]} rotation={[0, -0.5, -0.1]}>
+                <boxGeometry args={[0.06, 0.7, 0.06]} />
+                <meshStandardMaterial color="#3d7d3d" />
+              </mesh>
+              <mesh position={[hp[0] - 6.6, 0.3, hp[2] + 5.6]} rotation={[0, 1.2, 0.15]}>
+                <boxGeometry args={[0.06, 0.6, 0.06]} />
+                <meshStandardMaterial color="#4f904f" />
+              </mesh>
+              <mesh position={[hp[0] - 7.6, 0.35, hp[2] + 5]} rotation={[0, 0.8, -0.12]}>
+                <boxGeometry args={[0.06, 0.75, 0.06]} />
+                <meshStandardMaterial color="#458545" />
+              </mesh>
+            </group>
+          )}
 
           {/* ---- EARTHQUAKE TARGETS ---- */}
           <InteractionTarget
