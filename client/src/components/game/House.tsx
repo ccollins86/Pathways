@@ -203,41 +203,23 @@ export function House() {
           <meshStandardMaterial color="#8B6914" />
         </mesh>
       ))}
-      {/* Books on shelf (disappear when task done) */}
-      {!earthquakeTasks.booksInBag && (
-        <>
-          {[[-0.4, "#e74c3c"], [-0.2, "#3498db"], [0, "#2ecc71"], [0.2, "#9b59b6"], [0.4, "#f39c12"]].map(
-            ([xOff, color], i) => (
-              <mesh key={`book-${i}`} position={[hx + 2 + (xOff as number), 1.35, hz - 2.5]} castShadow>
-                <boxGeometry args={[0.12, 0.3, 0.35]} />
-                <meshStandardMaterial color={color as string} />
-              </mesh>
-            )
-          )}
-        </>
-      )}
-
-      {/* Brown bag on floor (always visible, fills up when books are in it) */}
-      <mesh position={[hx + 2, 0.2, hz - 1]} castShadow>
-        <boxGeometry args={[0.6, 0.4, 0.4]} />
-        <meshStandardMaterial color="#8B6914" />
+      {/* Gas pipe along wall */}
+      <mesh position={[hx + 2, 0.6, hz - 2.8]} castShadow>
+        <cylinderGeometry args={[0.06, 0.06, 1.2, 8]} />
+        <meshStandardMaterial color="#888888" metalness={0.6} roughness={0.3} />
       </mesh>
-      <Text position={[hx + 2, 0.5, hz - 0.78]} fontSize={0.12} color="#4a3000" anchorX="center">
-        Brown Bag
+      <mesh position={[hx + 2, 1.2, hz - 2.7]} castShadow rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.06, 0.06, 0.6, 8]} />
+        <meshStandardMaterial color="#888888" metalness={0.6} roughness={0.3} />
+      </mesh>
+      {/* Gas valve (red when open, green when shut off) */}
+      <mesh position={[hx + 2, 0.6, hz - 2.6]} castShadow>
+        <boxGeometry args={[0.15, 0.15, 0.08]} />
+        <meshStandardMaterial color={earthquakeTasks.gasShutOff ? "#4caf50" : "#f44336"} />
+      </mesh>
+      <Text position={[hx + 2, 0.3, hz - 2.5]} fontSize={0.1} color="#cccccc" anchorX="center">
+        {earthquakeTasks.gasShutOff ? "Gas: OFF" : "Gas Line"}
       </Text>
-      {/* Books in bag when task done */}
-      {earthquakeTasks.booksInBag && (
-        <group>
-          {[[-0.15, "#e74c3c"], [0, "#3498db"], [0.15, "#2ecc71"]].map(
-            ([xOff, color], i) => (
-              <mesh key={`bagbook-${i}`} position={[hx + 2 + (xOff as number), 0.45, hz - 1]} castShadow>
-                <boxGeometry args={[0.1, 0.15, 0.3]} />
-                <meshStandardMaterial color={color as string} />
-              </mesh>
-            )
-          )}
-        </group>
-      )}
 
       {/* Vegetation patches around house (disappear when cleared) */}
       {!wildfireTasks.vegetationCleared && (

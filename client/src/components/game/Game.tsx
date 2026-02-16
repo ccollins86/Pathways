@@ -81,7 +81,7 @@ export function Game() {
         },
         {
           speaker: "Dan",
-          text: "If it's an earthquake, please secure the furniture inside with safety straps and take items off the book shelf and put it in the brown bag on the floor.",
+          text: "If it's an earthquake, please secure the furniture inside with safety straps and shut off the gas lines with a wrench to prevent fires.",
         },
         {
           speaker: "Dan",
@@ -102,7 +102,7 @@ export function Game() {
           "Quick! Go to the house and spray the outside with flame retardant, then use a rake to clear out the vegetation around the house! The supplies are near the house.";
       } else if (knownDisaster === "earthquake") {
         instructions =
-          "Quick! Go inside the house and secure the furniture with safety straps, then take the books off the bookshelf and put them in the brown bag on the floor! You'll find what you need nearby.";
+          "Quick! Go inside the house and secure the furniture with safety straps, then shut off the gas lines with a wrench to prevent fires! You'll find what you need nearby.";
       }
       openDialogue("Dan", [
         {
@@ -381,8 +381,8 @@ export function Game() {
             playerPosition={playerPos}
           />
           <WorldItem
-            itemId="books"
-            itemType="book"
+            itemId="wrench"
+            itemType="wrench"
             position={[hp[0] - 13, 0, hp[2] + 3]}
             playerPosition={playerPos}
           />
@@ -537,18 +537,18 @@ export function Game() {
           />
           <InteractionTarget
             position={[hp[0] + 4, 0.1, hp[2] - 5]}
-            label="Store books safely"
-            requiredItem="book"
+            label="Shut off gas line"
+            requiredItem="wrench"
             interactRadius={3}
             playerPosition={playerPos}
             onUse={() =>
               knownDisaster === "earthquake"
-                ? completeEarthquakeTask("booksInBag")
-                : failQuest("You stored books in a bag, but a " + knownDisaster + " is coming, not an earthquake! This won't help.")
+                ? completeEarthquakeTask("gasShutOff")
+                : failQuest("You shut off the gas, but a " + knownDisaster + " is coming, not an earthquake! This won't help.")
             }
             onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={earthquakeTasks.booksInBag}
-            completedLabel="Books safely stored!"
+            completed={earthquakeTasks.gasShutOff}
+            completedLabel="Gas line shut off!"
           />
         </>
       )}

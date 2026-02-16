@@ -126,5 +126,5 @@ const ITEM_LABELS: Record<ItemType, string> = {
   flame_retardant: "Flame Retardant",
   rake: "Rake",
   safety_strap: "Safety Strap",
-  book: "Book",
+  wrench: "Wrench",
 };

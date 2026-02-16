@@ -18,7 +18,7 @@ const ITEM_CONFIGS: Record<ItemType, { label: string; color: string; shape: "box
   flame_retardant: { label: "Flame Retardant", color: "#2196F3", shape: "cylinder", size: [0.15, 0.5, 0.15] },
   rake: { label: "Rake", color: "#8B4513", shape: "cylinder", size: [0.06, 1.2, 0.06] },
   safety_strap: { label: "Safety Strap", color: "#ff6600", shape: "box", size: [0.4, 0.15, 0.15] },
-  book: { label: "Book", color: "#e74c3c", shape: "box", size: [0.3, 0.25, 0.2] },
+  wrench: { label: "Wrench", color: "#b0b0b0", shape: "box", size: [0.4, 0.12, 0.12] },
 };
 
 export function WorldItem({ itemId, itemType, position, playerPosition, pickupRadius = 2.5 }: WorldItemProps) {

@@ -10,7 +10,7 @@ export type ItemType =
   | "flame_retardant"
   | "rake"
   | "safety_strap"
-  | "book";
+  | "wrench";
 
 export interface CarriedItemInfo {
   type: ItemType;
@@ -36,7 +36,7 @@ interface WildfireTasks {
 
 interface EarthquakeTasks {
   furnitureStrapped: boolean;
-  booksInBag: boolean;
+  gasShutOff: boolean;
 }
 
 interface GameState {
@@ -111,7 +111,7 @@ export const useGame = create<GameState>()(
     },
     earthquakeTasks: {
       furnitureStrapped: false,
-      booksInBag: false,
+      gasShutOff: false,
     },
     questCompleted: false,
     questFailed: false,
@@ -152,7 +152,7 @@ export const useGame = create<GameState>()(
         },
         earthquakeTasks: {
           furnitureStrapped: false,
-          booksInBag: false,
+          gasShutOff: false,
         },
         questCompleted: false,
         questFailed: false,
@@ -268,7 +268,7 @@ export const useGame = create<GameState>()(
           wildfireTasks.houseSprayed && wildfireTasks.vegetationCleared;
       } else if (knownDisaster === "earthquake") {
         completed =
-          earthquakeTasks.furnitureStrapped && earthquakeTasks.booksInBag;
+          earthquakeTasks.furnitureStrapped && earthquakeTasks.gasShutOff;
       }
       if (completed) {
         set({ questCompleted: true });
