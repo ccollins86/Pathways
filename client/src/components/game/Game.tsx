@@ -447,10 +447,10 @@ export function Game() {
 
           {/* ---- WILDFIRE TARGETS ---- */}
           <InteractionTarget
-            position={[hp[0], 0.1, hp[2] + 4.5]}
+            position={[hp[0] + 5, 0.1, hp[2] + 3]}
             label="Spray house with flame retardant"
             requiredItem="flame_retardant"
-            interactRadius={4}
+            interactRadius={3}
             playerPosition={playerPos}
             onUse={() =>
               knownDisaster === "wildfire"
@@ -462,10 +462,10 @@ export function Game() {
             completedLabel="House sprayed!"
           />
           <InteractionTarget
-            position={[hp[0] - 5, 0.1, hp[2] + 2]}
+            position={[hp[0] - 6, 0.1, hp[2] + 5]}
             label="Clear vegetation with rake"
             requiredItem="rake"
-            interactRadius={4}
+            interactRadius={3}
             playerPosition={playerPos}
             onUse={() =>
               knownDisaster === "wildfire"
