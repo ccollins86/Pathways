@@ -28,6 +28,7 @@ export function Game() {
   const wildfireTasks = useGame((s) => s.wildfireTasks);
   const earthquakeTasks = useGame((s) => s.earthquakeTasks);
   const questCompleted = useGame((s) => s.questCompleted);
+  const questFailed = useGame((s) => s.questFailed);
 
   const setTalkedToDan = useGame((s) => s.setTalkedToDan);
   const setTalkedToBob = useGame((s) => s.setTalkedToBob);
@@ -38,6 +39,7 @@ export function Game() {
   const completeHurricaneTask = useGame((s) => s.completeHurricaneTask);
   const completeWildfireTask = useGame((s) => s.completeWildfireTask);
   const completeEarthquakeTask = useGame((s) => s.completeEarthquakeTask);
+  const failQuest = useGame((s) => s.failQuest);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
@@ -328,10 +330,10 @@ export function Game() {
         onInteract={handleLisaInteract}
       />
 
-      {/* === DISASTER TASK ITEMS & TARGETS === */}
-      {tasksActive && knownDisaster === "hurricane" && (
+      {/* === ALL DISASTER ITEMS & TARGETS (always visible when tasks active) === */}
+      {tasksActive && !questCompleted && !questFailed && (
         <>
-          {/* Sandbags to pick up - near the house */}
+          {/* ---- HURRICANE ITEMS ---- */}
           <WorldItem
             itemId="sandbag-front"
             itemType="sandbag"
@@ -344,8 +346,6 @@ export function Game() {
             position={[hp[0] + 7, 0, hp[2] - 2]}
             playerPosition={playerPos}
           />
-
-          {/* Wood boards to pick up */}
           <WorldItem
             itemId="board-w1"
             itemType="wood_board"
@@ -359,59 +359,13 @@ export function Game() {
             playerPosition={playerPos}
           />
 
-          {/* Interaction targets for placing sandbags */}
-          <InteractionTarget
-            position={[hp[0], 0.1, hp[2] + 4]}
-            label="Place sandbag at front door"
-            requiredItem="sandbag"
-            playerPosition={playerPos}
-            onUse={() => completeHurricaneTask("frontDoorSandbagged")}
-            completed={hurricaneTasks.frontDoorSandbagged}
-            completedLabel="Front door sandbagged!"
-          />
-          <InteractionTarget
-            position={[hp[0] + 2, 0.1, hp[2] - 4]}
-            label="Place sandbag at back door"
-            requiredItem="sandbag"
-            playerPosition={playerPos}
-            onUse={() => completeHurricaneTask("backDoorSandbagged")}
-            completed={hurricaneTasks.backDoorSandbagged}
-            completedLabel="Back door sandbagged!"
-          />
-
-          {/* Interaction targets for boarding windows */}
-          <InteractionTarget
-            position={[hp[0] - 5, 0.1, hp[2] - 0.5]}
-            label="Board up window 1"
-            requiredItem="wood_board"
-            playerPosition={playerPos}
-            onUse={() => completeHurricaneTask("window1Boarded")}
-            completed={hurricaneTasks.window1Boarded}
-            completedLabel="Window 1 boarded!"
-          />
-          <InteractionTarget
-            position={[hp[0] + 5, 0.1, hp[2] - 0.5]}
-            label="Board up window 2"
-            requiredItem="wood_board"
-            playerPosition={playerPos}
-            onUse={() => completeHurricaneTask("window2Boarded")}
-            completed={hurricaneTasks.window2Boarded}
-            completedLabel="Window 2 boarded!"
-          />
-        </>
-      )}
-
-      {tasksActive && knownDisaster === "wildfire" && (
-        <>
-          {/* Flame retardant bottle */}
+          {/* ---- WILDFIRE ITEMS ---- */}
           <WorldItem
             itemId="flame-retardant"
             itemType="flame_retardant"
             position={[hp[0] + 8, 0, hp[2]]}
             playerPosition={playerPos}
           />
-
-          {/* Rake */}
           <WorldItem
             itemId="rake"
             itemType="rake"
@@ -419,43 +373,13 @@ export function Game() {
             playerPosition={playerPos}
           />
 
-          {/* Spray house target */}
-          <InteractionTarget
-            position={[hp[0], 0.1, hp[2] + 4.5]}
-            label="Spray house with flame retardant"
-            requiredItem="flame_retardant"
-            interactRadius={4}
-            playerPosition={playerPos}
-            onUse={() => completeWildfireTask("houseSprayed")}
-            completed={wildfireTasks.houseSprayed}
-            completedLabel="House sprayed!"
-          />
-
-          {/* Clear vegetation target */}
-          <InteractionTarget
-            position={[hp[0] - 5, 0.1, hp[2]]}
-            label="Clear vegetation with rake"
-            requiredItem="rake"
-            interactRadius={4}
-            playerPosition={playerPos}
-            onUse={() => completeWildfireTask("vegetationCleared")}
-            completed={wildfireTasks.vegetationCleared}
-            completedLabel="Vegetation cleared!"
-          />
-        </>
-      )}
-
-      {tasksActive && knownDisaster === "earthquake" && (
-        <>
-          {/* Safety straps */}
+          {/* ---- EARTHQUAKE ITEMS ---- */}
           <WorldItem
             itemId="safety-strap"
             itemType="safety_strap"
-            position={[hp[0] + 7, 0, hp[2] + 2]}
+            position={[hp[0] - 8, 0, hp[2] + 2]}
             playerPosition={playerPos}
           />
-
-          {/* Book interaction - inside the house near bookshelf */}
           <WorldItem
             itemId="books"
             itemType="book"
@@ -464,26 +388,124 @@ export function Game() {
             pickupRadius={2}
           />
 
-          {/* Furniture strap target - at the cabinet */}
+          {/* ---- HURRICANE TARGETS ---- */}
+          <InteractionTarget
+            position={[hp[0], 0.1, hp[2] + 4]}
+            label="Place sandbag at front door"
+            requiredItem="sandbag"
+            playerPosition={playerPos}
+            onUse={() =>
+              knownDisaster === "hurricane"
+                ? completeHurricaneTask("frontDoorSandbagged")
+                : failQuest("You sandbagged the doors, but a " + knownDisaster + " is coming, not a hurricane! Sandbags won't help here.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+            completed={hurricaneTasks.frontDoorSandbagged}
+            completedLabel="Front door sandbagged!"
+          />
+          <InteractionTarget
+            position={[hp[0] + 2, 0.1, hp[2] - 4]}
+            label="Place sandbag at back door"
+            requiredItem="sandbag"
+            playerPosition={playerPos}
+            onUse={() =>
+              knownDisaster === "hurricane"
+                ? completeHurricaneTask("backDoorSandbagged")
+                : failQuest("You sandbagged the doors, but a " + knownDisaster + " is coming, not a hurricane! Sandbags won't help here.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+            completed={hurricaneTasks.backDoorSandbagged}
+            completedLabel="Back door sandbagged!"
+          />
+          <InteractionTarget
+            position={[hp[0] - 5, 0.1, hp[2] - 0.5]}
+            label="Board up window 1"
+            requiredItem="wood_board"
+            playerPosition={playerPos}
+            onUse={() =>
+              knownDisaster === "hurricane"
+                ? completeHurricaneTask("window1Boarded")
+                : failQuest("You boarded the windows, but a " + knownDisaster + " is coming, not a hurricane! Boarding windows won't help here.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+            completed={hurricaneTasks.window1Boarded}
+            completedLabel="Window 1 boarded!"
+          />
+          <InteractionTarget
+            position={[hp[0] + 5, 0.1, hp[2] - 0.5]}
+            label="Board up window 2"
+            requiredItem="wood_board"
+            playerPosition={playerPos}
+            onUse={() =>
+              knownDisaster === "hurricane"
+                ? completeHurricaneTask("window2Boarded")
+                : failQuest("You boarded the windows, but a " + knownDisaster + " is coming, not a hurricane! Boarding windows won't help here.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+            completed={hurricaneTasks.window2Boarded}
+            completedLabel="Window 2 boarded!"
+          />
+
+          {/* ---- WILDFIRE TARGETS ---- */}
+          <InteractionTarget
+            position={[hp[0], 0.1, hp[2] + 4.5]}
+            label="Spray house with flame retardant"
+            requiredItem="flame_retardant"
+            interactRadius={4}
+            playerPosition={playerPos}
+            onUse={() =>
+              knownDisaster === "wildfire"
+                ? completeWildfireTask("houseSprayed")
+                : failQuest("You sprayed flame retardant, but a " + knownDisaster + " is coming, not a wildfire! This won't help.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+            completed={wildfireTasks.houseSprayed}
+            completedLabel="House sprayed!"
+          />
+          <InteractionTarget
+            position={[hp[0] - 5, 0.1, hp[2] + 2]}
+            label="Clear vegetation with rake"
+            requiredItem="rake"
+            interactRadius={4}
+            playerPosition={playerPos}
+            onUse={() =>
+              knownDisaster === "wildfire"
+                ? completeWildfireTask("vegetationCleared")
+                : failQuest("You cleared vegetation, but a " + knownDisaster + " is coming, not a wildfire! This won't help.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+            completed={wildfireTasks.vegetationCleared}
+            completedLabel="Vegetation cleared!"
+          />
+
+          {/* ---- EARTHQUAKE TARGETS ---- */}
           <InteractionTarget
             position={[hp[0] - 2.5, 0.1, hp[2] - 2]}
             label="Strap furniture to wall"
             requiredItem="safety_strap"
             interactRadius={2.5}
             playerPosition={playerPos}
-            onUse={() => completeEarthquakeTask("furnitureStrapped")}
+            onUse={() =>
+              knownDisaster === "earthquake"
+                ? completeEarthquakeTask("furnitureStrapped")
+                : failQuest("You strapped the furniture, but a " + knownDisaster + " is coming, not an earthquake! This won't help.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
             completed={earthquakeTasks.furnitureStrapped}
             completedLabel="Furniture secured!"
           />
-
-          {/* Brown bag target - put books in bag */}
           <InteractionTarget
             position={[hp[0] + 2, 0.1, hp[2] - 1]}
             label="Put books in brown bag"
             requiredItem="book"
             interactRadius={2}
             playerPosition={playerPos}
-            onUse={() => completeEarthquakeTask("booksInBag")}
+            onUse={() =>
+              knownDisaster === "earthquake"
+                ? completeEarthquakeTask("booksInBag")
+                : failQuest("You stored books in a bag, but a " + knownDisaster + " is coming, not an earthquake! This won't help.")
+            }
+            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
             completed={earthquakeTasks.booksInBag}
             completedLabel="Books safely stored!"
           />

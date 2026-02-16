@@ -11,6 +11,7 @@ interface InteractionTargetProps {
   interactRadius?: number;
   playerPosition: THREE.Vector3;
   onUse: () => void;
+  onWrongUse?: () => void;
   completed: boolean;
   completedLabel?: string;
 }
@@ -22,6 +23,7 @@ export function InteractionTarget({
   interactRadius = 3,
   playerPosition,
   onUse,
+  onWrongUse,
   completed,
   completedLabel,
 }: InteractionTargetProps) {
@@ -29,6 +31,7 @@ export function InteractionTarget({
   const carriedItem = useGame((s) => s.carriedItem);
   const activeDialogue = useGame((s) => s.activeDialogue);
   const hasCorrectItem = carriedItem?.type === requiredItem;
+  const hasAnyItem = carriedItem !== null;
 
   useFrame(() => {
     if (completed) return;
@@ -42,16 +45,20 @@ export function InteractionTarget({
       if (
         (e.key === "e" || e.key === "E") &&
         isNear &&
-        hasCorrectItem &&
+        hasAnyItem &&
         !completed &&
         !activeDialogue
       ) {
-        onUse();
+        if (hasCorrectItem) {
+          onUse();
+        } else if (onWrongUse) {
+          onWrongUse();
+        }
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, hasCorrectItem, completed, activeDialogue, onUse]);
+  }, [isNear, hasCorrectItem, hasAnyItem, completed, activeDialogue, onUse, onWrongUse]);
 
   if (completed) {
     return completedLabel ? (
@@ -74,7 +81,7 @@ export function InteractionTarget({
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[position[0], 0.03, position[2]]}>
         <ringGeometry args={[interactRadius - 0.15, interactRadius, 32]} />
         <meshBasicMaterial
-          color={isNear && hasCorrectItem ? "#66bb6a" : isNear ? "#ff9800" : "#ffffff"}
+          color={isNear && hasCorrectItem ? "#66bb6a" : isNear && hasAnyItem ? "#ff9800" : isNear ? "#ff9800" : "#ffffff"}
           transparent
           opacity={isNear ? 0.3 : 0.1}
         />
@@ -84,13 +91,13 @@ export function InteractionTarget({
         <Text
           position={[position[0], position[1] + 0.8, position[2]]}
           fontSize={0.18}
-          color={hasCorrectItem ? "#66bb6a" : "#ff9800"}
+          color={hasCorrectItem ? "#66bb6a" : hasAnyItem ? "#ff9800" : "#aaaaaa"}
           anchorX="center"
           anchorY="middle"
           outlineWidth={0.02}
           outlineColor="#000000"
         >
-          {hasCorrectItem
+          {hasAnyItem
             ? `Press E to ${label}`
             : `Need: ${ITEM_LABELS[requiredItem]}`}
         </Text>

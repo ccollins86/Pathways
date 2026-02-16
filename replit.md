@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-16: Added wrong-choice failure mechanic - all items from all disasters now spawn, using wrong items fails the quest
 - 2026-02-16: Initial build of the game with full quest flow, NPC interactions, and dialogue system
 
 ## Project Architecture
@@ -27,11 +28,20 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/components/game/Lights.tsx` - Scene lighting
 - `client/src/components/game/Sky.tsx` - Sky color and fog
 
+### Key Files (continued)
+- `client/src/components/game/WorldItem.tsx` - Pickupable items with unique IDs, consumed tracking
+- `client/src/components/game/InteractionTarget.tsx` - Use-item-at-location targets with correct/wrong item handling
+- `client/src/components/game/House.tsx` - House with interior, exports HOUSE_POS constant
+
 ### Game Flow
 1. Start screen -> click "Start Game"
 2. Player talks to Dan at USC stand -> Dan explains disaster prep instructions for 3 types
 3. Player finds Bob -> Bob reveals which random disaster is coming
 4. Player reports back to Dan -> Dan gives specific prep instructions
+5. ALL items from ALL disasters spawn around the house
+6. Player must pick correct items and use them at correct targets
+7. Using wrong items or doing wrong disaster prep = quest failure
+8. Completing all correct tasks = quest success
 
 ### NPCs
 - **Dan** (USC stand) - Quest giver, disaster prep instructions

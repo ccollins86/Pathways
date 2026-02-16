@@ -56,6 +56,8 @@ interface GameState {
   wildfireTasks: WildfireTasks;
   earthquakeTasks: EarthquakeTasks;
   questCompleted: boolean;
+  questFailed: boolean;
+  failReason: string | null;
   tasksActive: boolean;
 
   start: () => void;
@@ -76,6 +78,7 @@ interface GameState {
   completeHurricaneTask: (task: keyof HurricaneTasks) => void;
   completeWildfireTask: (task: keyof WildfireTasks) => void;
   completeEarthquakeTask: (task: keyof EarthquakeTasks) => void;
+  failQuest: (reason: string) => void;
   activateTasks: () => void;
   checkQuestCompletion: () => void;
 }
@@ -111,6 +114,8 @@ export const useGame = create<GameState>()(
       booksInBag: false,
     },
     questCompleted: false,
+    questFailed: false,
+    failReason: null,
     tasksActive: false,
 
     start: () => {
@@ -150,6 +155,8 @@ export const useGame = create<GameState>()(
           booksInBag: false,
         },
         questCompleted: false,
+        questFailed: false,
+        failReason: null,
         tasksActive: false,
       }));
     },
@@ -231,6 +238,18 @@ export const useGame = create<GameState>()(
         consumedItems: newConsumed,
       }));
       setTimeout(() => get().checkQuestCompletion(), 0);
+    },
+
+    failQuest: (reason: string) => {
+      const { carriedItem, consumedItems } = get();
+      const newConsumed = new Set(consumedItems);
+      if (carriedItem) newConsumed.add(carriedItem.id);
+      set({
+        questFailed: true,
+        failReason: reason,
+        carriedItem: null,
+        consumedItems: newConsumed,
+      });
     },
 
     activateTasks: () => set({ tasksActive: true }),

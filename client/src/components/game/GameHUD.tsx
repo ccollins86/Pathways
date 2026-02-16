@@ -21,12 +21,17 @@ export function GameHUD() {
   const wildfireTasks = useGame((s) => s.wildfireTasks);
   const earthquakeTasks = useGame((s) => s.earthquakeTasks);
   const questCompleted = useGame((s) => s.questCompleted);
+  const questFailed = useGame((s) => s.questFailed);
+  const failReason = useGame((s) => s.failReason);
   const dropItem = useGame((s) => s.dropItem);
+  const restart = useGame((s) => s.restart);
 
   if (activeDialogue) return null;
 
   let objective = "Find Dan at the USC Apparel stand and talk to him.";
-  if (questCompleted) {
+  if (questFailed) {
+    objective = "Quest Failed! You made the wrong preparation choice.";
+  } else if (questCompleted) {
     objective = "Quest Complete! You successfully prepared for the disaster!";
   } else if (tasksActive && knownDisaster) {
     if (knownDisaster === "hurricane") {
@@ -76,6 +81,70 @@ export function GameHUD() {
           <div style={{ fontSize: 14, marginTop: 12, opacity: 0.7 }}>
             Being prepared for natural disasters saves lives.
           </div>
+          <div
+            onClick={restart}
+            style={{
+              marginTop: 20,
+              padding: "10px 28px",
+              background: "#66bb6a",
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Play Again
+          </div>
+        </div>
+      )}
+
+      {/* Quest failed banner */}
+      {questFailed && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(120, 0, 0, 0.92)",
+            borderRadius: 16,
+            padding: "32px 48px",
+            color: "white",
+            fontFamily: "'Inter', sans-serif",
+            zIndex: 150,
+            textAlign: "center",
+            border: "3px solid #ef5350",
+            boxShadow: "0 0 40px rgba(239, 83, 80, 0.5)",
+            maxWidth: 440,
+          }}
+        >
+          <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
+            Quest Failed!
+          </div>
+          <div style={{ fontSize: 16, lineHeight: 1.6, opacity: 0.9 }}>
+            {failReason}
+          </div>
+          <div style={{ fontSize: 14, marginTop: 12, opacity: 0.7 }}>
+            Remember: match your preparations to the specific disaster that's coming!
+          </div>
+          <div
+            onClick={restart}
+            style={{
+              marginTop: 20,
+              padding: "10px 28px",
+              background: "#ef5350",
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Try Again
+          </div>
         </div>
       )}
 
@@ -99,13 +168,13 @@ export function GameHUD() {
           style={{
             fontSize: 11,
             fontWeight: 700,
-            color: questCompleted ? "#66bb6a" : "#ffeb3b",
+            color: questFailed ? "#ef5350" : questCompleted ? "#66bb6a" : "#ffeb3b",
             textTransform: "uppercase",
             letterSpacing: 1,
             marginBottom: 4,
           }}
         >
-          {questCompleted ? "Completed" : "Objective"}
+          {questFailed ? "Failed" : questCompleted ? "Completed" : "Objective"}
         </div>
         <div style={{ fontSize: 14, lineHeight: 1.5 }}>{objective}</div>
       </div>
