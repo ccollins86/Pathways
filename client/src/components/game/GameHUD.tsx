@@ -61,7 +61,7 @@ export function GameHUD() {
   return (
     <>
       {/* Quest completed banner / lesson */}
-      {questCompleted && !showLesson && (
+      {questCompleted && !showLesson && !practiceUnlocked && (
         <div
           style={{
             position: "absolute",
