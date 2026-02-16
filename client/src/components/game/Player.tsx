@@ -1,7 +1,8 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
+import { useGame } from "@/lib/stores/useGame";
 
 enum Controls {
   forward = "forward",
@@ -18,6 +19,18 @@ export function Player({ onPositionUpdate }: PlayerProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [, getKeys] = useKeyboardControls<Controls>();
   const speed = 8;
+  const dropItem = useGame((s) => s.dropItem);
+  const activeDialogue = useGame((s) => s.activeDialogue);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.key === "q" || e.key === "Q") && !activeDialogue) {
+        dropItem();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [dropItem, activeDialogue]);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;

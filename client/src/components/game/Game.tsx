@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import * as THREE from "three";
 import { Ground } from "./Ground";
 import { Lights } from "./Lights";
@@ -8,7 +8,10 @@ import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { USCStand } from "./USCStand";
-import { useGame, DisasterType } from "@/lib/stores/useGame";
+import { House, getHousePosition } from "./House";
+import { WorldItem } from "./WorldItem";
+import { InteractionTarget } from "./InteractionTarget";
+import { useGame } from "@/lib/stores/useGame";
 
 export function Game() {
   const [playerPos, setPlayerPos] = useState(new THREE.Vector3(0, 0, 5));
@@ -17,18 +20,43 @@ export function Game() {
   const talkedToDan = useGame((s) => s.talkedToDan);
   const talkedToBob = useGame((s) => s.talkedToBob);
   const knownDisaster = useGame((s) => s.knownDisaster);
+  const reportedToDan = useGame((s) => s.reportedToDan);
   const activeDialogue = useGame((s) => s.activeDialogue);
+  const tasksActive = useGame((s) => s.tasksActive);
+  const carriedItem = useGame((s) => s.carriedItem);
+  const hurricaneTasks = useGame((s) => s.hurricaneTasks);
+  const wildfireTasks = useGame((s) => s.wildfireTasks);
+  const earthquakeTasks = useGame((s) => s.earthquakeTasks);
+  const questCompleted = useGame((s) => s.questCompleted);
+
   const setTalkedToDan = useGame((s) => s.setTalkedToDan);
   const setTalkedToBob = useGame((s) => s.setTalkedToBob);
   const setKnownDisaster = useGame((s) => s.setKnownDisaster);
+  const setReportedToDan = useGame((s) => s.setReportedToDan);
   const openDialogue = useGame((s) => s.openDialogue);
+  const activateTasks = useGame((s) => s.activateTasks);
+  const completeHurricaneTask = useGame((s) => s.completeHurricaneTask);
+  const completeWildfireTask = useGame((s) => s.completeWildfireTask);
+  const completeEarthquakeTask = useGame((s) => s.completeEarthquakeTask);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
   }, []);
 
+  const hp = getHousePosition();
+
   const handleDanInteract = useCallback(() => {
     if (activeDialogue) return;
+
+    if (questCompleted) {
+      openDialogue("Dan", [
+        {
+          speaker: "Dan",
+          text: "Amazing work! You've completed all the preparations. The town is much safer now thanks to you! Being prepared for natural disasters saves lives!",
+        },
+      ]);
+      return;
+    }
 
     if (!talkedToDan) {
       setTalkedToDan();
@@ -58,19 +86,21 @@ export function Game() {
           text: "Please hurry and find out! Go talk to Bob - he usually hangs out on the other side of town.",
         },
       ]);
-    } else if (talkedToBob && knownDisaster) {
+    } else if (talkedToBob && knownDisaster && !reportedToDan) {
+      setReportedToDan();
+      activateTasks();
       const disasterName =
         knownDisaster.charAt(0).toUpperCase() + knownDisaster.slice(1);
       let instructions = "";
       if (knownDisaster === "hurricane") {
         instructions =
-          "Quick! Board up the windows and put sandbags in front of the front and back doors! That should help protect the house from the storm surge and strong winds.";
+          "Quick! Go to the house and board up the windows with wood boards, and put sandbags in front of the front and back doors! You'll find the supplies nearby.";
       } else if (knownDisaster === "wildfire") {
         instructions =
-          "Quick! Spray the outside of the house with flame retardant and clear out the vegetation around the house with a rake! Creating that defensible space is crucial.";
+          "Quick! Go to the house and spray the outside with flame retardant, then use a rake to clear out the vegetation around the house! The supplies are near the house.";
       } else if (knownDisaster === "earthquake") {
         instructions =
-          "Quick! Secure the furniture inside with safety straps and take items off the book shelf and put them in the brown bag on the floor! We need to prevent things from falling during the shaking.";
+          "Quick! Go inside the house and secure the furniture with safety straps, then take the books off the bookshelf and put them in the brown bag on the floor! You'll find what you need nearby.";
       }
       openDialogue("Dan", [
         {
@@ -87,7 +117,14 @@ export function Game() {
         },
         {
           speaker: "Dan",
-          text: "Thanks for your help! Now we know how to prepare. Being ready for natural disasters can save lives!",
+          text: "The house is to the west of here - head that way and get to work! You can do this!",
+        },
+      ]);
+    } else if (reportedToDan && !questCompleted) {
+      openDialogue("Dan", [
+        {
+          speaker: "Dan",
+          text: "Go to the house and finish preparing! Pick up the items you need and use them at the right spots. You've got this!",
         },
       ]);
     } else {
@@ -103,7 +140,11 @@ export function Game() {
     talkedToDan,
     talkedToBob,
     knownDisaster,
+    reportedToDan,
+    questCompleted,
     setTalkedToDan,
+    setReportedToDan,
+    activateTasks,
     openDialogue,
   ]);
 
@@ -133,7 +174,7 @@ export function Game() {
         },
         {
           speaker: "Bob",
-          text: "Hurry back to Dan and let him know! He'll know what to do to prepare.",
+          text: "Hurry back to Dan and let him know! He'll tell you what to do.",
         },
       ]);
     } else {
@@ -142,7 +183,7 @@ export function Game() {
       openDialogue("Bob", [
         {
           speaker: "Bob",
-          text: `Remember, it's a ${disasterName} coming tonight! Make sure Dan is preparing properly!`,
+          text: `Remember, it's a ${disasterName} coming tonight! Make sure the preparations are done!`,
         },
       ]);
     }
@@ -232,6 +273,7 @@ export function Game() {
       <Ground />
       <Environment />
       <USCStand />
+      <House />
 
       <Player onPositionUpdate={handlePositionUpdate} />
       <FollowCamera playerPosition={playerPos} />
@@ -285,6 +327,176 @@ export function Game() {
         playerPosition={playerPos}
         onInteract={handleLisaInteract}
       />
+
+      {/* === DISASTER TASK ITEMS & TARGETS === */}
+      {tasksActive && knownDisaster === "hurricane" && (
+        <>
+          {/* Sandbags to pick up - near the house */}
+          {!hurricaneTasks.frontDoorSandbagged && (
+            <WorldItem
+              itemType="sandbag"
+              position={[hp[0] + 7, 0, hp[2] + 2]}
+              playerPosition={playerPos}
+            />
+          )}
+          {!hurricaneTasks.backDoorSandbagged && (
+            <WorldItem
+              itemType="sandbag"
+              position={[hp[0] + 7, 0, hp[2] - 2]}
+              playerPosition={playerPos}
+            />
+          )}
+
+          {/* Wood boards to pick up */}
+          {!hurricaneTasks.window1Boarded && (
+            <WorldItem
+              itemType="wood_board"
+              position={[hp[0] - 7, 0, hp[2] + 3]}
+              playerPosition={playerPos}
+            />
+          )}
+          {!hurricaneTasks.window2Boarded && (
+            <WorldItem
+              itemType="wood_board"
+              position={[hp[0] - 7, 0, hp[2] - 3]}
+              playerPosition={playerPos}
+            />
+          )}
+
+          {/* Interaction targets for placing sandbags */}
+          <InteractionTarget
+            position={[hp[0], 0.1, hp[2] + 4]}
+            label="Place sandbag at front door"
+            requiredItem="sandbag"
+            playerPosition={playerPos}
+            onUse={() => completeHurricaneTask("frontDoorSandbagged")}
+            completed={hurricaneTasks.frontDoorSandbagged}
+            completedLabel="Front door sandbagged!"
+          />
+          <InteractionTarget
+            position={[hp[0] + 2, 0.1, hp[2] - 4]}
+            label="Place sandbag at back door"
+            requiredItem="sandbag"
+            playerPosition={playerPos}
+            onUse={() => completeHurricaneTask("backDoorSandbagged")}
+            completed={hurricaneTasks.backDoorSandbagged}
+            completedLabel="Back door sandbagged!"
+          />
+
+          {/* Interaction targets for boarding windows */}
+          <InteractionTarget
+            position={[hp[0] - 5, 0.1, hp[2] - 0.5]}
+            label="Board up window 1"
+            requiredItem="wood_board"
+            playerPosition={playerPos}
+            onUse={() => completeHurricaneTask("window1Boarded")}
+            completed={hurricaneTasks.window1Boarded}
+            completedLabel="Window 1 boarded!"
+          />
+          <InteractionTarget
+            position={[hp[0] + 5, 0.1, hp[2] - 0.5]}
+            label="Board up window 2"
+            requiredItem="wood_board"
+            playerPosition={playerPos}
+            onUse={() => completeHurricaneTask("window2Boarded")}
+            completed={hurricaneTasks.window2Boarded}
+            completedLabel="Window 2 boarded!"
+          />
+        </>
+      )}
+
+      {tasksActive && knownDisaster === "wildfire" && (
+        <>
+          {/* Flame retardant bottle */}
+          {!wildfireTasks.houseSprayed && (
+            <WorldItem
+              itemType="flame_retardant"
+              position={[hp[0] + 8, 0, hp[2]]}
+              playerPosition={playerPos}
+            />
+          )}
+
+          {/* Rake */}
+          {!wildfireTasks.vegetationCleared && (
+            <WorldItem
+              itemType="rake"
+              position={[hp[0] + 8, 0, hp[2] + 4]}
+              playerPosition={playerPos}
+            />
+          )}
+
+          {/* Spray house target */}
+          <InteractionTarget
+            position={[hp[0], 0.1, hp[2] + 4.5]}
+            label="Spray house with flame retardant"
+            requiredItem="flame_retardant"
+            interactRadius={4}
+            playerPosition={playerPos}
+            onUse={() => completeWildfireTask("houseSprayed")}
+            completed={wildfireTasks.houseSprayed}
+            completedLabel="House sprayed!"
+          />
+
+          {/* Clear vegetation target */}
+          <InteractionTarget
+            position={[hp[0] - 5, 0.1, hp[2]]}
+            label="Clear vegetation with rake"
+            requiredItem="rake"
+            interactRadius={4}
+            playerPosition={playerPos}
+            onUse={() => completeWildfireTask("vegetationCleared")}
+            completed={wildfireTasks.vegetationCleared}
+            completedLabel="Vegetation cleared!"
+          />
+        </>
+      )}
+
+      {tasksActive && knownDisaster === "earthquake" && (
+        <>
+          {/* Safety straps */}
+          {!earthquakeTasks.furnitureStrapped && (
+            <WorldItem
+              itemType="safety_strap"
+              position={[hp[0] + 7, 0, hp[2] + 2]}
+              playerPosition={playerPos}
+            />
+          )}
+
+          {/* Book interaction - inside the house near bookshelf */}
+          {!earthquakeTasks.booksInBag && (
+            <WorldItem
+              itemType="book"
+              position={[hp[0] + 2, 0.3, hp[2] - 1.5]}
+              playerPosition={playerPos}
+              pickupRadius={2}
+            />
+          )}
+
+          {/* Furniture strap target - at the cabinet */}
+          <InteractionTarget
+            position={[hp[0] - 2.5, 0.1, hp[2] - 2]}
+            label="Strap furniture to wall"
+            requiredItem="safety_strap"
+            interactRadius={2.5}
+            playerPosition={playerPos}
+            onUse={() => completeEarthquakeTask("furnitureStrapped")}
+            completed={earthquakeTasks.furnitureStrapped}
+            completedLabel="Furniture secured!"
+          />
+
+          {/* Brown bag target - put books in bag */}
+          <InteractionTarget
+            position={[hp[0] + 2, 0.1, hp[2] - 1]}
+            label="Put books in brown bag"
+            requiredItem="book"
+            interactRadius={2}
+            playerPosition={playerPos}
+            onUse={() => completeEarthquakeTask("booksInBag")}
+            completed={earthquakeTasks.booksInBag}
+            completedLabel="Books safely stored!"
+          />
+        </>
+      )}
     </>
   );
 }
