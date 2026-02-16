@@ -79,12 +79,12 @@ export function WorldItem({ itemId, itemType, position, playerPosition, pickupRa
       )}
 
       <Text
-        position={[0, 0.5, 0]}
-        fontSize={0.2}
+        position={[0, 0.6, 0]}
+        fontSize={0.35}
         color="white"
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.02}
+        outlineWidth={0.03}
         outlineColor="#000000"
       >
         {config.label}
@@ -92,12 +92,12 @@ export function WorldItem({ itemId, itemType, position, playerPosition, pickupRa
 
       {isNear && !carriedItem && (
         <Text
-          position={[0, 0.8, 0]}
-          fontSize={0.15}
+          position={[0, 1.1, 0]}
+          fontSize={0.28}
           color="#ffeb3b"
           anchorX="center"
           anchorY="middle"
-          outlineWidth={0.02}
+          outlineWidth={0.03}
           outlineColor="#000000"
         >
           Press E to pick up
@@ -105,11 +105,11 @@ export function WorldItem({ itemId, itemType, position, playerPosition, pickupRa
       )}
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.28, 0]}>
-        <ringGeometry args={[pickupRadius - 0.1, pickupRadius, 32]} />
+        <ringGeometry args={[0.9, 1.0, 32]} />
         <meshBasicMaterial
           color={isNear ? "#ffeb3b" : "#ffffff"}
           transparent
-          opacity={isNear ? 0.2 : 0.05}
+          opacity={isNear ? 0.25 : 0.08}
         />
       </mesh>
     </group>

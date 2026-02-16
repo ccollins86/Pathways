@@ -60,15 +60,17 @@ export function InteractionTarget({
     return () => window.removeEventListener("keydown", handleKey);
   }, [isNear, hasCorrectItem, hasAnyItem, completed, activeDialogue, onUse, onWrongUse]);
 
+  const ringRadius = Math.min(interactRadius, 1.5);
+
   if (completed) {
     return completedLabel ? (
       <Text
-        position={[position[0], position[1] + 0.5, position[2]]}
-        fontSize={0.18}
+        position={[position[0], position[1] + 0.8, position[2]]}
+        fontSize={0.35}
         color="#66bb6a"
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.02}
+        outlineWidth={0.03}
         outlineColor="#000000"
       >
         {completedLabel}
@@ -79,7 +81,7 @@ export function InteractionTarget({
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[position[0], 0.03, position[2]]}>
-        <ringGeometry args={[interactRadius - 0.15, interactRadius, 32]} />
+        <ringGeometry args={[ringRadius - 0.1, ringRadius, 32]} />
         <meshBasicMaterial
           color={isNear && hasCorrectItem ? "#66bb6a" : isNear && hasAnyItem ? "#ff9800" : isNear ? "#ff9800" : "#ffffff"}
           transparent
@@ -87,18 +89,30 @@ export function InteractionTarget({
         />
       </mesh>
 
+      <Text
+        position={[position[0], position[1] + 0.6, position[2]]}
+        fontSize={0.3}
+        color={isNear ? (hasCorrectItem ? "#66bb6a" : hasAnyItem ? "#ff9800" : "#ffffff") : "#cccccc"}
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.03}
+        outlineColor="#000000"
+      >
+        {label}
+      </Text>
+
       {isNear && (
         <Text
-          position={[position[0], position[1] + 0.8, position[2]]}
-          fontSize={0.18}
+          position={[position[0], position[1] + 1.1, position[2]]}
+          fontSize={0.28}
           color={hasCorrectItem ? "#66bb6a" : hasAnyItem ? "#ff9800" : "#aaaaaa"}
           anchorX="center"
           anchorY="middle"
-          outlineWidth={0.02}
+          outlineWidth={0.03}
           outlineColor="#000000"
         >
           {hasAnyItem
-            ? `Press E to ${label}`
+            ? "Press E to use item"
             : `Need: ${ITEM_LABELS[requiredItem]}`}
         </Text>
       )}
