@@ -6,7 +6,7 @@ const ITEM_LABELS: Record<string, string> = {
   flame_retardant: "Flame Retardant",
   rake: "Rake",
   safety_strap: "Safety Strap",
-  book: "Book",
+  wrench: "Wrench",
 };
 
 export function GameHUD() {
@@ -39,7 +39,7 @@ export function GameHUD() {
     } else if (knownDisaster === "wildfire") {
       objective = "Prepare for the Wildfire! Spray house and clear vegetation.";
     } else if (knownDisaster === "earthquake") {
-      objective = "Prepare for the Earthquake! Strap furniture and secure books.";
+      objective = "Prepare for the Earthquake! Strap furniture and shut off gas lines.";
     }
   } else if (talkedToDan && talkedToBob && knownDisaster && !reportedToDan) {
     const disasterName =
@@ -369,10 +369,10 @@ export function GameHUD() {
               </div>
               <div
                 style={{
-                  color: earthquakeTasks.booksInBag ? "#66bb6a" : "white",
+                  color: earthquakeTasks.gasShutOff ? "#66bb6a" : "white",
                 }}
               >
-                {earthquakeTasks.booksInBag ? "✓" : "○"} Put books in brown bag
+                {earthquakeTasks.gasShutOff ? "✓" : "○"} Shut off gas lines
               </div>
             </>
           )}
