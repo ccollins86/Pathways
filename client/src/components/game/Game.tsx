@@ -337,25 +337,25 @@ export function Game() {
           <WorldItem
             itemId="sandbag-front"
             itemType="sandbag"
-            position={[hp[0] + 7, 0, hp[2] + 2]}
+            position={[hp[0] + 10, 0, hp[2] + 6]}
             playerPosition={playerPos}
           />
           <WorldItem
             itemId="sandbag-back"
             itemType="sandbag"
-            position={[hp[0] + 7, 0, hp[2] - 2]}
+            position={[hp[0] + 12, 0, hp[2] - 4]}
             playerPosition={playerPos}
           />
           <WorldItem
             itemId="board-w1"
             itemType="wood_board"
-            position={[hp[0] - 7, 0, hp[2] + 3]}
+            position={[hp[0] - 10, 0, hp[2] + 8]}
             playerPosition={playerPos}
           />
           <WorldItem
             itemId="board-w2"
             itemType="wood_board"
-            position={[hp[0] - 7, 0, hp[2] - 3]}
+            position={[hp[0] - 12, 0, hp[2] - 5]}
             playerPosition={playerPos}
           />
 
@@ -363,13 +363,13 @@ export function Game() {
           <WorldItem
             itemId="flame-retardant"
             itemType="flame_retardant"
-            position={[hp[0] + 8, 0, hp[2]]}
+            position={[hp[0] + 14, 0, hp[2] + 1]}
             playerPosition={playerPos}
           />
           <WorldItem
             itemId="rake"
             itemType="rake"
-            position={[hp[0] + 8, 0, hp[2] + 4]}
+            position={[hp[0] - 8, 0, hp[2] - 9]}
             playerPosition={playerPos}
           />
 
@@ -377,15 +377,14 @@ export function Game() {
           <WorldItem
             itemId="safety-strap"
             itemType="safety_strap"
-            position={[hp[0] - 8, 0, hp[2] + 2]}
+            position={[hp[0] + 8, 0, hp[2] - 8]}
             playerPosition={playerPos}
           />
           <WorldItem
             itemId="books"
             itemType="book"
-            position={[hp[0] + 2, 0.3, hp[2] - 1.5]}
+            position={[hp[0] - 13, 0, hp[2] + 3]}
             playerPosition={playerPos}
-            pickupRadius={2}
           />
 
           {/* ---- HURRICANE TARGETS ---- */}
@@ -480,10 +479,10 @@ export function Game() {
 
           {/* ---- EARTHQUAKE TARGETS ---- */}
           <InteractionTarget
-            position={[hp[0] - 2.5, 0.1, hp[2] - 2]}
+            position={[hp[0] - 3, 0.1, hp[2] + 1]}
             label="Strap furniture to wall"
             requiredItem="safety_strap"
-            interactRadius={2.5}
+            interactRadius={3.5}
             playerPosition={playerPos}
             onUse={() =>
               knownDisaster === "earthquake"
@@ -495,10 +494,10 @@ export function Game() {
             completedLabel="Furniture secured!"
           />
           <InteractionTarget
-            position={[hp[0] + 2, 0.1, hp[2] - 1]}
+            position={[hp[0] + 3, 0.1, hp[2] + 1]}
             label="Put books in brown bag"
             requiredItem="book"
-            interactRadius={2}
+            interactRadius={3}
             playerPosition={playerPos}
             onUse={() =>
               knownDisaster === "earthquake"
