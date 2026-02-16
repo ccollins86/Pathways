@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useGame } from "@/lib/stores/useGame";
 
 const ITEM_LABELS: Record<string, string> = {
@@ -26,6 +27,8 @@ export function GameHUD() {
   const dropItem = useGame((s) => s.dropItem);
   const restart = useGame((s) => s.restart);
 
+  const [showLesson, setShowLesson] = useState(false);
+
   if (activeDialogue) return null;
 
   let objective = "Find Dan at the USC Apparel stand and talk to him.";
@@ -51,8 +54,8 @@ export function GameHUD() {
 
   return (
     <>
-      {/* Quest completed banner */}
-      {questCompleted && (
+      {/* Quest completed banner / lesson */}
+      {questCompleted && !showLesson && (
         <div
           style={{
             position: "absolute",
@@ -82,20 +85,153 @@ export function GameHUD() {
             Being prepared for natural disasters saves lives.
           </div>
           <div
-            onClick={restart}
+            onClick={() => setShowLesson(true)}
             style={{
               marginTop: 20,
-              padding: "10px 28px",
-              background: "#66bb6a",
+              padding: "12px 32px",
+              background: "#4fc3f7",
               border: "none",
               borderRadius: 8,
-              color: "white",
+              color: "#0d47a1",
               fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
             }}
           >
-            Play Again
+            View Programming Lesson
+          </div>
+        </div>
+      )}
+
+      {questCompleted && showLesson && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(13, 25, 48, 0.96)",
+            borderRadius: 16,
+            padding: "28px 36px",
+            color: "white",
+            fontFamily: "'Inter', sans-serif",
+            zIndex: 150,
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
+            maxWidth: 580,
+            maxHeight: "85vh",
+            overflowY: "auto",
+          }}
+        >
+          <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#4fc3f7" }}>
+            Branching Statements in Programming
+          </div>
+          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+            In this quest, you found out that a <strong style={{ color: "#ffeb3b" }}>{knownDisaster}</strong> was coming.
+            Even though items for <em>all three</em> disasters were available, you only performed the tasks
+            for the {knownDisaster}. You ignored the other items because they didn't match the situation.
+          </div>
+          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+            This is exactly how <strong style={{ color: "#4fc3f7" }}>if / else-if / else</strong> statements
+            work in programming! The computer checks each condition in order, and <em>only executes the
+            code block</em> where the condition is true. The other blocks are skipped entirely — just like
+            how you skipped the preparations for the other disasters.
+          </div>
+
+          <div
+            style={{
+              background: "rgba(0, 0, 0, 0.5)",
+              borderRadius: 8,
+              padding: "16px 20px",
+              fontFamily: "'Courier New', monospace",
+              fontSize: 13,
+              lineHeight: 1.8,
+              marginBottom: 16,
+              border: "1px solid rgba(79, 195, 247, 0.3)",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            <span style={{ color: "#c792ea" }}>if</span>
+            <span style={{ color: "#89ddff" }}> (</span>
+            <span style={{ color: "#f78c6c" }}>disaster</span>
+            <span style={{ color: "#89ddff" }}> === </span>
+            <span style={{ color: "#c3e88d" }}>"hurricane"</span>
+            <span style={{ color: "#89ddff" }}>)</span>
+            <span style={{ color: knownDisaster === "hurricane" ? "#c3e88d" : "#546e7a" }}>{" {\n"}
+            {"  "}sandBagDoors();{"\n"}
+            {"  "}boardUpWindows();{"\n"}
+            {"}"}</span>
+            {"\n"}
+            <span style={{ color: "#c792ea" }}>else if</span>
+            <span style={{ color: "#89ddff" }}> (</span>
+            <span style={{ color: "#f78c6c" }}>disaster</span>
+            <span style={{ color: "#89ddff" }}> === </span>
+            <span style={{ color: "#c3e88d" }}>"wildfire"</span>
+            <span style={{ color: "#89ddff" }}>)</span>
+            <span style={{ color: knownDisaster === "wildfire" ? "#c3e88d" : "#546e7a" }}>{" {\n"}
+            {"  "}sprayFlameRetardant();{"\n"}
+            {"  "}clearVegetation();{"\n"}
+            {"}"}</span>
+            {"\n"}
+            <span style={{ color: "#c792ea" }}>else if</span>
+            <span style={{ color: "#89ddff" }}> (</span>
+            <span style={{ color: "#f78c6c" }}>disaster</span>
+            <span style={{ color: "#89ddff" }}> === </span>
+            <span style={{ color: "#c3e88d" }}>"earthquake"</span>
+            <span style={{ color: "#89ddff" }}>)</span>
+            <span style={{ color: knownDisaster === "earthquake" ? "#c3e88d" : "#546e7a" }}>{" {\n"}
+            {"  "}strapFurniture();{"\n"}
+            {"  "}shutOffGasLines();{"\n"}
+            {"}"}</span>
+          </div>
+
+          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+            {knownDisaster === "hurricane" && (
+              <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"hurricane"</strong>, only the first block ran — sandbagging doors and boarding windows. The wildfire and earthquake blocks were skipped, just like you skipped those items in the game!</>
+            )}
+            {knownDisaster === "wildfire" && (
+              <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"wildfire"</strong>, only the second block ran — spraying flame retardant and clearing vegetation. The hurricane and earthquake blocks were skipped, just like you skipped those items in the game!</>
+            )}
+            {knownDisaster === "earthquake" && (
+              <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"earthquake"</strong>, only the third block ran — strapping furniture and shutting off gas lines. The hurricane and wildfire blocks were skipped, just like you skipped those items in the game!</>
+            )}
+          </div>
+
+          <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+            Only one branch executes — the first one whose condition is true. The rest are ignored.
+          </div>
+
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <div
+              onClick={() => setShowLesson(false)}
+              style={{
+                padding: "10px 24px",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.3)",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Back
+            </div>
+            <div
+              onClick={() => { setShowLesson(false); restart(); }}
+              style={{
+                padding: "10px 24px",
+                background: "#66bb6a",
+                border: "none",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Play Again
+            </div>
           </div>
         </div>
       )}
