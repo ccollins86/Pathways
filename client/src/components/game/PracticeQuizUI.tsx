@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
 
 interface Question {
@@ -145,6 +145,38 @@ if (day === "Monday") {
   },
 ];
 
+interface ConfettiPiece {
+  id: number;
+  x: number;
+  y: number;
+  color: string;
+  size: number;
+  angle: number;
+  velocity: number;
+  spin: number;
+  delay: number;
+}
+
+const CONFETTI_COLORS = ["#ff6b6b", "#ffd93d", "#6bcb77", "#4d96ff", "#ff6fff", "#4fc3f7", "#ffeb3b", "#ff9800"];
+
+function createConfetti(): ConfettiPiece[] {
+  const pieces: ConfettiPiece[] = [];
+  for (let i = 0; i < 40; i++) {
+    pieces.push({
+      id: i,
+      x: 50 + (Math.random() - 0.5) * 20,
+      y: 50,
+      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      size: 4 + Math.random() * 6,
+      angle: Math.random() * 360,
+      velocity: 80 + Math.random() * 120,
+      spin: (Math.random() - 0.5) * 720,
+      delay: Math.random() * 0.15,
+    });
+  }
+  return pieces;
+}
+
 export function PracticeQuizUI() {
   const closePractice = useGame((s) => s.closePractice);
   const addPracticeScore = useGame((s) => s.addPracticeScore);
@@ -154,6 +186,9 @@ export function PracticeQuizUI() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [answeredCorrectly, setAnsweredCorrectly] = useState(false);
+  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const successSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setCurrentQ(0);
@@ -161,6 +196,18 @@ export function PracticeQuizUI() {
     setShowResult(false);
     setAnsweredCorrectly(false);
     useGame.getState().resetPracticeScore();
+    successSoundRef.current = new Audio("/sounds/success.mp3");
+    successSoundRef.current.volume = 0.5;
+  }, []);
+
+  const triggerCelebration = useCallback(() => {
+    if (successSoundRef.current) {
+      successSoundRef.current.currentTime = 0;
+      successSoundRef.current.play().catch(() => {});
+    }
+    setConfetti(createConfetti());
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 1200);
   }, []);
 
   const question = QUESTIONS[currentQ];
@@ -174,6 +221,7 @@ export function PracticeQuizUI() {
     setAnsweredCorrectly(correct);
     if (correct) {
       addPracticeScore(10);
+      triggerCelebration();
     }
   };
 
@@ -189,6 +237,40 @@ export function PracticeQuizUI() {
   };
 
   return (
+    <>
+    {showConfetti && (
+      <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", pointerEvents: "none", zIndex: 300, overflow: "hidden" }}>
+        {confetti.map((piece) => {
+          const rad = (piece.angle * Math.PI) / 180;
+          const endX = Math.cos(rad) * piece.velocity;
+          const endY = -Math.sin(rad) * piece.velocity + 200;
+          return (
+            <div
+              key={piece.id}
+              style={{
+                position: "absolute",
+                left: `${piece.x}%`,
+                top: `${piece.y}%`,
+                width: piece.size,
+                height: piece.size * 0.6,
+                background: piece.color,
+                borderRadius: piece.id % 3 === 0 ? "50%" : 2,
+                opacity: 1,
+                animation: `confetti-fly-${piece.id} 1.1s ease-out ${piece.delay}s forwards`,
+              }}
+            >
+              <style>{`
+                @keyframes confetti-fly-${piece.id} {
+                  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+                  80% { opacity: 1; }
+                  100% { transform: translate(${endX}px, ${endY}px) rotate(${piece.spin}deg); opacity: 0; }
+                }
+              `}</style>
+            </div>
+          );
+        })}
+      </div>
+    )}
     <div
       style={{
         position: "absolute",
@@ -339,5 +421,6 @@ export function PracticeQuizUI() {
         )}
       </div>
     </div>
+    </>
   );
 }
