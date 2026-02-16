@@ -65,18 +65,20 @@ export function WorldItem({ itemId, itemType, position, playerPosition, pickupRa
   if (isThisItemCarried || isConsumed) return null;
 
   return (
-    <group ref={groupRef} position={[position[0], position[1] + 0.3, position[2]]}>
-      {config.shape === "box" ? (
-        <mesh castShadow>
-          <boxGeometry args={config.size} />
-          <meshStandardMaterial color={config.color} />
-        </mesh>
-      ) : (
-        <mesh castShadow>
-          <cylinderGeometry args={[config.size[0], config.size[0], config.size[1], 8]} />
-          <meshStandardMaterial color={config.color} />
-        </mesh>
-      )}
+    <group position={[position[0], position[1] + 0.3, position[2]]}>
+      <group ref={groupRef}>
+        {config.shape === "box" ? (
+          <mesh castShadow>
+            <boxGeometry args={config.size} />
+            <meshStandardMaterial color={config.color} />
+          </mesh>
+        ) : (
+          <mesh castShadow>
+            <cylinderGeometry args={[config.size[0], config.size[0], config.size[1], 8]} />
+            <meshStandardMaterial color={config.color} />
+          </mesh>
+        )}
+      </group>
 
       <Text
         position={[0, 0.6, 0]}
