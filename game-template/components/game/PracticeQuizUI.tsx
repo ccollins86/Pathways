@@ -1,16 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
+import GAME_CONFIG from "../../gameConfig";
+import type { QuizQuestion } from "../../gameConfig";
 
-interface Question {
-  id: number;
-  code: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-}
+const QUESTIONS: QuizQuestion[] = GAME_CONFIG.quizQuestions;
 
-const QUESTIONS: Question[] = [
+const _FALLBACK_QUESTIONS: QuizQuestion[] = [
   {
     id: 1,
     code: `let weather = "rainy";

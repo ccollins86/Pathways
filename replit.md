@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-16: Created modular game-template/ directory - config-driven copy for building new educational games
 - 2026-02-16: Added Practice Station booth with 8 if/else-if/else quiz questions, unlocked after quest completion + lesson
 - 2026-02-16: Replaced earthquake "books in bag" task with "shut off gas lines with wrench"
 - 2026-02-16: Added wrong-choice failure mechanic - all items from all disasters now spawn, using wrong items fails the quest

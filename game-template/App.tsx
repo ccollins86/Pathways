@@ -1,11 +1,12 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState, useCallback } from "react";
+import { Suspense } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { useGame } from "./lib/stores/useGame";
+import GAME_CONFIG from "./gameConfig";
 import "@fontsource/inter";
 
 enum Controls {
@@ -52,7 +53,7 @@ function StartScreen() {
           textShadow: "2px 2px 8px rgba(0,0,0,0.5)",
         }}
       >
-        Disaster Prep Quest
+        {GAME_CONFIG.title}
       </h1>
       <p
         style={{
@@ -64,8 +65,7 @@ function StartScreen() {
           lineHeight: 1.6,
         }}
       >
-        A natural disaster is approaching the town. Talk to the townspeople,
-        find out what's coming, and help prepare!
+        {GAME_CONFIG.subtitle}
       </p>
       <p
         style={{
@@ -75,7 +75,7 @@ function StartScreen() {
           textAlign: "center",
         }}
       >
-        WASD / Arrow Keys to move | E to interact with NPCs
+        {GAME_CONFIG.instructions}
       </p>
       <button
         onClick={start}

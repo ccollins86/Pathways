@@ -1,66 +1,56 @@
 import { useState } from "react";
 import { useGame } from "@/lib/stores/useGame";
-
-const ITEM_LABELS: Record<string, string> = {
-  sandbag: "Sandbag",
-  wood_board: "Wood Board",
-  flame_retardant: "Flame Retardant",
-  rake: "Rake",
-  safety_strap: "Safety Strap",
-  wrench: "Wrench",
-};
+import GAME_CONFIG from "../../gameConfig";
 
 export function GameHUD() {
-  const talkedToDan = useGame((s) => s.talkedToDan);
-  const talkedToBob = useGame((s) => s.talkedToBob);
-  const knownDisaster = useGame((s) => s.knownDisaster);
-  const reportedToDan = useGame((s) => s.reportedToDan);
+  const talkedToQuestGiver = useGame((s) => s.talkedToQuestGiver);
+  const talkedToRevealer = useGame((s) => s.talkedToRevealer);
+  const knownScenario = useGame((s) => s.knownScenario);
+  const reportedBack = useGame((s) => s.reportedBack);
   const activeDialogue = useGame((s) => s.activeDialogue);
   const tasksActive = useGame((s) => s.tasksActive);
-  const carriedItemInfo = useGame((s) => s.carriedItem);
-  const hurricaneTasks = useGame((s) => s.hurricaneTasks);
-  const wildfireTasks = useGame((s) => s.wildfireTasks);
-  const earthquakeTasks = useGame((s) => s.earthquakeTasks);
+  const carriedItem = useGame((s) => s.carriedItem);
+  const completedTasks = useGame((s) => s.completedTasks);
+  const scenario = useGame((s) => s.scenario);
   const questCompleted = useGame((s) => s.questCompleted);
   const questFailed = useGame((s) => s.questFailed);
   const failReason = useGame((s) => s.failReason);
   const dropItem = useGame((s) => s.dropItem);
   const restart = useGame((s) => s.restart);
   const practiceUnlocked = useGame((s) => s.practiceUnlocked);
-  const practiceActive = useGame((s) => s.practiceActive);
-  const practiceScore = useGame((s) => s.practiceScore);
   const unlockPractice = useGame((s) => s.unlockPractice);
 
   const [showLesson, setShowLesson] = useState(false);
 
+  const config = GAME_CONFIG;
+  const questGiverName = config.questGiverName;
+  const revealerName = config.infoRevealerName;
+  const currentScenario = config.scenarios.find((s) => s.id === scenario);
+  const scenarioName = currentScenario?.name ?? scenario;
+
   if (activeDialogue) return null;
 
-  let objective = "Find Dan at the USC Apparel stand and talk to him.";
+  let objective = `Find ${questGiverName} and talk to them.`;
   if (questFailed) {
-    objective = "Quest Failed! You made the wrong preparation choice.";
+    objective = "Quest Failed! You made the wrong choice.";
   } else if (questCompleted && practiceUnlocked) {
-    objective = "Visit the Practice Station booth to test your programming knowledge!";
+    objective = "Visit the Practice Station booth to test your knowledge!";
   } else if (questCompleted) {
-    objective = "Quest Complete! You successfully prepared for the disaster!";
-  } else if (tasksActive && knownDisaster) {
-    if (knownDisaster === "hurricane") {
-      objective = "Prepare for the Hurricane! Board windows and sandbag doors.";
-    } else if (knownDisaster === "wildfire") {
-      objective = "Prepare for the Wildfire! Spray house and clear vegetation.";
-    } else if (knownDisaster === "earthquake") {
-      objective = "Prepare for the Earthquake! Strap furniture and shut off gas lines.";
-    }
-  } else if (talkedToDan && talkedToBob && knownDisaster && !reportedToDan) {
-    const disasterName =
-      knownDisaster.charAt(0).toUpperCase() + knownDisaster.slice(1);
-    objective = `Go back to Dan and tell him it's a ${disasterName}!`;
-  } else if (talkedToDan && !talkedToBob) {
-    objective = "Find Bob and ask him which natural disaster is coming tonight.";
+    objective = "Quest Complete! Great job!";
+  } else if (tasksActive && knownScenario) {
+    objective = `Prepare for ${scenarioName}! ${currentScenario?.description ?? ""}`;
+  } else if (talkedToQuestGiver && talkedToRevealer && knownScenario && !reportedBack) {
+    objective = `Go back to ${questGiverName} and tell them it's ${scenarioName}!`;
+  } else if (talkedToQuestGiver && !talkedToRevealer) {
+    objective = `Find ${revealerName} and ask them what's happening.`;
   }
+
+  const scenarioTargets = config.taskTargets.filter(
+    (t) => t.forScenario === scenario
+  );
 
   return (
     <>
-      {/* Quest completed banner / lesson */}
       {questCompleted && !showLesson && !practiceUnlocked && (
         <div
           style={{
@@ -83,12 +73,7 @@ export function GameHUD() {
             Quest Complete!
           </div>
           <div style={{ fontSize: 18, lineHeight: 1.6, opacity: 0.9 }}>
-            You successfully prepared the house for the{" "}
-            {knownDisaster?.charAt(0).toUpperCase()}
-            {knownDisaster?.slice(1)}!
-          </div>
-          <div style={{ fontSize: 14, marginTop: 12, opacity: 0.7 }}>
-            Being prepared for natural disasters saves lives.
+            You successfully completed all tasks for {scenarioName}!
           </div>
           <div
             onClick={() => setShowLesson(true)}
@@ -130,18 +115,13 @@ export function GameHUD() {
           }}
         >
           <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#4fc3f7" }}>
-            Branching Statements in Programming
+            {config.lesson.title}
           </div>
           <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
-            In this quest, you found out that a <strong style={{ color: "#ffeb3b" }}>{knownDisaster}</strong> was coming.
-            Even though items for <em>all three</em> disasters were available, you only performed the tasks
-            for the {knownDisaster}. You ignored the other items because they didn't match the situation.
+            {config.lesson.subtitle}
           </div>
           <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
-            This is exactly how <strong style={{ color: "#4fc3f7" }}>if / else-if / else</strong> statements
-            work in programming! The computer checks each condition in order, and <em>only executes the
-            code block</em> where the condition is true. The other blocks are skipped entirely — just like
-            how you skipped the preparations for the other disasters.
+            {config.lesson.explanation}
           </div>
 
           <div
@@ -155,56 +135,14 @@ export function GameHUD() {
               marginBottom: 16,
               border: "1px solid rgba(79, 195, 247, 0.3)",
               whiteSpace: "pre-wrap",
+              color: "#e0e0e0",
             }}
           >
-            <span style={{ color: "#c792ea" }}>if</span>
-            <span style={{ color: "#89ddff" }}> (</span>
-            <span style={{ color: "#f78c6c" }}>disaster</span>
-            <span style={{ color: "#89ddff" }}> === </span>
-            <span style={{ color: "#c3e88d" }}>"hurricane"</span>
-            <span style={{ color: "#89ddff" }}>)</span>
-            <span style={{ color: knownDisaster === "hurricane" ? "#c3e88d" : "#546e7a" }}>{" {\n"}
-            {"  "}sandBagDoors();{"\n"}
-            {"  "}boardUpWindows();{"\n"}
-            {"}"}</span>
-            {"\n"}
-            <span style={{ color: "#c792ea" }}>else if</span>
-            <span style={{ color: "#89ddff" }}> (</span>
-            <span style={{ color: "#f78c6c" }}>disaster</span>
-            <span style={{ color: "#89ddff" }}> === </span>
-            <span style={{ color: "#c3e88d" }}>"wildfire"</span>
-            <span style={{ color: "#89ddff" }}>)</span>
-            <span style={{ color: knownDisaster === "wildfire" ? "#c3e88d" : "#546e7a" }}>{" {\n"}
-            {"  "}sprayFlameRetardant();{"\n"}
-            {"  "}clearVegetation();{"\n"}
-            {"}"}</span>
-            {"\n"}
-            <span style={{ color: "#c792ea" }}>else if</span>
-            <span style={{ color: "#89ddff" }}> (</span>
-            <span style={{ color: "#f78c6c" }}>disaster</span>
-            <span style={{ color: "#89ddff" }}> === </span>
-            <span style={{ color: "#c3e88d" }}>"earthquake"</span>
-            <span style={{ color: "#89ddff" }}>)</span>
-            <span style={{ color: knownDisaster === "earthquake" ? "#c3e88d" : "#546e7a" }}>{" {\n"}
-            {"  "}strapFurniture();{"\n"}
-            {"  "}shutOffGasLines();{"\n"}
-            {"}"}</span>
-          </div>
-
-          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
-            {knownDisaster === "hurricane" && (
-              <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"hurricane"</strong>, only the first block ran — sandbagging doors and boarding windows. The wildfire and earthquake blocks were skipped, just like you skipped those items in the game!</>
-            )}
-            {knownDisaster === "wildfire" && (
-              <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"wildfire"</strong>, only the second block ran — spraying flame retardant and clearing vegetation. The hurricane and earthquake blocks were skipped, just like you skipped those items in the game!</>
-            )}
-            {knownDisaster === "earthquake" && (
-              <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"earthquake"</strong>, only the third block ran — strapping furniture and shutting off gas lines. The hurricane and wildfire blocks were skipped, just like you skipped those items in the game!</>
-            )}
+            {config.lesson.codeExample}
           </div>
 
           <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
-            Only one branch executes — the first one whose condition is true. The rest are ignored.
+            {config.lesson.footnote}
           </div>
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -242,7 +180,6 @@ export function GameHUD() {
         </div>
       )}
 
-      {/* Quest failed banner */}
       {questFailed && (
         <div
           style={{
@@ -268,9 +205,6 @@ export function GameHUD() {
           <div style={{ fontSize: 16, lineHeight: 1.6, opacity: 0.9 }}>
             {failReason}
           </div>
-          <div style={{ fontSize: 14, marginTop: 12, opacity: 0.7 }}>
-            Remember: match your preparations to the specific disaster that's coming!
-          </div>
           <div
             onClick={restart}
             style={{
@@ -290,7 +224,6 @@ export function GameHUD() {
         </div>
       )}
 
-      {/* Objective tracker */}
       <div
         style={{
           position: "absolute",
@@ -321,8 +254,7 @@ export function GameHUD() {
         <div style={{ fontSize: 14, lineHeight: 1.5 }}>{objective}</div>
       </div>
 
-      {/* Carried item indicator */}
-      {carriedItemInfo && (
+      {carriedItem && (
         <div
           style={{
             position: "absolute",
@@ -338,28 +270,14 @@ export function GameHUD() {
             border: "2px solid #ffeb3b",
           }}
         >
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              color: "#ffeb3b",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              marginBottom: 4,
-            }}
-          >
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#ffeb3b", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
             Carrying
           </div>
           <div style={{ fontSize: 16, fontWeight: 600 }}>
-            {ITEM_LABELS[carriedItemInfo.type]}
+            {carriedItem}
           </div>
           <div
-            style={{
-              fontSize: 11,
-              color: "rgba(255,255,255,0.5)",
-              marginTop: 4,
-              cursor: "pointer",
-            }}
+            style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 4, cursor: "pointer" }}
             onClick={dropItem}
           >
             Press Q to drop
@@ -367,7 +285,6 @@ export function GameHUD() {
         </div>
       )}
 
-      {/* Quest progress / Task list */}
       <div
         style={{
           position: "absolute",
@@ -383,145 +300,38 @@ export function GameHUD() {
           minWidth: 220,
         }}
       >
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            color: "#ffeb3b",
-            textTransform: "uppercase",
-            letterSpacing: 1,
-            marginBottom: 6,
-          }}
-        >
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#ffeb3b", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
           Quest Progress
         </div>
         <div style={{ fontSize: 13, lineHeight: 1.8 }}>
-          <div style={{ color: talkedToDan ? "#66bb6a" : "white" }}>
-            {talkedToDan ? "✓" : "○"} Talk to Dan
+          <div style={{ color: talkedToQuestGiver ? "#66bb6a" : "white" }}>
+            {talkedToQuestGiver ? "✓" : "○"} Talk to {questGiverName}
           </div>
-          <div style={{ color: talkedToBob ? "#66bb6a" : "white" }}>
-            {talkedToBob ? "✓" : "○"} Ask Bob about the disaster
+          <div style={{ color: talkedToRevealer ? "#66bb6a" : "white" }}>
+            {talkedToRevealer ? "✓" : "○"} Ask {revealerName}
           </div>
-          <div style={{ color: reportedToDan ? "#66bb6a" : "white" }}>
-            {reportedToDan ? "✓" : "○"} Report back to Dan
+          <div style={{ color: reportedBack ? "#66bb6a" : "white" }}>
+            {reportedBack ? "✓" : "○"} Report back to {questGiverName}
           </div>
 
-          {tasksActive && knownDisaster === "hurricane" && (
+          {tasksActive && (
             <>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "#ff9800",
-                  marginTop: 8,
-                  marginBottom: 2,
-                }}
-              >
-                Hurricane Prep:
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#ff9800", marginTop: 8, marginBottom: 2 }}>
+                {scenarioName} Tasks:
               </div>
-              <div
-                style={{
-                  color: hurricaneTasks.frontDoorSandbagged
-                    ? "#66bb6a"
-                    : "white",
-                }}
-              >
-                {hurricaneTasks.frontDoorSandbagged ? "✓" : "○"} Sandbag front
-                door
-              </div>
-              <div
-                style={{
-                  color: hurricaneTasks.backDoorSandbagged
-                    ? "#66bb6a"
-                    : "white",
-                }}
-              >
-                {hurricaneTasks.backDoorSandbagged ? "✓" : "○"} Sandbag back
-                door
-              </div>
-              <div
-                style={{
-                  color: hurricaneTasks.window1Boarded ? "#66bb6a" : "white",
-                }}
-              >
-                {hurricaneTasks.window1Boarded ? "✓" : "○"} Board window 1
-              </div>
-              <div
-                style={{
-                  color: hurricaneTasks.window2Boarded ? "#66bb6a" : "white",
-                }}
-              >
-                {hurricaneTasks.window2Boarded ? "✓" : "○"} Board window 2
-              </div>
-            </>
-          )}
-
-          {tasksActive && knownDisaster === "wildfire" && (
-            <>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "#ff9800",
-                  marginTop: 8,
-                  marginBottom: 2,
-                }}
-              >
-                Wildfire Prep:
-              </div>
-              <div
-                style={{
-                  color: wildfireTasks.houseSprayed ? "#66bb6a" : "white",
-                }}
-              >
-                {wildfireTasks.houseSprayed ? "✓" : "○"} Spray house with flame
-                retardant
-              </div>
-              <div
-                style={{
-                  color: wildfireTasks.vegetationCleared ? "#66bb6a" : "white",
-                }}
-              >
-                {wildfireTasks.vegetationCleared ? "✓" : "○"} Clear vegetation
-              </div>
-            </>
-          )}
-
-          {tasksActive && knownDisaster === "earthquake" && (
-            <>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "#ff9800",
-                  marginTop: 8,
-                  marginBottom: 2,
-                }}
-              >
-                Earthquake Prep:
-              </div>
-              <div
-                style={{
-                  color: earthquakeTasks.furnitureStrapped
-                    ? "#66bb6a"
-                    : "white",
-                }}
-              >
-                {earthquakeTasks.furnitureStrapped ? "✓" : "○"} Strap furniture
-              </div>
-              <div
-                style={{
-                  color: earthquakeTasks.gasShutOff ? "#66bb6a" : "white",
-                }}
-              >
-                {earthquakeTasks.gasShutOff ? "✓" : "○"} Shut off gas lines
-              </div>
+              {scenarioTargets.map((target) => (
+                <div
+                  key={target.id}
+                  style={{ color: completedTasks[target.id] ? "#66bb6a" : "white" }}
+                >
+                  {completedTasks[target.id] ? "✓" : "○"} {target.label}
+                </div>
+              ))}
             </>
           )}
         </div>
       </div>
 
-      {/* Controls hint */}
       <div
         style={{
           position: "absolute",
@@ -536,7 +346,7 @@ export function GameHUD() {
           zIndex: 50,
         }}
       >
-        WASD / Arrows to move | E to interact{carriedItemInfo ? " | Q to drop" : ""}
+        WASD / Arrows to move | E to interact{carriedItem ? " | Q to drop" : ""}
       </div>
     </>
   );
