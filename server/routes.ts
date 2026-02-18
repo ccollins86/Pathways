@@ -12,5 +12,10 @@ export async function registerRoutes(
     res.download(zipPath, "game-template.zip");
   });
 
+  app.get("/api/download-full-project", (_req, res) => {
+    const zipPath = path.resolve("client/public/full-project.zip");
+    res.download(zipPath, "disaster-prep-quest.zip");
+  });
+
   return httpServer;
 }
