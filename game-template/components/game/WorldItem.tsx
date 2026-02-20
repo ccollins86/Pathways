@@ -1,0 +1,119 @@
+import { useRef, useState, useEffect } from "react";
+import { useFrame } from "@react-three/fiber";
+import { Text } from "@react-three/drei";
+import * as THREE from "three";
+import { useGame, ItemType } from "@/lib/stores/useGame";
+
+interface WorldItemProps {
+  itemId: string;
+  itemType: ItemType;
+  position: [number, number, number];
+  playerPosition: THREE.Vector3;
+  pickupRadius?: number;
+}
+
+const ITEM_CONFIGS: Record<ItemType, { label: string; color: string; shape: "box" | "cylinder"; size: [number, number, number]; }> = {
+  sandbag: { label: "Sandbag", color: "#c2a366", shape: "box", size: [0.5, 0.25, 0.3] },
+  wood_board: { label: "Wood Board", color: "#a0522d", shape: "box", size: [0.8, 0.08, 0.3] },
+  flame_retardant: { label: "Flame Retardant", color: "#2196F3", shape: "cylinder", size: [0.15, 0.5, 0.15] },
+  rake: { label: "Rake", color: "#8B4513", shape: "cylinder", size: [0.06, 1.2, 0.06] },
+  safety_strap: { label: "Safety Strap", color: "#ff6600", shape: "box", size: [0.4, 0.15, 0.15] },
+  wrench: { label: "Wrench", color: "#b0b0b0", shape: "box", size: [0.4, 0.12, 0.12] },
+};
+
+export function WorldItem({ itemId, itemType, position, playerPosition, pickupRadius = 2.5 }: WorldItemProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const [isNear, setIsNear] = useState(false);
+  const carriedItem = useGame((s) => s.carriedItem);
+  const pickUpItem = useGame((s) => s.pickUpItem);
+  const activeDialogue = useGame((s) => s.activeDialogue);
+  const consumedItems = useGame((s) => s.consumedItems);
+
+  const config = ITEM_CONFIGS[itemType];
+
+  const isThisItemCarried = carriedItem?.id === itemId;
+  const isConsumed = consumedItems.has(itemId);
+
+  useFrame((_, delta) => {
+    if (isThisItemCarried || isConsumed || !groupRef.current) return;
+    const itemPos = new THREE.Vector3(...position);
+    const dist = itemPos.distanceTo(playerPosition);
+    setIsNear(dist < pickupRadius);
+
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.5;
+    }
+  });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (
+        (e.key === "e" || e.key === "E") &&
+        isNear &&
+        !isThisItemCarried &&
+        !isConsumed &&
+        !carriedItem &&
+        !activeDialogue
+      ) {
+        pickUpItem(itemType, itemId);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isNear, isThisItemCarried, isConsumed, carriedItem, activeDialogue, itemType, itemId, pickUpItem]);
+
+  if (isThisItemCarried || isConsumed) return null;
+
+  return (
+    <group position={[position[0], position[1] + 0.3, position[2]]}>
+      <group ref={groupRef}>
+        {config.shape === "box" ? (
+          <mesh castShadow>
+            <boxGeometry args={config.size} />
+            <meshStandardMaterial color={config.color} />
+          </mesh>
+        ) : (
+          <mesh castShadow>
+            <cylinderGeometry args={[config.size[0], config.size[0], config.size[1], 8]} />
+            <meshStandardMaterial color={config.color} />
+          </mesh>
+        )}
+      </group>
+
+      <Text
+        position={[0, 0.6, 0]}
+        fontSize={0.35}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.03}
+        outlineColor="#000000"
+      >
+        {config.label}
+      </Text>
+
+      {isNear && !carriedItem && (
+        <Text
+          position={[0, 1.1, 0]}
+          fontSize={0.28}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.03}
+          outlineColor="#000000"
+        >
+          Press E to pick up
+        </Text>
+      )}
+
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.28, 0]}>
+        <ringGeometry args={[0.9, 1.0, 32]} />
+        <meshBasicMaterial
+          color={isNear ? "#ffeb3b" : "#ffffff"}
+          transparent
+          opacity={isNear ? 0.25 : 0.08}
+        />
+      </mesh>
+    </group>
+  );
+}
