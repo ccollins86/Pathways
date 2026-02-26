@@ -62,6 +62,8 @@ interface GameState {
   practiceUnlocked: boolean;
   practiceActive: boolean;
   practiceScore: number;
+  practiceCompleted: boolean;
+  portalActive: boolean;
 
   start: () => void;
   restart: () => void;
@@ -89,6 +91,8 @@ interface GameState {
   closePractice: () => void;
   addPracticeScore: (points: number) => void;
   resetPracticeScore: () => void;
+  completePractice: () => void;
+  enterPortal: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -128,6 +132,8 @@ export const useGame = create<GameState>()(
     practiceUnlocked: false,
     practiceActive: false,
     practiceScore: 0,
+    practiceCompleted: false,
+    portalActive: false,
 
     start: () => {
       set((state) => {
@@ -172,6 +178,8 @@ export const useGame = create<GameState>()(
         practiceUnlocked: false,
         practiceActive: false,
         practiceScore: 0,
+        practiceCompleted: false,
+        portalActive: false,
       }));
     },
 
@@ -273,6 +281,16 @@ export const useGame = create<GameState>()(
     closePractice: () => set({ practiceActive: false }),
     addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points })),
     resetPracticeScore: () => set({ practiceScore: 0 }),
+    completePractice: () => {
+      const { questCompleted } = get();
+      set({
+        practiceCompleted: true,
+        portalActive: questCompleted,
+      });
+    },
+    enterPortal: () => {
+      set({ phase: "ended" });
+    },
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
@@ -291,7 +309,11 @@ export const useGame = create<GameState>()(
           earthquakeTasks.furnitureStrapped && earthquakeTasks.gasShutOff;
       }
       if (completed) {
-        set({ questCompleted: true });
+        const { practiceCompleted } = get();
+        set({
+          questCompleted: true,
+          portalActive: practiceCompleted,
+        });
       }
     },
   }))

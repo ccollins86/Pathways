@@ -99,9 +99,109 @@ function StartScreen() {
   );
 }
 
+function PortalScreen() {
+  const restart = useGame((s) => s.restart);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #1a0033 0%, #4a148c 50%, #0d47a1 100%)",
+        zIndex: 250,
+        fontFamily: "'Inter', sans-serif",
+        color: "white",
+      }}
+    >
+      <div
+        style={{
+          width: 120,
+          height: 120,
+          borderRadius: "50%",
+          border: "4px solid #e040fb",
+          boxShadow: "0 0 60px rgba(224, 64, 251, 0.6), inset 0 0 40px rgba(124, 77, 255, 0.4)",
+          marginBottom: 32,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 48,
+          animation: "portalPulse 2s ease-in-out infinite",
+        }}
+      >
+        <span role="img" aria-label="portal">🌀</span>
+      </div>
+      <style>{`
+        @keyframes portalPulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(224, 64, 251, 0.6), inset 0 0 40px rgba(124, 77, 255, 0.4); }
+          50% { transform: scale(1.08); box-shadow: 0 0 80px rgba(224, 64, 251, 0.8), inset 0 0 50px rgba(124, 77, 255, 0.6); }
+        }
+      `}</style>
+      <h1
+        style={{
+          fontSize: 40,
+          fontWeight: 800,
+          marginBottom: 16,
+          textAlign: "center",
+          textShadow: "2px 2px 12px rgba(0,0,0,0.5)",
+        }}
+      >
+        New World Awaits...
+      </h1>
+      <p
+        style={{
+          fontSize: 18,
+          marginBottom: 8,
+          opacity: 0.85,
+          textAlign: "center",
+          maxWidth: 480,
+          lineHeight: 1.6,
+        }}
+      >
+        You've mastered disaster preparedness and programming concepts!
+      </p>
+      <p
+        style={{
+          fontSize: 16,
+          marginBottom: 32,
+          opacity: 0.6,
+          textAlign: "center",
+          maxWidth: 440,
+        }}
+      >
+        A new game world is being prepared. Check back soon for the next adventure!
+      </p>
+      <button
+        onClick={restart}
+        style={{
+          padding: "14px 40px",
+          fontSize: 18,
+          fontWeight: 700,
+          background: "#e040fb",
+          color: "white",
+          border: "none",
+          borderRadius: 12,
+          cursor: "pointer",
+          letterSpacing: 1,
+          boxShadow: "0 4px 20px rgba(224, 64, 251, 0.4)",
+        }}
+      >
+        Play Again
+      </button>
+    </div>
+  );
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
+  const portalActive = useGame((s) => s.portalActive);
 
   return (
     <div
@@ -113,6 +213,7 @@ function App() {
       }}
     >
       {phase === "ready" && <StartScreen />}
+      {phase === "ended" && portalActive && <PortalScreen />}
 
       <KeyboardControls map={keyMap}>
         <Canvas

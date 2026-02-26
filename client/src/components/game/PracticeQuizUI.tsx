@@ -181,6 +181,7 @@ export function PracticeQuizUI() {
   const closePractice = useGame((s) => s.closePractice);
   const addPracticeScore = useGame((s) => s.addPracticeScore);
   const practiceScore = useGame((s) => s.practiceScore);
+  const completePractice = useGame((s) => s.completePractice);
 
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -227,6 +228,7 @@ export function PracticeQuizUI() {
 
   const handleNext = () => {
     if (isLastQuestion) {
+      completePractice();
       closePractice();
       return;
     }

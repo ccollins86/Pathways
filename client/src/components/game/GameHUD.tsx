@@ -30,6 +30,8 @@ export function GameHUD() {
   const practiceActive = useGame((s) => s.practiceActive);
   const practiceScore = useGame((s) => s.practiceScore);
   const unlockPractice = useGame((s) => s.unlockPractice);
+  const practiceCompleted = useGame((s) => s.practiceCompleted);
+  const portalActive = useGame((s) => s.portalActive);
 
   const [showLesson, setShowLesson] = useState(false);
 
@@ -38,6 +40,10 @@ export function GameHUD() {
   let objective = "Find Dan at the USC Apparel stand and talk to him.";
   if (questFailed) {
     objective = "Quest Failed! You made the wrong preparation choice.";
+  } else if (portalActive) {
+    objective = "A portal has appeared! Walk into it to enter the next world!";
+  } else if (questCompleted && practiceCompleted) {
+    objective = "Practice complete! A portal should appear soon...";
   } else if (questCompleted && practiceUnlocked) {
     objective = "Visit the Practice Station booth to test your programming knowledge!";
   } else if (questCompleted) {

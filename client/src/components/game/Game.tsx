@@ -14,6 +14,7 @@ import { House, HOUSE_POS } from "./House";
 import { WorldItem } from "./WorldItem";
 import { InteractionTarget } from "./InteractionTarget";
 import { PracticeBooth } from "./PracticeBooth";
+import { Portal } from "./Portal";
 import { useGame } from "@/lib/stores/useGame";
 
 export function Game() {
@@ -35,6 +36,8 @@ export function Game() {
   const practiceUnlocked = useGame((s) => s.practiceUnlocked);
   const practiceActive = useGame((s) => s.practiceActive);
   const openPractice = useGame((s) => s.openPractice);
+  const portalActive = useGame((s) => s.portalActive);
+  const enterPortal = useGame((s) => s.enterPortal);
 
   const setTalkedToDan = useGame((s) => s.setTalkedToDan);
   const setTalkedToBob = useGame((s) => s.setTalkedToBob);
@@ -566,6 +569,14 @@ export function Game() {
         practiceActive={practiceActive}
         onInteract={openPractice}
       />
+
+      {portalActive && (
+        <Portal
+          position={[0, 0, -15]}
+          playerPosition={playerPos}
+          onEnter={enterPortal}
+        />
+      )}
     </>
   );
 }
