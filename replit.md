@@ -4,7 +4,8 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
-- 2026-02-26: Added portal feature - glowing portal appears after quest + practice quiz completion, leads to new world (placeholder)
+- 2026-02-26: Added Ocean World (World 2) - beach environment with ocean, palm trees, building, and NPC Josh; accessible via portal after quest + quiz
+- 2026-02-26: Added portal feature - glowing portal appears after quest + practice quiz completion, leads to Ocean World
 - 2026-02-16: Created modular game-template/ directory - config-driven copy for building new educational games
 - 2026-02-16: Added Practice Station booth with 8 if/else-if/else quiz questions, unlocked after quest completion + lesson
 - 2026-02-16: Replaced earthquake "books in bag" task with "shut off gas lines with wrench"
@@ -53,7 +54,7 @@ A 3D educational game built with React Three Fiber where players learn about nat
 10. "Continue Playing" button unlocks the Practice Station booth
 11. Player visits booth and takes 8-question quiz on branching statements (10 pts each)
 12. After finishing all quiz questions, a glowing portal appears at [0, 0, -15]
-13. Walking into the portal transitions to a "New World" placeholder screen
+13. Walking into the portal transitions to Ocean World (World 2)
 
 ### NPCs
 - **Dan** (USC stand) - Quest giver, disaster prep instructions

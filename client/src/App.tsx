@@ -1,7 +1,8 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState, useCallback } from "react";
+import { Suspense, useState, useCallback, useEffect } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
+import { OceanWorld } from "./components/game/OceanWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
@@ -99,109 +100,158 @@ function StartScreen() {
   );
 }
 
-function PortalScreen() {
-  const restart = useGame((s) => s.restart);
+function World2DialogueUI() {
+  const world2Dialogue = useGame((s) => s.world2Dialogue);
+  const world2DialogueIndex = useGame((s) => s.world2DialogueIndex);
+  const advanceWorld2Dialogue = useGame((s) => s.advanceWorld2Dialogue);
+
+  useEffect(() => {
+    if (!world2Dialogue) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "e" || e.key === "E" || e.key === " " || e.key === "Enter") {
+        advanceWorld2Dialogue();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [world2Dialogue, advanceWorld2Dialogue]);
+
+  if (!world2Dialogue) return null;
+
+  const line = world2Dialogue[world2DialogueIndex];
+  const isLast = world2DialogueIndex >= world2Dialogue.length - 1;
 
   return (
     <div
       style={{
         position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #1a0033 0%, #4a148c 50%, #0d47a1 100%)",
-        zIndex: 250,
-        fontFamily: "'Inter', sans-serif",
+        bottom: 80,
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(0, 30, 60, 0.92)",
+        borderRadius: 12,
+        padding: "20px 28px",
         color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 100,
+        maxWidth: 520,
+        width: "90%",
+        border: "2px solid rgba(0, 188, 212, 0.4)",
+        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
       }}
     >
       <div
         style={{
-          width: 120,
-          height: 120,
-          borderRadius: "50%",
-          border: "4px solid #e040fb",
-          boxShadow: "0 0 60px rgba(224, 64, 251, 0.6), inset 0 0 40px rgba(124, 77, 255, 0.4)",
-          marginBottom: 32,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 48,
-          animation: "portalPulse 2s ease-in-out infinite",
-        }}
-      >
-        <span role="img" aria-label="portal">🌀</span>
-      </div>
-      <style>{`
-        @keyframes portalPulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(224, 64, 251, 0.6), inset 0 0 40px rgba(124, 77, 255, 0.4); }
-          50% { transform: scale(1.08); box-shadow: 0 0 80px rgba(224, 64, 251, 0.8), inset 0 0 50px rgba(124, 77, 255, 0.6); }
-        }
-      `}</style>
-      <h1
-        style={{
-          fontSize: 40,
-          fontWeight: 800,
-          marginBottom: 16,
-          textAlign: "center",
-          textShadow: "2px 2px 12px rgba(0,0,0,0.5)",
-        }}
-      >
-        New World Awaits...
-      </h1>
-      <p
-        style={{
-          fontSize: 18,
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#00bcd4",
+          textTransform: "uppercase",
+          letterSpacing: 1,
           marginBottom: 8,
-          opacity: 0.85,
-          textAlign: "center",
-          maxWidth: 480,
-          lineHeight: 1.6,
         }}
       >
-        You've mastered disaster preparedness and programming concepts!
-      </p>
-      <p
+        {line.speaker}
+      </div>
+      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div
         style={{
-          fontSize: 16,
-          marginBottom: 32,
-          opacity: 0.6,
-          textAlign: "center",
-          maxWidth: 440,
+          fontSize: 12,
+          color: "rgba(255,255,255,0.5)",
+          marginTop: 12,
+          textAlign: "right",
         }}
       >
-        A new game world is being prepared. Check back soon for the next adventure!
-      </p>
-      <button
+        {isLast ? "Press E to close" : "Press E to continue"}
+      </div>
+    </div>
+  );
+}
+
+function World2HUD() {
+  const world2Dialogue = useGame((s) => s.world2Dialogue);
+  const restart = useGame((s) => s.restart);
+
+  if (world2Dialogue) return null;
+
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          background: "rgba(0, 30, 60, 0.8)",
+          borderRadius: 8,
+          padding: "12px 18px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          zIndex: 50,
+          maxWidth: 380,
+          border: "1px solid rgba(0, 188, 212, 0.3)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#00bcd4",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            marginBottom: 4,
+          }}
+        >
+          Ocean World
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+          Explore the beach and talk to Josh at the Beach Station!
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+          background: "rgba(0, 30, 60, 0.7)",
+          borderRadius: 8,
+          padding: "8px 14px",
+          color: "rgba(255,255,255,0.6)",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 12,
+          zIndex: 50,
+        }}
+      >
+        WASD / Arrows to move | E to interact
+      </div>
+
+      <div
         onClick={restart}
         style={{
-          padding: "14px 40px",
-          fontSize: 18,
-          fontWeight: 700,
-          background: "#e040fb",
+          position: "absolute",
+          top: 16,
+          right: 16,
+          background: "rgba(0, 30, 60, 0.8)",
+          borderRadius: 8,
+          padding: "8px 16px",
           color: "white",
-          border: "none",
-          borderRadius: 12,
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 13,
+          fontWeight: 600,
           cursor: "pointer",
-          letterSpacing: 1,
-          boxShadow: "0 4px 20px rgba(224, 64, 251, 0.4)",
+          zIndex: 50,
+          border: "1px solid rgba(255,255,255,0.2)",
         }}
       >
-        Play Again
-      </button>
-    </div>
+        Back to Town
+      </div>
+    </>
   );
 }
 
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
-  const portalActive = useGame((s) => s.portalActive);
+  const currentWorld = useGame((s) => s.currentWorld);
 
   return (
     <div
@@ -213,7 +263,6 @@ function App() {
       }}
     >
       {phase === "ready" && <StartScreen />}
-      {phase === "ended" && portalActive && <PortalScreen />}
 
       <KeyboardControls map={keyMap}>
         <Canvas
@@ -230,15 +279,22 @@ function App() {
           }}
         >
           <Suspense fallback={null}>
-            <Game />
+            {currentWorld === "town" ? <Game /> : <OceanWorld />}
           </Suspense>
         </Canvas>
 
-        {phase === "playing" && (
+        {phase === "playing" && currentWorld === "town" && (
           <>
             <GameHUD />
             <DialogueUI />
             {practiceActive && <PracticeQuizUI />}
+          </>
+        )}
+
+        {phase === "playing" && currentWorld === "ocean" && (
+          <>
+            <World2HUD />
+            <World2DialogueUI />
           </>
         )}
       </KeyboardControls>

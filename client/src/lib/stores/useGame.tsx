@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "ready" | "playing" | "ended";
+export type GameWorld = "town" | "ocean";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 
 export type ItemType =
@@ -64,6 +65,9 @@ interface GameState {
   practiceScore: number;
   practiceCompleted: boolean;
   portalActive: boolean;
+  currentWorld: GameWorld;
+  world2Dialogue: { speaker: string; text: string }[] | null;
+  world2DialogueIndex: number;
 
   start: () => void;
   restart: () => void;
@@ -93,6 +97,9 @@ interface GameState {
   resetPracticeScore: () => void;
   completePractice: () => void;
   enterPortal: () => void;
+  openWorld2Dialogue: (lines: { speaker: string; text: string }[]) => void;
+  advanceWorld2Dialogue: () => void;
+  closeWorld2Dialogue: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -134,6 +141,9 @@ export const useGame = create<GameState>()(
     practiceScore: 0,
     practiceCompleted: false,
     portalActive: false,
+    currentWorld: "town" as GameWorld,
+    world2Dialogue: null,
+    world2DialogueIndex: 0,
 
     start: () => {
       set((state) => {
@@ -180,6 +190,9 @@ export const useGame = create<GameState>()(
         practiceScore: 0,
         practiceCompleted: false,
         portalActive: false,
+        currentWorld: "town" as GameWorld,
+        world2Dialogue: null,
+        world2DialogueIndex: 0,
       }));
     },
 
@@ -289,8 +302,29 @@ export const useGame = create<GameState>()(
       });
     },
     enterPortal: () => {
-      set({ phase: "ended" });
+      set({
+        currentWorld: "ocean" as GameWorld,
+        phase: "playing" as GamePhase,
+        activeDialogue: null,
+        dialogueIndex: 0,
+        activeNpc: null,
+        practiceActive: false,
+        world2Dialogue: null,
+        world2DialogueIndex: 0,
+      });
     },
+    openWorld2Dialogue: (lines) =>
+      set({ world2Dialogue: lines, world2DialogueIndex: 0 }),
+    advanceWorld2Dialogue: () => {
+      const { world2DialogueIndex, world2Dialogue } = get();
+      if (world2Dialogue && world2DialogueIndex < world2Dialogue.length - 1) {
+        set({ world2DialogueIndex: world2DialogueIndex + 1 });
+      } else {
+        set({ world2Dialogue: null, world2DialogueIndex: 0 });
+      }
+    },
+    closeWorld2Dialogue: () =>
+      set({ world2Dialogue: null, world2DialogueIndex: 0 }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
