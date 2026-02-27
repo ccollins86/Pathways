@@ -29,7 +29,9 @@ function Fish({ position, color, accentColor, scale = 1 }: { position: [number, 
       ref.current.position.x = startPos[0] + Math.sin(t) * range;
       ref.current.position.z = startPos[2] + Math.cos(t * 0.7) * range * 0.5;
       ref.current.position.y = startPos[1] + Math.sin(t * 1.3) * 0.2;
-      ref.current.rotation.y = Math.cos(t) > 0 ? Math.PI / 2 : -Math.PI / 2;
+      const dx = Math.cos(t) * range;
+      const dz = -Math.sin(t * 0.7) * 0.7 * range * 0.5;
+      ref.current.rotation.y = Math.atan2(dx, dz);
     }
   });
 
