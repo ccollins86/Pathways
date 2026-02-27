@@ -182,15 +182,19 @@ function World2HUD() {
   const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
   const sludgePatches = useGame((s) => s.sludgePatches);
   const inBoat = useGame((s) => s.inBoat);
+  const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
 
   if (world2Dialogue || currentSurveyIndex !== null) return null;
+  if (oceanLessonPhase >= 1 && oceanLessonPhase <= 2) return null;
 
   const surveyedCount = ecosystems.filter((e) => e.surveyed).length;
   const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
 
   let objectiveText = "Talk to Josh at the Beach Station to get started!";
-  if (cleanupQuestCompleted) {
+  if (cleanupQuestCompleted && oceanLessonPhase >= 3) {
+    objectiveText = "Lessons complete! You're a true marine biologist and programmer!";
+  } else if (cleanupQuestCompleted) {
     objectiveText = "Chemical spill cleaned! You saved the ocean! Talk to Josh.";
   } else if (cleanupQuestStarted) {
     if (allSludgeCleaned) {
@@ -361,6 +365,260 @@ function World2HUD() {
   );
 }
 
+function OceanLessonUI() {
+  const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
+  const advanceOceanLesson = useGame((s) => s.advanceOceanLesson);
+  const world2Dialogue = useGame((s) => s.world2Dialogue);
+
+  if (world2Dialogue) return null;
+  if (oceanLessonPhase < 1 || oceanLessonPhase > 2) return null;
+
+  if (oceanLessonPhase === 1) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(0, 20, 50, 0.96)",
+          borderRadius: 16,
+          padding: "28px 36px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          zIndex: 200,
+          border: "3px solid #4fc3f7",
+          boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
+          maxWidth: 600,
+          maxHeight: "85vh",
+          overflowY: "auto",
+        }}
+      >
+        <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#4fc3f7" }}>
+          For Loops in Programming
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          In the survey task, you visited <strong style={{ color: "#ffeb3b" }}>each of the 4 marine ecosystems</strong> and
+          performed the same set of actions at every one: count the animals, count the plants, and identify the
+          environmental issue.
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          This is exactly how a <strong style={{ color: "#4fc3f7" }}>for loop</strong> works in programming!
+          A for loop repeats the same block of code <em>for each item</em> in a collection. You knew exactly
+          how many ecosystems there were (4), and you did the same survey steps at each one.
+        </div>
+
+        <div
+          style={{
+            background: "rgba(0, 0, 0, 0.5)",
+            borderRadius: 8,
+            padding: "16px 20px",
+            fontFamily: "'Courier New', monospace",
+            fontSize: 13,
+            lineHeight: 1.8,
+            marginBottom: 16,
+            border: "1px solid rgba(79, 195, 247, 0.3)",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          <span style={{ color: "#546e7a" }}>{"// The ecosystems you surveyed:\n"}</span>
+          <span style={{ color: "#c792ea" }}>const </span>
+          <span style={{ color: "#f78c6c" }}>ecosystems</span>
+          <span style={{ color: "#89ddff" }}> = [</span>
+          <span style={{ color: "#c3e88d" }}>{'"Coral Reef"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"Kelp Forest"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"Tide Pool"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"Seagrass Meadow"'}</span>
+          <span style={{ color: "#89ddff" }}>];</span>
+          {"\n\n"}
+          <span style={{ color: "#c792ea" }}>for </span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#c792ea" }}>const </span>
+          <span style={{ color: "#f78c6c" }}>ecosystem</span>
+          <span style={{ color: "#c792ea" }}> of </span>
+          <span style={{ color: "#f78c6c" }}>ecosystems</span>
+          <span style={{ color: "#89ddff" }}>)</span>
+          <span style={{ color: "#c3e88d" }}>{" {\n"}</span>
+          <span style={{ color: "#c3e88d" }}>{"  "}</span>
+          <span style={{ color: "#82aaff" }}>countAnimals</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>ecosystem</span>
+          <span style={{ color: "#89ddff" }}>)</span>
+          <span style={{ color: "#c3e88d" }}>{";\n"}</span>
+          <span style={{ color: "#c3e88d" }}>{"  "}</span>
+          <span style={{ color: "#82aaff" }}>countPlants</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>ecosystem</span>
+          <span style={{ color: "#89ddff" }}>)</span>
+          <span style={{ color: "#c3e88d" }}>{";\n"}</span>
+          <span style={{ color: "#c3e88d" }}>{"  "}</span>
+          <span style={{ color: "#82aaff" }}>identifyIssue</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>ecosystem</span>
+          <span style={{ color: "#89ddff" }}>)</span>
+          <span style={{ color: "#c3e88d" }}>{";\n"}</span>
+          <span style={{ color: "#c3e88d" }}>{"}"}</span>
+        </div>
+
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+          Just like you visited each ecosystem one by one and performed the same survey tasks,
+          the <strong style={{ color: "#4fc3f7" }}>for loop</strong> goes through the array of ecosystems
+          one by one and runs the same code block for each one. The loop body executes exactly
+          <strong style={{ color: "#ffeb3b" }}> 4 times</strong> — once per ecosystem!
+        </div>
+
+        <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+          For loops are used when you know how many times you need to repeat something — like surveying a known list of ecosystems.
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
+            onClick={advanceOceanLesson}
+            style={{
+              padding: "12px 32px",
+              background: "#4fc3f7",
+              border: "none",
+              borderRadius: 8,
+              color: "#0d47a1",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Continue
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(0, 20, 50, 0.96)",
+        borderRadius: 16,
+        padding: "28px 36px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: "3px solid #69f0ae",
+        boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+        maxWidth: 600,
+        maxHeight: "85vh",
+        overflowY: "auto",
+      }}
+    >
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
+        While Loops in Programming
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        In the cleanup task, you drove the boat around the ocean vacuuming up chemical sludge.
+        You didn't know exactly how many patches were out there — you just kept cleaning
+        <strong style={{ color: "#ffeb3b" }}> while there was still sludge</strong> in the water.
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        This is exactly how a <strong style={{ color: "#69f0ae" }}>while loop</strong> works!
+        A while loop keeps repeating a block of code <em>as long as a condition is true</em>.
+        You didn't count the sludge patches — you just kept going until the ocean was clean.
+      </div>
+
+      <div
+        style={{
+          background: "rgba(0, 0, 0, 0.5)",
+          borderRadius: 8,
+          padding: "16px 20px",
+          fontFamily: "'Courier New', monospace",
+          fontSize: 13,
+          lineHeight: 1.8,
+          marginBottom: 16,
+          border: "1px solid rgba(105, 240, 174, 0.3)",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        <span style={{ color: "#546e7a" }}>{"// Keep cleaning while there's still sludge!\n"}</span>
+        <span style={{ color: "#c792ea" }}>while </span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#82aaff" }}>oceanHasSludge</span>
+        <span style={{ color: "#89ddff" }}>()</span>
+        <span style={{ color: "#89ddff" }}>)</span>
+        <span style={{ color: "#c3e88d" }}>{" {\n"}</span>
+        <span style={{ color: "#c3e88d" }}>{"  "}</span>
+        <span style={{ color: "#82aaff" }}>driveToSludge</span>
+        <span style={{ color: "#89ddff" }}>()</span>
+        <span style={{ color: "#c3e88d" }}>{";\n"}</span>
+        <span style={{ color: "#c3e88d" }}>{"  "}</span>
+        <span style={{ color: "#82aaff" }}>vacuumSludge</span>
+        <span style={{ color: "#89ddff" }}>()</span>
+        <span style={{ color: "#c3e88d" }}>{";\n"}</span>
+        <span style={{ color: "#c3e88d" }}>{"}"}</span>
+        {"\n\n"}
+        <span style={{ color: "#546e7a" }}>{"// The loop stops when oceanHasSludge() returns false\n"}</span>
+        <span style={{ color: "#82aaff" }}>reportToJosh</span>
+        <span style={{ color: "#89ddff" }}>()</span>
+        <span style={{ color: "#c3e88d" }}>;</span>
+        <span style={{ color: "#546e7a" }}>{" // Done!"}</span>
+      </div>
+
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        Just like you kept vacuuming sludge until the ocean was clean, the
+        <strong style={{ color: "#69f0ae" }}> while loop</strong> keeps running its code block as long as
+        <code style={{ color: "#82aaff" }}> oceanHasSludge()</code> returns true. Once all the sludge
+        is gone, the condition becomes false and the loop stops — just like you stopped cleaning
+        and reported back to Josh!
+      </div>
+
+      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+        While loops are used when you don't know in advance how many times you'll need to repeat — you just keep going until a condition changes.
+      </div>
+
+      <div
+        style={{
+          background: "rgba(0, 0, 0, 0.3)",
+          borderRadius: 8,
+          padding: "14px 18px",
+          marginBottom: 16,
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+        }}
+      >
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#ffeb3b", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>
+          For vs While
+        </div>
+        <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85 }}>
+          <strong style={{ color: "#4fc3f7" }}>For loop:</strong> Use when you know the items — "survey <em>each of</em> these 4 ecosystems"
+        </div>
+        <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85 }}>
+          <strong style={{ color: "#69f0ae" }}>While loop:</strong> Use when you have a condition — "keep cleaning <em>while</em> there's still sludge"
+        </div>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          onClick={advanceOceanLesson}
+          style={{
+            padding: "12px 32px",
+            background: "#69f0ae",
+            border: "none",
+            borderRadius: 8,
+            color: "#1b5e20",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Done
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
@@ -409,6 +667,7 @@ function App() {
             <World2HUD />
             <World2DialogueUI />
             <SurveyUI />
+            <OceanLessonUI />
           </>
         )}
       </KeyboardControls>

@@ -130,6 +130,7 @@ interface GameState {
   inBoat: boolean;
   sludgePatches: SludgePatch[];
   cleanupQuestCompleted: boolean;
+  oceanLessonPhase: number;
 
   start: () => void;
   restart: () => void;
@@ -175,6 +176,7 @@ interface GameState {
   exitBoat: () => void;
   cleanSludge: (index: number) => void;
   completeCleanupQuest: () => void;
+  advanceOceanLesson: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -230,6 +232,7 @@ export const useGame = create<GameState>()(
     inBoat: false,
     sludgePatches: generateSludgePatches(),
     cleanupQuestCompleted: false,
+    oceanLessonPhase: 0,
 
     start: () => {
       set((state) => {
@@ -288,6 +291,7 @@ export const useGame = create<GameState>()(
         inBoat: false,
         sludgePatches: generateSludgePatches(),
         cleanupQuestCompleted: false,
+        oceanLessonPhase: 0,
       }));
     },
 
@@ -444,7 +448,8 @@ export const useGame = create<GameState>()(
       );
       set({ sludgePatches: updated });
     },
-    completeCleanupQuest: () => set({ cleanupQuestCompleted: true }),
+    completeCleanupQuest: () => set({ cleanupQuestCompleted: true, oceanLessonPhase: 1 }),
+    advanceOceanLesson: () => set((state) => ({ oceanLessonPhase: Math.min(state.oceanLessonPhase + 1, 3) })),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
