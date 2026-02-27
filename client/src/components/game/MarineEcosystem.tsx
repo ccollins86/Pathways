@@ -351,15 +351,15 @@ function Coral({ position, color, variant = 0 }: { position: [number, number, nu
       <group position={position}>
         <mesh position={[0, 0.2, 0]}>
           <sphereGeometry args={[0.25, 16, 12]} />
-          <meshStandardMaterial color={color} roughness={0.7} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.7} />
         </mesh>
         <mesh position={[0.15, 0.35, 0.1]}>
           <sphereGeometry args={[0.18, 12, 8]} />
-          <meshStandardMaterial color={color} roughness={0.7} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.7} />
         </mesh>
         <mesh position={[-0.1, 0.3, -0.08]}>
           <sphereGeometry args={[0.2, 14, 10]} />
-          <meshStandardMaterial color={color} roughness={0.7} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.7} />
         </mesh>
         <mesh position={[0, 0.05, 0]}>
           <cylinderGeometry args={[0.08, 0.15, 0.15, 8]} />
@@ -372,24 +372,24 @@ function Coral({ position, color, variant = 0 }: { position: [number, number, nu
     <group position={position}>
       <mesh position={[0, 0.25, 0]}>
         <cylinderGeometry args={[0.03, 0.14, 0.6, 8]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.5} />
       </mesh>
       <mesh position={[0.12, 0.4, 0.06]}>
         <cylinderGeometry args={[0.02, 0.1, 0.45, 8]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.5} />
       </mesh>
       <mesh position={[-0.1, 0.35, -0.05]}>
         <cylinderGeometry args={[0.02, 0.09, 0.4, 8]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.5} />
       </mesh>
       <mesh position={[0.05, 0.5, -0.08]}>
         <cylinderGeometry args={[0.015, 0.07, 0.3, 6]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} roughness={0.5} />
       </mesh>
       {[0, 0.12, -0.1].map((x, i) => (
         <mesh key={`tip-${i}`} position={[x, 0.55 - i * 0.05, i * 0.04]}>
           <sphereGeometry args={[0.04, 8, 6]} />
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.15} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} />
         </mesh>
       ))}
     </group>
@@ -411,15 +411,15 @@ function Seaweed({ position, height = 1 }: { position: [number, number, number];
         <group key={i}>
           <mesh position={[offset, height * 0.3, offset * 0.5]}>
             <boxGeometry args={[0.06, height * 0.6, 0.03]} />
-            <meshStandardMaterial color={i === 1 ? "#1b5e20" : "#2e7d32"} />
+            <meshStandardMaterial color={i === 1 ? "#1b5e20" : "#2e7d32"} emissive="#1b5e20" emissiveIntensity={0.25} />
           </mesh>
           <mesh position={[offset, height * 0.6, offset * 0.5]}>
             <boxGeometry args={[0.08, height * 0.3, 0.03]} />
-            <meshStandardMaterial color={i === 0 ? "#388e3c" : "#2e7d32"} />
+            <meshStandardMaterial color={i === 0 ? "#388e3c" : "#2e7d32"} emissive="#2e7d32" emissiveIntensity={0.25} />
           </mesh>
           <mesh position={[offset + 0.04, height * 0.7, offset * 0.5]}>
             <sphereGeometry args={[0.03, 6, 4]} />
-            <meshStandardMaterial color="#43a047" />
+            <meshStandardMaterial color="#43a047" emissive="#43a047" emissiveIntensity={0.3} />
           </mesh>
         </group>
       ))}
@@ -440,11 +440,11 @@ function KelpStalk({ position }: { position: [number, number, number] }) {
     <group ref={ref} position={position}>
       <mesh position={[0, 0.7, 0]}>
         <cylinderGeometry args={[0.04, 0.06, 1.4, 8]} />
-        <meshStandardMaterial color="#1b5e20" roughness={0.5} />
+        <meshStandardMaterial color="#1b5e20" emissive="#1b5e20" emissiveIntensity={0.2} roughness={0.5} />
       </mesh>
       <mesh position={[0, 1.2, 0]}>
         <cylinderGeometry args={[0.03, 0.04, 0.5, 8]} />
-        <meshStandardMaterial color="#2e7d32" roughness={0.5} />
+        <meshStandardMaterial color="#2e7d32" emissive="#2e7d32" emissiveIntensity={0.2} roughness={0.5} />
       </mesh>
       {[0.5, 0.8, 1.1, 1.35].map((y, i) => {
         const side = i % 2 === 0 ? 1 : -1;
@@ -452,18 +452,18 @@ function KelpStalk({ position }: { position: [number, number, number] }) {
           <group key={i}>
             <mesh position={[side * 0.12, y, 0]} rotation={[0, 0, side * 0.4]}>
               <boxGeometry args={[0.22, 0.1, 0.03]} />
-              <meshStandardMaterial color={i % 2 === 0 ? "#2e7d32" : "#388e3c"} />
+              <meshStandardMaterial color={i % 2 === 0 ? "#2e7d32" : "#388e3c"} emissive="#2e7d32" emissiveIntensity={0.25} />
             </mesh>
             <mesh position={[side * 0.2, y + 0.02, 0]}>
               <sphereGeometry args={[0.025, 6, 4]} />
-              <meshStandardMaterial color="#66bb6a" />
+              <meshStandardMaterial color="#66bb6a" emissive="#66bb6a" emissiveIntensity={0.4} />
             </mesh>
           </group>
         );
       })}
       <mesh position={[0, 1.45, 0]}>
         <sphereGeometry args={[0.06, 8, 6]} />
-        <meshStandardMaterial color="#4caf50" roughness={0.3} />
+        <meshStandardMaterial color="#4caf50" emissive="#4caf50" emissiveIntensity={0.3} roughness={0.3} />
       </mesh>
     </group>
   );
@@ -482,23 +482,23 @@ function Algae({ position }: { position: [number, number, number] }) {
     <group ref={ref} position={position}>
       <mesh position={[0, 0.1, 0]} scale={[1.2, 0.8, 1]}>
         <sphereGeometry args={[0.18, 12, 8]} />
-        <meshStandardMaterial color="#558b2f" roughness={0.6} />
+        <meshStandardMaterial color="#558b2f" emissive="#558b2f" emissiveIntensity={0.3} roughness={0.6} />
       </mesh>
       <mesh position={[0.15, 0.08, 0.1]}>
         <sphereGeometry args={[0.12, 10, 6]} />
-        <meshStandardMaterial color="#689f38" roughness={0.6} />
+        <meshStandardMaterial color="#689f38" emissive="#689f38" emissiveIntensity={0.3} roughness={0.6} />
       </mesh>
       <mesh position={[-0.12, 0.09, -0.08]}>
         <sphereGeometry args={[0.14, 10, 6]} />
-        <meshStandardMaterial color="#33691e" roughness={0.6} />
+        <meshStandardMaterial color="#33691e" emissive="#33691e" emissiveIntensity={0.3} roughness={0.6} />
       </mesh>
       <mesh position={[0.08, 0.18, 0.05]}>
         <sphereGeometry args={[0.08, 8, 6]} />
-        <meshStandardMaterial color="#7cb342" roughness={0.5} />
+        <meshStandardMaterial color="#7cb342" emissive="#7cb342" emissiveIntensity={0.35} roughness={0.5} />
       </mesh>
       <mesh position={[-0.05, 0.02, 0.12]}>
         <sphereGeometry args={[0.06, 6, 4]} />
-        <meshStandardMaterial color="#558b2f" roughness={0.7} />
+        <meshStandardMaterial color="#558b2f" emissive="#558b2f" emissiveIntensity={0.3} roughness={0.7} />
       </mesh>
     </group>
   );
@@ -519,11 +519,11 @@ function SeagrassClump({ position }: { position: [number, number, number] }) {
         <group key={i}>
           <mesh position={[x, 0.3 + i * 0.03, i * 0.02 - 0.04]}>
             <boxGeometry args={[0.04, 0.6 + i * 0.05, 0.02]} />
-            <meshStandardMaterial color={i % 2 === 0 ? "#4caf50" : "#388e3c"} />
+            <meshStandardMaterial color={i % 2 === 0 ? "#4caf50" : "#388e3c"} emissive={i % 2 === 0 ? "#4caf50" : "#388e3c"} emissiveIntensity={0.25} />
           </mesh>
           <mesh position={[x + 0.02, 0.55 + i * 0.04, i * 0.02 - 0.04]}>
             <sphereGeometry args={[0.015, 6, 4]} />
-            <meshStandardMaterial color="#81c784" />
+            <meshStandardMaterial color="#81c784" emissive="#81c784" emissiveIntensity={0.35} />
           </mesh>
         </group>
       ))}
@@ -533,147 +533,150 @@ function SeagrassClump({ position }: { position: [number, number, number] }) {
 
 function TrashDebris({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
-      <mesh position={[0, 0.12, 0]} rotation={[0.3, 0.5, 0]}>
-        <boxGeometry args={[0.25, 0.18, 0.18]} />
-        <meshStandardMaterial color="#78909c" roughness={0.8} />
+    <group position={position} scale={[2.5, 2.5, 2.5]}>
+      <mesh position={[0, 0.15, 0]} rotation={[0.3, 0.5, 0]}>
+        <boxGeometry args={[0.4, 0.3, 0.3]} />
+        <meshStandardMaterial color="#78909c" emissive="#90a4ae" emissiveIntensity={0.2} roughness={0.8} />
       </mesh>
-      <mesh position={[0.6, 0.1, 0.4]} rotation={[0.1, 1.2, 0.2]}>
-        <cylinderGeometry args={[0.07, 0.07, 0.3, 10]} />
-        <meshStandardMaterial color="#90a4ae" roughness={0.6} metalness={0.3} />
+      <mesh position={[0.8, 0.12, 0.5]} rotation={[0.1, 1.2, 0.2]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.5, 10]} />
+        <meshStandardMaterial color="#90a4ae" emissive="#b0bec5" emissiveIntensity={0.2} roughness={0.6} metalness={0.3} />
       </mesh>
-      <mesh position={[-0.5, 0.08, -0.3]} rotation={[0.5, 0.3, 0.8]}>
-        <boxGeometry args={[0.35, 0.03, 0.25]} />
-        <meshStandardMaterial color="#b0bec5" roughness={0.9} />
+      <mesh position={[-0.7, 0.1, -0.4]} rotation={[0.5, 0.3, 0.8]}>
+        <boxGeometry args={[0.5, 0.05, 0.4]} />
+        <meshStandardMaterial color="#b0bec5" emissive="#cfd8dc" emissiveIntensity={0.15} roughness={0.9} />
       </mesh>
-      <mesh position={[0.4, 0.07, -0.5]} rotation={[0, 0.7, 0]}>
-        <cylinderGeometry args={[0.09, 0.09, 0.35, 8]} />
-        <meshStandardMaterial color="#607d8b" roughness={0.7} />
+      <mesh position={[0.5, 0.1, -0.6]} rotation={[0, 0.7, 0]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.5, 8]} />
+        <meshStandardMaterial color="#607d8b" emissive="#78909c" emissiveIntensity={0.2} roughness={0.7} />
       </mesh>
-      <mesh position={[-0.6, 0.06, 0.5]} rotation={[0.2, 1.5, 0.1]}>
-        <boxGeometry args={[0.18, 0.12, 0.15]} />
-        <meshStandardMaterial color="#455a64" roughness={0.8} />
+      <mesh position={[-0.8, 0.08, 0.7]} rotation={[0.2, 1.5, 0.1]}>
+        <boxGeometry args={[0.3, 0.2, 0.25]} />
+        <meshStandardMaterial color="#455a64" emissive="#607d8b" emissiveIntensity={0.15} roughness={0.8} />
       </mesh>
-      <mesh position={[0.2, 0.04, 0.7]} rotation={[0.4, 0.9, 0.3]}>
-        <sphereGeometry args={[0.08, 8, 6]} />
-        <meshStandardMaterial color="#cfd8dc" roughness={0.4} />
+      <mesh position={[0.3, 0.06, 0.9]} rotation={[0.4, 0.9, 0.3]}>
+        <sphereGeometry args={[0.14, 8, 6]} />
+        <meshStandardMaterial color="#cfd8dc" emissive="#eceff1" emissiveIntensity={0.2} roughness={0.4} />
       </mesh>
+      <pointLight position={[0, 0.5, 0]} intensity={2} distance={4} color="#b0bec5" />
     </group>
   );
 }
 
 function FishingNets({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
-      <mesh position={[0, 0.4, 0]} rotation={[0.2, 0.5, 0.1]}>
-        <boxGeometry args={[1.8, 0.8, 0.02]} />
+    <group position={position} scale={[2.5, 2.5, 2.5]}>
+      <mesh position={[0, 0.5, 0]} rotation={[0.2, 0.5, 0.1]}>
+        <boxGeometry args={[2.5, 1.2, 0.03]} />
+        <meshStandardMaterial color="#bdbdbd" transparent opacity={0.6} wireframe />
+      </mesh>
+      <mesh position={[0.4, 0.6, 0.5]} rotation={[-0.3, 0.8, 0.2]}>
+        <boxGeometry args={[1.8, 0.9, 0.03]} />
         <meshStandardMaterial color="#9e9e9e" transparent opacity={0.5} wireframe />
       </mesh>
-      <mesh position={[0.3, 0.5, 0.4]} rotation={[-0.3, 0.8, 0.2]}>
-        <boxGeometry args={[1.2, 0.6, 0.02]} />
-        <meshStandardMaterial color="#757575" transparent opacity={0.4} wireframe />
+      <mesh position={[-0.5, 0.3, 0.1]}>
+        <sphereGeometry args={[0.2, 8, 6]} />
+        <meshStandardMaterial color="#f44336" emissive="#f44336" emissiveIntensity={0.4} transparent opacity={0.8} />
       </mesh>
-      <mesh position={[-0.4, 0.2, 0.1]}>
-        <sphereGeometry args={[0.14, 8, 6]} />
-        <meshStandardMaterial color="#f44336" transparent opacity={0.7} />
+      <mesh position={[0.6, 0.35, -0.4]}>
+        <sphereGeometry args={[0.18, 8, 6]} />
+        <meshStandardMaterial color="#e53935" emissive="#e53935" emissiveIntensity={0.4} transparent opacity={0.8} />
       </mesh>
-      <mesh position={[0.5, 0.25, -0.3]}>
-        <sphereGeometry args={[0.12, 8, 6]} />
-        <meshStandardMaterial color="#e53935" transparent opacity={0.7} />
+      <mesh position={[-0.3, 0.2, -0.5]}>
+        <sphereGeometry args={[0.15, 6, 4]} />
+        <meshStandardMaterial color="#ef5350" emissive="#ef5350" emissiveIntensity={0.4} transparent opacity={0.7} />
       </mesh>
-      <mesh position={[-0.2, 0.15, -0.4]}>
-        <sphereGeometry args={[0.1, 6, 4]} />
-        <meshStandardMaterial color="#ef5350" transparent opacity={0.6} />
+      <mesh position={[0, 0.15, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 1.2, 6]} />
+        <meshStandardMaterial color="#e0e0e0" emissive="#bdbdbd" emissiveIntensity={0.2} />
       </mesh>
-      <mesh position={[0, 0.1, 0]}>
-        <cylinderGeometry args={[0.03, 0.03, 0.8, 6]} />
-        <meshStandardMaterial color="#bdbdbd" />
-      </mesh>
+      <pointLight position={[0, 0.6, 0]} intensity={2} distance={4} color="#ef9a9a" />
     </group>
   );
 }
 
 function OilSpill({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
+    <group position={position} scale={[2, 2, 2]}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <circleGeometry args={[1.8, 24]} />
-        <meshStandardMaterial color="#1a1a1a" transparent opacity={0.7} roughness={0.1} metalness={0.8} />
+        <circleGeometry args={[2.5, 24]} />
+        <meshStandardMaterial color="#1a1a1a" emissive="#4a148c" emissiveIntensity={0.15} transparent opacity={0.8} roughness={0.1} metalness={0.8} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1, 0.06, 0.6]}>
-        <circleGeometry args={[1, 16]} />
-        <meshStandardMaterial color="#2c2c00" transparent opacity={0.6} roughness={0.05} metalness={0.9} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.2, 0.06, 0.8]}>
+        <circleGeometry args={[1.5, 16]} />
+        <meshStandardMaterial color="#2c2c00" emissive="#4a148c" emissiveIntensity={0.1} transparent opacity={0.7} roughness={0.05} metalness={0.9} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.6, 0.06, -0.4]}>
-        <circleGeometry args={[0.7, 12]} />
-        <meshStandardMaterial color="#3e2723" transparent opacity={0.5} roughness={0.08} metalness={0.7} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.8, 0.06, -0.5]}>
+        <circleGeometry args={[1, 12]} />
+        <meshStandardMaterial color="#3e2723" emissive="#4a148c" emissiveIntensity={0.1} transparent opacity={0.6} roughness={0.08} metalness={0.7} />
       </mesh>
-      <mesh position={[-0.8, 0.2, 0.3]} rotation={[0.5, 0.2, 0.3]}>
-        <cylinderGeometry args={[0.12, 0.12, 0.4, 10]} />
-        <meshStandardMaterial color="#37474f" roughness={0.6} metalness={0.4} />
+      <mesh position={[-1, 0.3, 0.4]} rotation={[0.5, 0.2, 0.3]}>
+        <cylinderGeometry args={[0.2, 0.2, 0.6, 10]} />
+        <meshStandardMaterial color="#37474f" emissive="#455a64" emissiveIntensity={0.2} roughness={0.6} metalness={0.4} />
       </mesh>
+      <pointLight position={[0, 0.4, 0]} intensity={2} distance={5} color="#7c4dff" />
     </group>
   );
 }
 
 function CoralReefContent({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
-      <Fish position={[1.2, 0.8, 0.8]} color="#ff6f00" accentColor="#ffab00" scale={0.9} />
-      <Fish position={[-1.5, 0.6, -1]} color="#1e88e5" accentColor="#42a5f5" scale={0.8} />
-      <Fish position={[0.5, 1, -1.5]} color="#fdd835" accentColor="#ffee58" scale={1} />
-      <Fish position={[-0.8, 0.5, 1.2]} color="#e91e63" accentColor="#f48fb1" scale={0.7} />
-      <Fish position={[2, 0.7, 0]} color="#7b1fa2" accentColor="#ba68c8" scale={0.85} />
-      <Coral position={[-1.2, 0, 0.6]} color="#e91e63" variant={0} />
-      <Coral position={[1, 0, -0.6]} color="#ff7043" variant={1} />
-      <Seaweed position={[-0.5, 0, 1.5]} height={1} />
-      <Seaweed position={[1.5, 0, 1]} height={0.8} />
+    <group position={position} scale={[2.5, 2.5, 2.5]}>
+      <Fish position={[1.5, 1, 1]} color="#ff6f00" accentColor="#ffab00" scale={1.2} />
+      <Fish position={[-2, 0.8, -1.3]} color="#1e88e5" accentColor="#42a5f5" scale={1} />
+      <Fish position={[0.6, 1.2, -2]} color="#fdd835" accentColor="#ffee58" scale={1.3} />
+      <Fish position={[-1, 0.7, 1.5]} color="#e91e63" accentColor="#f48fb1" scale={0.9} />
+      <Fish position={[2.5, 0.9, 0]} color="#7b1fa2" accentColor="#ba68c8" scale={1.1} />
+      <Coral position={[-1.5, 0, 0.8]} color="#e91e63" variant={0} />
+      <Coral position={[1.3, 0, -0.8]} color="#ff7043" variant={1} />
+      <Seaweed position={[-0.6, 0, 2]} height={1.4} />
+      <Seaweed position={[2, 0, 1.2]} height={1.2} />
     </group>
   );
 }
 
 function KelpForestContent({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
-      <Fish position={[0.8, 0.6, 0.5]} color="#ff8f00" accentColor="#ffc107" scale={0.9} />
-      <Fish position={[-1.2, 0.8, -0.7]} color="#00acc1" accentColor="#26c6da" scale={0.8} />
-      <Fish position={[1.5, 0.5, 1.2]} color="#7cb342" accentColor="#aed581" scale={0.7} />
-      <Fish position={[-0.7, 0.9, 1]} color="#fdd835" accentColor="#fff176" scale={0.95} />
-      <KelpStalk position={[-1.5, 0, 0.3]} />
-      <KelpStalk position={[1, 0, -1]} />
-      <KelpStalk position={[-0.4, 0, 1.5]} />
-      <KelpStalk position={[1.8, 0, 0.7]} />
-      <KelpStalk position={[-1, 0, -1.2]} />
-      <KelpStalk position={[0.4, 0, -0.4]} />
+    <group position={position} scale={[2.5, 2.5, 2.5]}>
+      <Fish position={[1, 0.8, 0.7]} color="#ff8f00" accentColor="#ffc107" scale={1.2} />
+      <Fish position={[-1.5, 1, -1]} color="#00acc1" accentColor="#26c6da" scale={1} />
+      <Fish position={[2, 0.7, 1.5]} color="#7cb342" accentColor="#aed581" scale={0.9} />
+      <Fish position={[-0.9, 1.1, 1.3]} color="#fdd835" accentColor="#fff176" scale={1.2} />
+      <KelpStalk position={[-2, 0, 0.4]} />
+      <KelpStalk position={[1.3, 0, -1.3]} />
+      <KelpStalk position={[-0.5, 0, 2]} />
+      <KelpStalk position={[2.2, 0, 0.9]} />
+      <KelpStalk position={[-1.3, 0, -1.5]} />
+      <KelpStalk position={[0.5, 0, -0.5]} />
     </group>
   );
 }
 
 function TidePoolContent({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
-      <Starfish position={[-0.6, 0.08, 0.4]} color="#ff5722" />
-      <Starfish position={[1, 0.08, -0.6]} color="#ff7043" />
-      <Crab position={[0, 0.12, 1]} />
-      <Algae position={[-1, 0, -0.4]} />
-      <Algae position={[0.6, 0, 0.6]} />
-      <Algae position={[-0.4, 0, -1]} />
+    <group position={position} scale={[2.5, 2.5, 2.5]}>
+      <Starfish position={[-0.8, 0.1, 0.5]} color="#ff5722" />
+      <Starfish position={[1.3, 0.1, -0.8]} color="#ff7043" />
+      <Crab position={[0, 0.15, 1.3]} />
+      <Algae position={[-1.3, 0, -0.5]} />
+      <Algae position={[0.8, 0, 0.8]} />
+      <Algae position={[-0.5, 0, -1.3]} />
     </group>
   );
 }
 
 function SeagrassMeadowContent({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position}>
-      <Fish position={[1, 0.6, 0.4]} color="#0288d1" accentColor="#29b6f6" scale={0.8} />
-      <Fish position={[-1.2, 0.5, 0.7]} color="#43a047" accentColor="#66bb6a" scale={0.7} />
-      <Seahorse position={[0, 0.5, -0.6]} />
-      <Turtle position={[-0.6, 0.4, 1.2]} />
-      <SeagrassClump position={[-1.5, 0, 0.3]} />
-      <SeagrassClump position={[0.8, 0, -1]} />
-      <SeagrassClump position={[-0.5, 0, 1.6]} />
-      <SeagrassClump position={[1.6, 0, 0.8]} />
-      <SeagrassClump position={[0, 0, -1.5]} />
+    <group position={position} scale={[2.5, 2.5, 2.5]}>
+      <Fish position={[1.3, 0.8, 0.5]} color="#0288d1" accentColor="#29b6f6" scale={1} />
+      <Fish position={[-1.5, 0.7, 0.9]} color="#43a047" accentColor="#66bb6a" scale={0.9} />
+      <Seahorse position={[0, 0.7, -0.8]} />
+      <Turtle position={[-0.8, 0.5, 1.5]} />
+      <SeagrassClump position={[-2, 0, 0.4]} />
+      <SeagrassClump position={[1, 0, -1.3]} />
+      <SeagrassClump position={[-0.6, 0, 2]} />
+      <SeagrassClump position={[2, 0, 1]} />
+      <SeagrassClump position={[0, 0, -2]} />
     </group>
   );
 }
@@ -706,8 +709,10 @@ function UnderwaterGlow({ position }: { position: [number, number, number] }) {
 
   return (
     <>
-      <pointLight ref={ref} position={[position[0], position[1] + 5, position[2]]} color="#4fc3f7" intensity={5} distance={30} />
-      <pointLight ref={ref2} position={[position[0], position[1] + 2, position[2]]} color="#ffffff" intensity={3} distance={20} />
+      <pointLight ref={ref} position={[position[0], position[1] + 6, position[2]]} color="#4fc3f7" intensity={8} distance={40} />
+      <pointLight ref={ref2} position={[position[0], position[1] + 3, position[2]]} color="#ffffff" intensity={5} distance={25} />
+      <pointLight position={[position[0] + 3, position[1] + 2, position[2] + 3]} color="#81d4fa" intensity={3} distance={15} />
+      <pointLight position={[position[0] - 3, position[1] + 2, position[2] - 3]} color="#81d4fa" intensity={3} distance={15} />
     </>
   );
 }
@@ -716,7 +721,7 @@ function SeaFloor({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
-        <circleGeometry args={[5.5, 32]} />
+        <circleGeometry args={[9, 32]} />
         <meshStandardMaterial color="#8d6e63" roughness={0.7} />
       </mesh>
       {[[-2, 0, -1.5], [1.8, 0, 2], [-1, 0, 2.5], [2.5, 0, -0.5]].map((pos, i) => (
@@ -770,22 +775,22 @@ export function MarineEcosystem({
       <UnderwaterGlow position={[0, 0, 0]} />
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
-        <circleGeometry args={[5, 32]} />
+        <circleGeometry args={[8, 32]} />
         <meshStandardMaterial
           color={surveyed ? "#2e7d32" : "#1565c0"}
           emissive={surveyed ? "#1b5e20" : "#0d47a1"}
-          emissiveIntensity={0.4}
+          emissiveIntensity={0.5}
           transparent
           opacity={0.5}
         />
       </mesh>
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
-        <ringGeometry args={[4.8, 5.2, 32]} />
+        <ringGeometry args={[7.5, 8, 32]} />
         <meshStandardMaterial
           color={surveyed ? "#66bb6a" : isNear ? "#ffeb3b" : "#4fc3f7"}
           emissive={surveyed ? "#66bb6a" : isNear ? "#ffeb3b" : "#4fc3f7"}
-          emissiveIntensity={isNear ? 0.8 : 0.5}
+          emissiveIntensity={isNear ? 1 : 0.6}
           transparent
           opacity={isNear ? 0.9 : 0.7}
         />
@@ -795,12 +800,12 @@ export function MarineEcosystem({
       {IssueComponent && <IssueComponent position={[2, 0, 2]} />}
 
       <Text
-        position={[0, 3, 0]}
-        fontSize={0.55}
+        position={[0, 5, 0]}
+        fontSize={0.8}
         color={surveyed ? "#a5d6a7" : "#e1f5fe"}
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.04}
+        outlineWidth={0.06}
         outlineColor="#000000"
       >
         {surveyed ? `${name} ✓` : name}
@@ -808,12 +813,12 @@ export function MarineEcosystem({
 
       {questStarted && isNear && !surveyed && currentSurveyIndex === null && !world2Dialogue && (
         <Text
-          position={[0, 1.9, 0]}
-          fontSize={0.28}
+          position={[0, 4, 0]}
+          fontSize={0.4}
           color="#ffeb3b"
           anchorX="center"
           anchorY="middle"
-          outlineWidth={0.02}
+          outlineWidth={0.03}
           outlineColor="#000000"
         >
           Press E to survey
