@@ -726,6 +726,156 @@ function ChemicalSludgePatch({
   );
 }
 
+function OceanPracticeBooth({
+  position,
+  playerPosition,
+  unlocked,
+  active,
+  onInteract,
+}: {
+  position: [number, number, number];
+  playerPosition: THREE.Vector3;
+  unlocked: boolean;
+  active: boolean;
+  onInteract: () => void;
+}) {
+  const boothPos = useRef(new THREE.Vector3(position[0], position[1], position[2]));
+  const [nearBooth, setNearBooth] = useState(false);
+  const nearBoothRef = useRef(false);
+  const glowRef = useRef<THREE.Mesh>(null);
+
+  useFrame(() => {
+    const dist = playerPosition.distanceTo(boothPos.current);
+    const isNear = dist < 4;
+    if (isNear !== nearBoothRef.current) {
+      nearBoothRef.current = isNear;
+      setNearBooth(isNear);
+    }
+    if (glowRef.current) {
+      const mat = glowRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = unlocked ? 0.5 + Math.sin(Date.now() * 0.003) * 0.3 : 0.1;
+    }
+  });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const w2d = useGame.getState().world2Dialogue;
+      if (e.code === "KeyE" && nearBooth && unlocked && !active && !w2d) {
+        onInteract();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [nearBooth, unlocked, active, onInteract]);
+
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.05, 0]} receiveShadow>
+        <boxGeometry args={[3, 0.1, 3]} />
+        <meshStandardMaterial color="#1a3a4a" />
+      </mesh>
+      <mesh position={[0, 1.8, -1.4]} castShadow>
+        <boxGeometry args={[3, 3.6, 0.15]} />
+        <meshStandardMaterial color="#004d40" />
+      </mesh>
+      <mesh position={[-1.45, 1.8, 0]} castShadow>
+        <boxGeometry args={[0.15, 3.6, 3]} />
+        <meshStandardMaterial color="#004d40" />
+      </mesh>
+      <mesh position={[1.45, 1.8, 0]} castShadow>
+        <boxGeometry args={[0.15, 3.6, 3]} />
+        <meshStandardMaterial color="#004d40" />
+      </mesh>
+      <mesh position={[0, 3.65, 0]} castShadow>
+        <boxGeometry args={[3.2, 0.12, 3.2]} />
+        <meshStandardMaterial color="#00695c" />
+      </mesh>
+      <mesh position={[0, 2.2, -1.3]}>
+        <boxGeometry args={[2.2, 1.5, 0.05]} />
+        <meshStandardMaterial color="#111111" emissive="#0a2a1a" emissiveIntensity={0.3} />
+      </mesh>
+      <mesh ref={glowRef} position={[0, 2.2, -1.28]}>
+        <boxGeometry args={[2.3, 1.6, 0.02]} />
+        <meshStandardMaterial color="#69f0ae" emissive="#69f0ae" emissiveIntensity={0.1} transparent opacity={0.3} />
+      </mesh>
+      <mesh position={[0, 1.1, -0.3]} castShadow>
+        <boxGeometry args={[2, 0.08, 1]} />
+        <meshStandardMaterial color="#222222" />
+      </mesh>
+      <mesh position={[0, 1.18, -0.3]}>
+        <boxGeometry args={[1.2, 0.04, 0.5]} />
+        <meshStandardMaterial color="#333333" />
+      </mesh>
+      <Text
+        position={[0, 4.2, 0]}
+        fontSize={0.35}
+        color={unlocked ? "#69f0ae" : "#666666"}
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.03}
+        outlineColor="#000000"
+        fontWeight="bold"
+      >
+        OCEAN PRACTICE
+      </Text>
+      {nearBooth && unlocked && !active && (
+        <Text
+          position={[0, 4.7, 0]}
+          fontSize={0.3}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Press E to Practice
+        </Text>
+      )}
+      {nearBooth && !unlocked && (
+        <Text
+          position={[0, 4.7, 0]}
+          fontSize={0.25}
+          color="#999999"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Complete the lessons first!
+        </Text>
+      )}
+      <Text
+        position={[-1.36, 2.5, 0]}
+        fontSize={0.22}
+        color="#69f0ae"
+        anchorX="center"
+        anchorY="middle"
+        rotation={[0, Math.PI / 2, 0]}
+        outlineWidth={0.02}
+        outlineColor="#000000"
+      >
+        {"for( )"}
+      </Text>
+      <Text
+        position={[1.36, 2.5, 0]}
+        fontSize={0.22}
+        color="#69f0ae"
+        anchorX="center"
+        anchorY="middle"
+        rotation={[0, -Math.PI / 2, 0]}
+        outlineWidth={0.02}
+        outlineColor="#000000"
+      >
+        {"while( )"}
+      </Text>
+      <mesh position={[0, 3.55, 0]}>
+        <boxGeometry args={[0.1, 0.04, 2.5]} />
+        <meshStandardMaterial color="#69f0ae" emissive="#69f0ae" emissiveIntensity={unlocked ? 1 : 0.2} />
+      </mesh>
+    </group>
+  );
+}
+
 export function OceanWorld() {
   const [playerPos, setPlayerPos] = useState(new THREE.Vector3(0, 0, 15));
   const world2Dialogue = useGame((s) => s.world2Dialogue);
@@ -742,6 +892,10 @@ export function OceanWorld() {
   const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
   const completeCleanupQuest = useGame((s) => s.completeCleanupQuest);
   const inBoat = useGame((s) => s.inBoat);
+  const oceanPracticeUnlocked = useGame((s) => s.oceanPracticeUnlocked);
+  const oceanPracticeActive = useGame((s) => s.oceanPracticeActive);
+  const openOceanPractice = useGame((s) => s.openOceanPractice);
+  const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
 
   const allSurveyed = ecosystems.every((e) => e.surveyed);
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
@@ -978,6 +1132,14 @@ export function OceanWorld() {
           inBoat={inBoat}
         />
       ))}
+
+      <OceanPracticeBooth
+        position={[-8, 0, 14]}
+        playerPosition={playerPos}
+        unlocked={oceanPracticeUnlocked}
+        active={oceanPracticeActive}
+        onInteract={openOceanPractice}
+      />
     </>
   );
 }

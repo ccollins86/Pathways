@@ -6,6 +6,7 @@ import { OceanWorld } from "./components/game/OceanWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
+import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
@@ -183,17 +184,25 @@ function World2HUD() {
   const sludgePatches = useGame((s) => s.sludgePatches);
   const inBoat = useGame((s) => s.inBoat);
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
+  const oceanPracticeActive = useGame((s) => s.oceanPracticeActive);
+  const oceanPracticeCompleted = useGame((s) => s.oceanPracticeCompleted);
+  const oceanPracticeUnlocked = useGame((s) => s.oceanPracticeUnlocked);
 
   if (world2Dialogue || currentSurveyIndex !== null) return null;
   if (oceanLessonPhase >= 1 && oceanLessonPhase <= 2) return null;
+  if (oceanPracticeActive) return null;
 
   const surveyedCount = ecosystems.filter((e) => e.surveyed).length;
   const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
 
   let objectiveText = "Talk to Josh at the Beach Station to get started!";
-  if (cleanupQuestCompleted && oceanLessonPhase >= 3) {
-    objectiveText = "Lessons complete! You're a true marine biologist and programmer!";
+  if (oceanPracticeCompleted) {
+    objectiveText = "All quizzes complete! You've mastered for loops and while loops!";
+  } else if (oceanPracticeUnlocked) {
+    objectiveText = "Visit the Ocean Practice Station to test your for/while loop knowledge!";
+  } else if (cleanupQuestCompleted && oceanLessonPhase >= 3) {
+    objectiveText = "Lessons complete! Visit the Ocean Practice Station to test your skills!";
   } else if (cleanupQuestCompleted) {
     objectiveText = "Chemical spill cleaned! You saved the ocean! Talk to Josh.";
   } else if (cleanupQuestStarted) {
@@ -619,6 +628,12 @@ function OceanLessonUI() {
   );
 }
 
+function OceanPracticeQuizWrapper() {
+  const oceanPracticeActive = useGame((s) => s.oceanPracticeActive);
+  if (!oceanPracticeActive) return null;
+  return <OceanPracticeQuizUI />;
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
@@ -668,6 +683,7 @@ function App() {
             <World2DialogueUI />
             <SurveyUI />
             <OceanLessonUI />
+            <OceanPracticeQuizWrapper />
           </>
         )}
       </KeyboardControls>

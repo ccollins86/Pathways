@@ -131,6 +131,10 @@ interface GameState {
   sludgePatches: SludgePatch[];
   cleanupQuestCompleted: boolean;
   oceanLessonPhase: number;
+  oceanPracticeUnlocked: boolean;
+  oceanPracticeActive: boolean;
+  oceanPracticeScore: number;
+  oceanPracticeCompleted: boolean;
 
   start: () => void;
   restart: () => void;
@@ -177,6 +181,12 @@ interface GameState {
   cleanSludge: (index: number) => void;
   completeCleanupQuest: () => void;
   advanceOceanLesson: () => void;
+  unlockOceanPractice: () => void;
+  openOceanPractice: () => void;
+  closeOceanPractice: () => void;
+  addOceanPracticeScore: (points: number) => void;
+  resetOceanPracticeScore: () => void;
+  completeOceanPractice: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -233,6 +243,10 @@ export const useGame = create<GameState>()(
     sludgePatches: generateSludgePatches(),
     cleanupQuestCompleted: false,
     oceanLessonPhase: 0,
+    oceanPracticeUnlocked: false,
+    oceanPracticeActive: false,
+    oceanPracticeScore: 0,
+    oceanPracticeCompleted: false,
 
     start: () => {
       set((state) => {
@@ -292,6 +306,10 @@ export const useGame = create<GameState>()(
         sludgePatches: generateSludgePatches(),
         cleanupQuestCompleted: false,
         oceanLessonPhase: 0,
+        oceanPracticeUnlocked: false,
+        oceanPracticeActive: false,
+        oceanPracticeScore: 0,
+        oceanPracticeCompleted: false,
       }));
     },
 
@@ -449,7 +467,19 @@ export const useGame = create<GameState>()(
       set({ sludgePatches: updated });
     },
     completeCleanupQuest: () => set({ cleanupQuestCompleted: true, oceanLessonPhase: 1 }),
-    advanceOceanLesson: () => set((state) => ({ oceanLessonPhase: Math.min(state.oceanLessonPhase + 1, 3) })),
+    advanceOceanLesson: () => {
+      const next = Math.min(get().oceanLessonPhase + 1, 3);
+      set({ oceanLessonPhase: next });
+      if (next === 3) {
+        set({ oceanPracticeUnlocked: true });
+      }
+    },
+    unlockOceanPractice: () => set({ oceanPracticeUnlocked: true }),
+    openOceanPractice: () => set({ oceanPracticeActive: true }),
+    closeOceanPractice: () => set({ oceanPracticeActive: false }),
+    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points })),
+    resetOceanPracticeScore: () => set({ oceanPracticeScore: 0 }),
+    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
