@@ -276,6 +276,60 @@ function OceanLights() {
   );
 }
 
+function BeachSign() {
+  const woodTexture = useTexture("/textures/wood.jpg");
+
+  return (
+    <group position={[-5, 0, 8]} rotation={[0, 0.3, 0]}>
+      <mesh position={[-0.6, 1.5, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.08, 3, 8]} />
+        <meshStandardMaterial map={woodTexture} color="#8b6914" />
+      </mesh>
+      <mesh position={[0.6, 1.5, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.08, 3, 8]} />
+        <meshStandardMaterial map={woodTexture} color="#8b6914" />
+      </mesh>
+
+      <mesh position={[0, 2.6, 0]} castShadow>
+        <boxGeometry args={[2.4, 1, 0.12]} />
+        <meshStandardMaterial map={woodTexture} color="#deb887" />
+      </mesh>
+
+      <mesh position={[0, 2.6, 0.065]}>
+        <boxGeometry args={[2.3, 0.9, 0.01]} />
+        <meshStandardMaterial color="#2e1a00" />
+      </mesh>
+
+      <Text
+        position={[0, 2.8, 0.08]}
+        fontSize={0.18}
+        color="#fff8dc"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.01}
+        outlineColor="#2e1a00"
+        maxWidth={2}
+        textAlign="center"
+      >
+        LA Marine
+      </Text>
+      <Text
+        position={[0, 2.5, 0.08]}
+        fontSize={0.18}
+        color="#fff8dc"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.01}
+        outlineColor="#2e1a00"
+        maxWidth={2}
+        textAlign="center"
+      >
+        Nature Preserve
+      </Text>
+    </group>
+  );
+}
+
 export function OceanWorld() {
   const [playerPos, setPlayerPos] = useState(new THREE.Vector3(0, 0, 15));
   const world2Dialogue = useGame((s) => s.world2Dialogue);
@@ -312,6 +366,7 @@ export function OceanWorld() {
       <WaterWaves />
       <ShorelineWater />
       <BeachBuilding />
+      <BeachSign />
       <BeachDecor />
 
       <Player onPositionUpdate={handlePositionUpdate} />
