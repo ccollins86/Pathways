@@ -15,7 +15,25 @@ export interface EcosystemData {
   surveyed: boolean;
 }
 
+export interface SludgePatch {
+  position: [number, number, number];
+  cleaned: boolean;
+}
+
 const ISSUE_TYPES: EnvironmentalIssue[] = ["trash", "nets", "oil_spill"];
+
+function generateSludgePatches(): SludgePatch[] {
+  return [
+    { position: [-15, -0.2, -20], cleaned: false },
+    { position: [10, -0.2, -25], cleaned: false },
+    { position: [-25, -0.2, -35], cleaned: false },
+    { position: [20, -0.2, -30], cleaned: false },
+    { position: [0, -0.2, -45], cleaned: false },
+    { position: [-10, -0.2, -50], cleaned: false },
+    { position: [15, -0.2, -55], cleaned: false },
+    { position: [-20, -0.2, -15], cleaned: false },
+  ];
+}
 
 function generateEcosystems(): EcosystemData[] {
   return [
@@ -124,6 +142,11 @@ interface GameState {
   oceanQuestCompleted: boolean;
   hasDivingSuit: boolean;
 
+  cleanupQuestStarted: boolean;
+  inBoat: boolean;
+  sludgePatches: SludgePatch[];
+  cleanupQuestCompleted: boolean;
+
   start: () => void;
   restart: () => void;
   end: () => void;
@@ -162,6 +185,12 @@ interface GameState {
   completeEcosystemSurvey: (index: number) => void;
   completeOceanQuest: () => void;
   equipDivingSuit: () => void;
+
+  startCleanupQuest: () => void;
+  boardBoat: () => void;
+  exitBoat: () => void;
+  cleanSludge: (index: number) => void;
+  completeCleanupQuest: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -212,6 +241,11 @@ export const useGame = create<GameState>()(
     currentSurveyIndex: null,
     oceanQuestCompleted: false,
     hasDivingSuit: false,
+
+    cleanupQuestStarted: false,
+    inBoat: false,
+    sludgePatches: generateSludgePatches(),
+    cleanupQuestCompleted: false,
 
     start: () => {
       set((state) => {
@@ -266,6 +300,10 @@ export const useGame = create<GameState>()(
         currentSurveyIndex: null,
         oceanQuestCompleted: false,
         hasDivingSuit: false,
+        cleanupQuestStarted: false,
+        inBoat: false,
+        sludgePatches: generateSludgePatches(),
+        cleanupQuestCompleted: false,
       }));
     },
 
@@ -411,6 +449,18 @@ export const useGame = create<GameState>()(
     },
     completeOceanQuest: () => set({ oceanQuestCompleted: true }),
     equipDivingSuit: () => set({ hasDivingSuit: true }),
+
+    startCleanupQuest: () => set({ cleanupQuestStarted: true }),
+    boardBoat: () => set({ inBoat: true }),
+    exitBoat: () => set({ inBoat: false }),
+    cleanSludge: (index: number) => {
+      const { sludgePatches } = get();
+      const updated = sludgePatches.map((patch, i) =>
+        i === index ? { ...patch, cleaned: true } : patch
+      );
+      set({ sludgePatches: updated });
+    },
+    completeCleanupQuest: () => set({ cleanupQuestCompleted: true }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();

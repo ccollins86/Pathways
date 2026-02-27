@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-27: Added chemical spill cleanup quest - after survey completion, Josh assigns cleanup task, player boards boat with vacuum, drives to 8 green glowing sludge patches and vacuums them up, returns to Josh
 - 2026-02-27: Enhanced ocean ecosystems - much more detailed fish/marine life models, moved ecosystems deeper into the ocean and further apart, added diving suit mechanic (suit station on beach, player must equip before entering water, visual change to wetsuit), player sinks slightly underwater
 - 2026-02-27: Added Ocean World marine ecosystem survey quest - 4 ecosystems (Coral Reef, Kelp Forest, Tide Pool, Seagrass Meadow) with marine life, environmental issues, SurveyUI for counting animals/plants/identifying issues, Josh NPC quest dialogue flow
 - 2026-02-26: Added Ocean World (World 2) - beach environment with ocean, palm trees, building, and NPC Josh; accessible via portal after quest + quiz
@@ -24,7 +25,7 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/App.tsx` - Main app with start screen, Canvas, HUD, and dialogue UI
 - `client/src/lib/stores/useGame.tsx` - Game state: phase, quest progress, dialogue management, random disaster selection
 - `client/src/components/game/Game.tsx` - Main game component with all NPCs, dialogue logic, quest flow
-- `client/src/components/game/Player.tsx` - WASD movement player character
+- `client/src/components/game/Player.tsx` - WASD movement player character with boat mode
 - `client/src/components/game/NPC.tsx` - Reusable NPC component with proximity detection and E-key interaction
 - `client/src/components/game/DialogueUI.tsx` - Dialogue box overlay
 - `client/src/components/game/GameHUD.tsx` - Objective tracker and quest progress
@@ -44,6 +45,18 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/components/game/Portal.tsx` - Glowing portal ring that appears after quest + quiz completion
 - `client/src/components/game/MarineEcosystem.tsx` - 3D ecosystem zones with marine animals, plants, and environmental issues
 - `client/src/components/game/SurveyUI.tsx` - Survey popup for counting animals/plants and identifying environmental issues
+- `client/src/components/game/OceanWorld.tsx` - Ocean World with beach, boat dock, chemical sludge patches, and cleanup quest
+
+### Chemical Spill Cleanup Quest Flow
+1. After surveying all 4 ecosystems, return to Josh
+2. Josh reports emergency chemical spill -> calls startCleanupQuest
+3. 8 green glowing sludge patches appear scattered across the ocean
+4. Boat dock appears near the shore at [-12, 0, -2]
+5. Walk to dock, press E to board cleanup boat (player transforms into boat model)
+6. Boat moves on water surface at faster speed (12 vs 8)
+7. Drive to sludge patches, press E near them to vacuum up
+8. After all 8 cleaned, return to Josh -> congratulations dialogue
+9. Quest complete
 
 ### Ocean World Quest Flow
 1. Player enters Ocean World via portal
@@ -52,7 +65,7 @@ A 3D educational game built with React Three Fiber where players learn about nat
 4. Walk to each ecosystem, press E to open SurveyUI
 5. Count animals, count plants, identify environmental issue (trash/nets/oil_spill)
 6. After all 4 surveyed, return to Josh -> congratulations dialogue
-7. Quest complete, Josh mentions more tasks coming
+7. Talk to Josh again -> chemical spill cleanup quest begins
 
 ### Game Flow
 1. Start screen -> click "Start Game"
@@ -75,4 +88,4 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - **Sara** - Hints and flavor dialogue
 - **Mike** - Hints and flavor dialogue
 - **Lisa** - General disaster prep education
-- **Josh** (Ocean World) - Marine research boss, assigns ecosystem survey quest
+- **Josh** (Ocean World) - Marine research boss, assigns ecosystem survey quest and chemical spill cleanup quest

@@ -23,6 +23,7 @@ export function Player({ onPositionUpdate }: PlayerProps) {
   const activeDialogue = useGame((s) => s.activeDialogue);
   const currentWorld = useGame((s) => s.currentWorld);
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
+  const inBoat = useGame((s) => s.inBoat);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -45,10 +46,12 @@ export function Player({ onPositionUpdate }: PlayerProps) {
     if (left) direction.x -= 1;
     if (right) direction.x += 1;
 
+    const currentSpeed = inBoat ? 12 : speed;
+
     if (direction.length() > 0) {
       direction.normalize();
-      groupRef.current.position.x += direction.x * speed * delta;
-      groupRef.current.position.z += direction.z * speed * delta;
+      groupRef.current.position.x += direction.x * currentSpeed * delta;
+      groupRef.current.position.z += direction.z * currentSpeed * delta;
 
       const angle = Math.atan2(direction.x, direction.z);
       groupRef.current.rotation.y = angle + Math.PI;
@@ -60,23 +63,92 @@ export function Player({ onPositionUpdate }: PlayerProps) {
     groupRef.current.position.z = Math.max(minZ, Math.min(bounds, groupRef.current.position.z));
 
     if (currentWorld === "ocean") {
-      const waterLine = -5;
-      if (groupRef.current.position.z < waterLine) {
-        if (!hasDivingSuit) {
-          groupRef.current.position.z = waterLine;
-        } else {
-          const depth = Math.abs(groupRef.current.position.z - waterLine);
-          groupRef.current.position.y = -depth * 0.08;
+      if (inBoat) {
+        groupRef.current.position.y = 0.3;
+        if (groupRef.current.position.z > -2) {
+          groupRef.current.position.z = -2;
         }
       } else {
-        groupRef.current.position.y = 0;
+        const waterLine = -5;
+        if (groupRef.current.position.z < waterLine) {
+          if (!hasDivingSuit) {
+            groupRef.current.position.z = waterLine;
+          } else {
+            const depth = Math.abs(groupRef.current.position.z - waterLine);
+            groupRef.current.position.y = -depth * 0.08;
+          }
+        } else {
+          groupRef.current.position.y = 0;
+        }
       }
     }
 
     onPositionUpdate(groupRef.current.position.clone());
   });
 
-  const inWater = currentWorld === "ocean" && hasDivingSuit;
+  const inWater = currentWorld === "ocean" && hasDivingSuit && !inBoat;
+
+  if (inBoat) {
+    return (
+      <group ref={groupRef} position={[0, 0, 5]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <boxGeometry args={[2.5, 0.4, 4]} />
+          <meshStandardMaterial color="#5d4037" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 0.3, -1.8]} castShadow>
+          <boxGeometry args={[2.5, 0.6, 0.15]} />
+          <meshStandardMaterial color="#4e342e" roughness={0.8} />
+        </mesh>
+        <mesh position={[0, 0.3, 1.8]} castShadow>
+          <boxGeometry args={[2.5, 0.6, 0.15]} />
+          <meshStandardMaterial color="#4e342e" roughness={0.8} />
+        </mesh>
+        <mesh position={[-1.2, 0.3, 0]} castShadow>
+          <boxGeometry args={[0.15, 0.6, 4]} />
+          <meshStandardMaterial color="#4e342e" roughness={0.8} />
+        </mesh>
+        <mesh position={[1.2, 0.3, 0]} castShadow>
+          <boxGeometry args={[0.15, 0.6, 4]} />
+          <meshStandardMaterial color="#4e342e" roughness={0.8} />
+        </mesh>
+
+        <mesh position={[1.3, 0.6, -1.2]} castShadow>
+          <cylinderGeometry args={[0.08, 0.08, 1.2, 8]} />
+          <meshStandardMaterial color="#78909c" metalness={0.6} roughness={0.3} />
+        </mesh>
+        <mesh position={[1.3, 1.2, -1.2]} rotation={[0, 0, -0.3]} castShadow>
+          <cylinderGeometry args={[0.06, 0.15, 1.5, 8]} />
+          <meshStandardMaterial color="#546e7a" metalness={0.6} roughness={0.3} />
+        </mesh>
+        <mesh position={[1.8, 1.5, -1.2]} rotation={[0, 0, -1.2]} castShadow>
+          <cylinderGeometry args={[0.25, 0.08, 0.6, 10]} />
+          <meshStandardMaterial color="#455a64" metalness={0.5} roughness={0.4} />
+        </mesh>
+        <mesh position={[2.1, 1.6, -1.2]} rotation={[0, 0, -1.2]}>
+          <torusGeometry args={[0.28, 0.04, 8, 16]} />
+          <meshStandardMaterial color="#37474f" metalness={0.7} roughness={0.2} />
+        </mesh>
+
+        <mesh position={[0, 0.7, 0.8]} castShadow>
+          <boxGeometry args={[0.4, 0.5, 0.3]} />
+          <meshStandardMaterial color="#263238" />
+        </mesh>
+        <mesh position={[0, 1.2, 0.8]} castShadow>
+          <boxGeometry args={[0.35, 0.35, 0.35]} />
+          <meshStandardMaterial color="#37474f" />
+        </mesh>
+        <mesh position={[0, 1.2, 0.95]}>
+          <boxGeometry args={[0.3, 0.2, 0.06]} />
+          <meshStandardMaterial color="#81d4fa" transparent opacity={0.6} />
+        </mesh>
+
+        <mesh position={[-0.6, 0.4, -0.5]} castShadow>
+          <cylinderGeometry args={[0.25, 0.3, 0.5, 8]} />
+          <meshStandardMaterial color="#e53935" roughness={0.6} />
+        </mesh>
+      </group>
+    );
+  }
 
   return (
     <group ref={groupRef} position={[0, 0, 5]}>

@@ -176,14 +176,30 @@ function World2HUD() {
   const ecosystems = useGame((s) => s.ecosystems);
   const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
+  const cleanupQuestStarted = useGame((s) => s.cleanupQuestStarted);
+  const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
+  const sludgePatches = useGame((s) => s.sludgePatches);
+  const inBoat = useGame((s) => s.inBoat);
 
   if (world2Dialogue || currentSurveyIndex !== null) return null;
 
   const surveyedCount = ecosystems.filter((e) => e.surveyed).length;
+  const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
+  const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
 
   let objectiveText = "Talk to Josh at the Beach Station to get started!";
-  if (oceanQuestCompleted) {
-    objectiveText = "Quest complete! Josh will have more tasks soon.";
+  if (cleanupQuestCompleted) {
+    objectiveText = "Chemical spill cleaned! You saved the ocean! Talk to Josh.";
+  } else if (cleanupQuestStarted) {
+    if (allSludgeCleaned) {
+      objectiveText = "All sludge cleaned up! Return to Josh to report!";
+    } else if (inBoat) {
+      objectiveText = `Drive to the green sludge and press E to vacuum! (${sludgeCleanedCount}/${sludgePatches.length})`;
+    } else {
+      objectiveText = `Board the cleanup boat at the dock and vacuum up all the chemical sludge! (${sludgeCleanedCount}/${sludgePatches.length})`;
+    }
+  } else if (oceanQuestCompleted) {
+    objectiveText = "Talk to Josh — he has an urgent new task for you!";
   } else if (oceanQuestStarted) {
     if (surveyedCount === 4) {
       objectiveText = "All ecosystems surveyed! Report back to Josh.";
@@ -245,6 +261,42 @@ function World2HUD() {
             ))}
           </div>
         )}
+        {cleanupQuestStarted && !cleanupQuestCompleted && (
+          <div style={{ marginTop: 8, fontSize: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
+              Chemical Spill Cleanup:
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              <span style={{ color: inBoat ? "#66bb6a" : "#ff9800" }}>
+                {inBoat ? "✓" : "○"}
+              </span>
+              <span style={{ fontWeight: !inBoat ? 600 : 400 }}>Board cleanup boat</span>
+            </div>
+            <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
+            <div style={{ marginBottom: 4 }}>
+              Sludge vacuumed: {sludgeCleanedCount} / {sludgePatches.length}
+            </div>
+            <div style={{
+              background: "rgba(57, 255, 20, 0.15)",
+              borderRadius: 4,
+              height: 8,
+              overflow: "hidden",
+              border: "1px solid rgba(57, 255, 20, 0.3)",
+            }}>
+              <div style={{
+                width: `${(sludgeCleanedCount / sludgePatches.length) * 100}%`,
+                height: "100%",
+                background: "#39ff14",
+                transition: "width 0.3s ease",
+              }} />
+            </div>
+            {allSludgeCleaned && (
+              <div style={{ color: "#69f0ae", fontWeight: 600, marginTop: 4 }}>
+                All clean! Return to Josh!
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div
@@ -261,7 +313,7 @@ function World2HUD() {
           zIndex: 50,
         }}
       >
-        WASD / Arrows to move | E to interact
+        WASD / Arrows to move | E to interact{inBoat ? " | Drive to sludge & press E" : ""}
       </div>
 
       <div

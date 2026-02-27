@@ -6,7 +6,7 @@ import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { MarineEcosystem } from "./MarineEcosystem";
-import { useGame } from "@/lib/stores/useGame";
+import { useGame, SludgePatch } from "@/lib/stores/useGame";
 
 function Ocean() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -443,6 +443,265 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
   );
 }
 
+function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
+  const [isNear, setIsNear] = useState(false);
+  const inBoat = useGame((s) => s.inBoat);
+  const boardBoat = useGame((s) => s.boardBoat);
+  const exitBoat = useGame((s) => s.exitBoat);
+  const cleanupQuestStarted = useGame((s) => s.cleanupQuestStarted);
+  const world2Dialogue = useGame((s) => s.world2Dialogue);
+  const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
+  const dockPos: [number, number, number] = [-12, 0, -2];
+
+  useFrame(() => {
+    const dx = playerPosition.x - dockPos[0];
+    const dz = playerPosition.z - dockPos[2];
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    setIsNear(dist < 4);
+  });
+
+  const lastActionRef = useRef(0);
+
+  useEffect(() => {
+    if (!cleanupQuestStarted) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.key === "e" || e.key === "E") && isNear) {
+        const w2d = useGame.getState().world2Dialogue;
+        if (w2d) return;
+        const now = Date.now();
+        if (now - lastActionRef.current < 500) return;
+        lastActionRef.current = now;
+        if (!inBoat) {
+          boardBoat();
+          openWorld2Dialogue([
+            { speaker: "System", text: "You boarded the cleanup boat! Use WASD to drive across the water. Get close to the green sludge patches and press E to vacuum them up." },
+          ]);
+        } else {
+          exitBoat();
+          openWorld2Dialogue([
+            { speaker: "System", text: "You exited the boat. Talk to Josh when you're done cleaning up!" },
+          ]);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isNear, inBoat, cleanupQuestStarted, boardBoat, exitBoat, openWorld2Dialogue]);
+
+  if (!cleanupQuestStarted) return null;
+
+  return (
+    <group position={dockPos}>
+      <mesh position={[0, 0.15, 0]} castShadow>
+        <boxGeometry args={[4, 0.3, 3]} />
+        <meshStandardMaterial color="#6d4c41" roughness={0.9} />
+      </mesh>
+      <mesh position={[-1.8, 0.5, 0]}>
+        <cylinderGeometry args={[0.1, 0.1, 1, 8]} />
+        <meshStandardMaterial color="#5d4037" />
+      </mesh>
+      <mesh position={[1.8, 0.5, 0]}>
+        <cylinderGeometry args={[0.1, 0.1, 1, 8]} />
+        <meshStandardMaterial color="#5d4037" />
+      </mesh>
+      <mesh position={[-1.8, 0.5, -1.3]}>
+        <cylinderGeometry args={[0.1, 0.1, 1, 8]} />
+        <meshStandardMaterial color="#5d4037" />
+      </mesh>
+      <mesh position={[1.8, 0.5, -1.3]}>
+        <cylinderGeometry args={[0.1, 0.1, 1, 8]} />
+        <meshStandardMaterial color="#5d4037" />
+      </mesh>
+
+      <Text
+        position={[0, 1.5, 0]}
+        fontSize={0.25}
+        color="#fff"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000"
+      >
+        {inBoat ? "Press E to exit boat" : "Cleanup Boat Dock"}
+      </Text>
+
+      {!inBoat && isNear && !world2Dialogue && (
+        <Text
+          position={[0, 0.9, 0]}
+          fontSize={0.2}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000"
+        >
+          Press E to board boat
+        </Text>
+      )}
+
+      {!inBoat && (
+        <group position={[0, 0.4, -2]}>
+          <mesh position={[0, 0, 0]} castShadow>
+            <boxGeometry args={[2.2, 0.35, 3.5]} />
+            <meshStandardMaterial color="#5d4037" roughness={0.8} />
+          </mesh>
+          <mesh position={[-1, 0.25, 0]} castShadow>
+            <boxGeometry args={[0.12, 0.5, 3.5]} />
+            <meshStandardMaterial color="#4e342e" />
+          </mesh>
+          <mesh position={[1, 0.25, 0]} castShadow>
+            <boxGeometry args={[0.12, 0.5, 3.5]} />
+            <meshStandardMaterial color="#4e342e" />
+          </mesh>
+          <mesh position={[1.1, 0.5, -1]} castShadow>
+            <cylinderGeometry args={[0.06, 0.06, 0.8, 8]} />
+            <meshStandardMaterial color="#78909c" metalness={0.6} />
+          </mesh>
+          <mesh position={[1.1, 0.9, -1]} rotation={[0, 0, -0.3]} castShadow>
+            <cylinderGeometry args={[0.04, 0.12, 1, 8]} />
+            <meshStandardMaterial color="#546e7a" metalness={0.5} />
+          </mesh>
+        </group>
+      )}
+    </group>
+  );
+}
+
+function ChemicalSludgePatch({
+  patch,
+  index,
+  playerPosition,
+  inBoat,
+}: {
+  patch: SludgePatch;
+  index: number;
+  playerPosition: THREE.Vector3;
+  inBoat: boolean;
+}) {
+  const [isNear, setIsNear] = useState(false);
+  const cleanSludge = useGame((s) => s.cleanSludge);
+  const world2Dialogue = useGame((s) => s.world2Dialogue);
+  const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (patch.cleaned) return;
+    const dx = playerPosition.x - patch.position[0];
+    const dz = playerPosition.z - patch.position[2];
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    setIsNear(dist < 5);
+
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.rotation.y = t * 0.1 + index;
+      const children = ref.current.children;
+      for (let i = 0; i < children.length; i++) {
+        if ((children[i] as THREE.Mesh).isMesh) {
+          const mesh = children[i] as THREE.Mesh;
+          mesh.position.y = patch.position[1] + Math.sin(t * 0.5 + i) * 0.1;
+        }
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (patch.cleaned || !inBoat) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.key === "e" || e.key === "E") && isNear) {
+        const w2d = useGame.getState().world2Dialogue;
+        if (w2d) return;
+        cleanSludge(index);
+        openWorld2Dialogue([
+          { speaker: "System", text: "Sludge vacuumed up! The ocean is a little cleaner now." },
+        ]);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isNear, inBoat, patch.cleaned, index, cleanSludge, openWorld2Dialogue]);
+
+  if (patch.cleaned) return null;
+
+  return (
+    <group ref={ref} position={patch.position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <circleGeometry args={[3, 24]} />
+        <meshStandardMaterial
+          color="#39ff14"
+          emissive="#39ff14"
+          emissiveIntensity={0.6}
+          transparent
+          opacity={0.7}
+          roughness={0.1}
+        />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.5, 0.02, 1]}>
+        <circleGeometry args={[1.8, 16]} />
+        <meshStandardMaterial
+          color="#76ff03"
+          emissive="#76ff03"
+          emissiveIntensity={0.5}
+          transparent
+          opacity={0.6}
+          roughness={0.1}
+        />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.2, 0.02, -0.8]}>
+        <circleGeometry args={[1.5, 12]} />
+        <meshStandardMaterial
+          color="#69f0ae"
+          emissive="#69f0ae"
+          emissiveIntensity={0.4}
+          transparent
+          opacity={0.55}
+          roughness={0.1}
+        />
+      </mesh>
+
+      {[0, 1.2, -0.8, 0.5, -1.5].map((x, i) => (
+        <mesh key={`bubble-${i}`} position={[x, 0.3 + i * 0.2, i * 0.3 - 0.5]}>
+          <sphereGeometry args={[0.15 + i * 0.05, 8, 6]} />
+          <meshStandardMaterial
+            color="#b9f6ca"
+            emissive="#39ff14"
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.6}
+          />
+        </mesh>
+      ))}
+
+      <pointLight position={[0, 1, 0]} color="#39ff14" intensity={4} distance={12} />
+
+      {inBoat && isNear && !world2Dialogue && (
+        <Text
+          position={[0, 2, 0]}
+          fontSize={0.4}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.03}
+          outlineColor="#000"
+        >
+          Press E to vacuum sludge
+        </Text>
+      )}
+
+      <Text
+        position={[0, 1.3, 0]}
+        fontSize={0.3}
+        color="#b9f6ca"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000"
+      >
+        Chemical Sludge
+      </Text>
+    </group>
+  );
+}
+
 export function OceanWorld() {
   const [playerPos, setPlayerPos] = useState(new THREE.Vector3(0, 0, 15));
   const world2Dialogue = useGame((s) => s.world2Dialogue);
@@ -453,8 +712,16 @@ export function OceanWorld() {
   const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
   const completeOceanQuest = useGame((s) => s.completeOceanQuest);
   const currentSurveyIndex = useGame((s) => s.currentSurveyIndex);
+  const cleanupQuestStarted = useGame((s) => s.cleanupQuestStarted);
+  const startCleanupQuest = useGame((s) => s.startCleanupQuest);
+  const sludgePatches = useGame((s) => s.sludgePatches);
+  const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
+  const completeCleanupQuest = useGame((s) => s.completeCleanupQuest);
+  const inBoat = useGame((s) => s.inBoat);
 
   const allSurveyed = ecosystems.every((e) => e.surveyed);
+  const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
+  const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
@@ -463,15 +730,79 @@ export function OceanWorld() {
   const handleJoshInteract = useCallback(() => {
     if (world2Dialogue || currentSurveyIndex !== null) return;
 
-    if (oceanQuestCompleted) {
+    if (cleanupQuestCompleted) {
       openWorld2Dialogue([
         {
           speaker: "Josh",
-          text: "Great work out there, marine biologist! Your survey data is incredibly valuable for our conservation efforts.",
+          text: "You're a true hero of the ocean! The chemical spill has been completely cleaned up thanks to you.",
         },
         {
           speaker: "Josh",
-          text: "I'll have another assignment for you soon. For now, take a well-deserved break and enjoy the beach!",
+          text: "The marine ecosystems can begin recovering now. Great work, marine biologist!",
+        },
+      ]);
+      return;
+    }
+
+    if (cleanupQuestStarted && allSludgeCleaned && !cleanupQuestCompleted) {
+      completeCleanupQuest();
+      openWorld2Dialogue([
+        {
+          speaker: "Josh",
+          text: "You cleaned up ALL the chemical sludge?! That's incredible work!",
+        },
+        {
+          speaker: "Josh",
+          text: "The ocean is safe again thanks to you. The marine life in our ecosystems can start recovering.",
+        },
+        {
+          speaker: "Josh",
+          text: "Outstanding job, marine biologist! You've truly made a difference today.",
+        },
+      ]);
+      return;
+    }
+
+    if (cleanupQuestStarted && !allSludgeCleaned) {
+      openWorld2Dialogue([
+        {
+          speaker: "Josh",
+          text: `You've cleaned ${sludgeCleanedCount} out of ${sludgePatches.length} sludge patches so far. Keep going!`,
+        },
+        {
+          speaker: "Josh",
+          text: "Get back in the boat, drive to the green glowing sludge, and vacuum it all up!",
+        },
+      ]);
+      return;
+    }
+
+    if (oceanQuestCompleted && !cleanupQuestStarted) {
+      startCleanupQuest();
+      openWorld2Dialogue([
+        {
+          speaker: "Josh",
+          text: "Emergency! We just got reports of a massive chemical spill in the ocean!",
+        },
+        {
+          speaker: "Josh",
+          text: "A tanker ship leaked toxic chemical sludge — it's that bright green glowing stuff spreading across the water.",
+        },
+        {
+          speaker: "Josh",
+          text: "This sludge is extremely dangerous to all the marine life we just surveyed. We need to clean it up immediately!",
+        },
+        {
+          speaker: "Josh",
+          text: "I've set up a cleanup boat at the dock near the shore. It has a large industrial vacuum mounted on it.",
+        },
+        {
+          speaker: "Josh",
+          text: "Board the boat, drive it out to each sludge patch, and use the vacuum to suck it all up. There are 8 patches total.",
+        },
+        {
+          speaker: "Josh",
+          text: "Head to the Boat Dock to the left of the beach. Press E to board, then drive with WASD. Press E near the sludge to vacuum it. Good luck!",
         },
       ]);
       return;
@@ -490,7 +821,7 @@ export function OceanWorld() {
         },
         {
           speaker: "Josh",
-          text: "Great job, marine biologist! I'll have another task for you soon. Stay tuned!",
+          text: "Great job, marine biologist! Talk to me again — I have an urgent new task for you.",
         },
       ]);
       return;
@@ -547,7 +878,9 @@ export function OceanWorld() {
         text: "Put on your diving suit, swim to each one and press E to begin your survey. Report back to me when you've surveyed all four. Good luck!",
       },
     ]);
-  }, [world2Dialogue, currentSurveyIndex, oceanQuestStarted, oceanQuestCompleted, allSurveyed, ecosystems, startOceanQuest, completeOceanQuest, openWorld2Dialogue]);
+  }, [world2Dialogue, currentSurveyIndex, oceanQuestStarted, oceanQuestCompleted, allSurveyed, ecosystems,
+      startOceanQuest, completeOceanQuest, openWorld2Dialogue, cleanupQuestStarted, startCleanupQuest,
+      cleanupQuestCompleted, completeCleanupQuest, allSludgeCleaned, sludgeCleanedCount, sludgePatches.length]);
 
   return (
     <>
@@ -565,6 +898,7 @@ export function OceanWorld() {
       <FollowCamera playerPosition={playerPos} />
 
       <DivingSuitStation playerPosition={playerPos} />
+      <BoatDock playerPosition={playerPos} />
 
       <NPC
         name="Josh"
@@ -587,6 +921,16 @@ export function OceanWorld() {
           surveyed={eco.surveyed}
           playerPosition={playerPos}
           questStarted={oceanQuestStarted}
+        />
+      ))}
+
+      {cleanupQuestStarted && sludgePatches.map((patch, i) => (
+        <ChemicalSludgePatch
+          key={`sludge-${i}`}
+          patch={patch}
+          index={i}
+          playerPosition={playerPos}
+          inBoat={inBoat}
         />
       ))}
     </>
