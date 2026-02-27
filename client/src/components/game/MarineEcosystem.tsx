@@ -580,74 +580,86 @@ function SeagrassClump({ position }: { position: [number, number, number] }) {
 
 function TrashDebris({ position }: { position: [number, number, number] }) {
   return (
-    <group position={position} scale={[2.5, 2.5, 2.5]}>
-      <group position={[0, 0.15, 0]} rotation={[0.3, 0.5, 0]}>
+    <group position={position} scale={[3.5, 3.5, 3.5]}>
+      <group position={[0, 0.25, 0]} rotation={[0.2, 0.4, 0.1]}>
         <mesh>
-          <cylinderGeometry args={[0.08, 0.1, 0.35, 8]} />
-          <meshStandardMaterial color="#e53935" emissive="#e53935" emissiveIntensity={0.2} roughness={0.4} metalness={0.3} />
+          <cylinderGeometry args={[0.15, 0.18, 0.6, 10]} />
+          <meshStandardMaterial color="#d32f2f" emissive="#d32f2f" emissiveIntensity={0.3} roughness={0.3} metalness={0.4} />
         </mesh>
-        <mesh position={[0, 0.18, 0]}>
-          <cylinderGeometry args={[0.085, 0.085, 0.02, 8]} />
-          <meshStandardMaterial color="#c62828" metalness={0.6} />
+        <mesh position={[0, 0.32, 0]}>
+          <ringGeometry args={[0.1, 0.16, 10]} />
+          <meshStandardMaterial color="#b71c1c" metalness={0.7} side={2} />
         </mesh>
-        <mesh position={[0, 0.05, 0.09]}>
-          <boxGeometry args={[0.06, 0.12, 0.01]} />
-          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} />
+        <mesh position={[0, 0.05, 0.16]}>
+          <boxGeometry args={[0.12, 0.2, 0.02]} />
+          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
         </mesh>
       </group>
 
-      <group position={[0.7, 0.12, 0.5]} rotation={[1.2, 0.3, 0.5]}>
+      <group position={[1, 0.2, 0.6]} rotation={[1.4, 0.2, 0.3]}>
         <mesh>
-          <cylinderGeometry args={[0.06, 0.06, 0.3, 8]} />
-          <meshStandardMaterial color="#2196f3" emissive="#1565c0" emissiveIntensity={0.2} transparent opacity={0.85} roughness={0.1} />
+          <cylinderGeometry args={[0.1, 0.1, 0.6, 8]} />
+          <meshStandardMaterial color="#1e88e5" emissive="#1565c0" emissiveIntensity={0.3} transparent opacity={0.8} roughness={0.05} />
         </mesh>
-        <mesh position={[0, 0.16, 0]}>
-          <torusGeometry args={[0.04, 0.01, 6, 12]} />
-          <meshStandardMaterial color="#1565c0" />
+        <mesh position={[0, 0.32, 0]}>
+          <cylinderGeometry args={[0.06, 0.06, 0.08, 8]} />
+          <meshStandardMaterial color="#1565c0" transparent opacity={0.9} />
         </mesh>
-      </group>
-
-      <group position={[-0.6, 0.08, -0.4]} rotation={[0.2, 0.8, 0.1]}>
-        <mesh scale={[1.2, 0.7, 0.5]}>
-          <sphereGeometry args={[0.18, 10, 8]} />
-          <meshStandardMaterial color="#ffffff" emissive="#e0e0e0" emissiveIntensity={0.3} transparent opacity={0.7} roughness={0.1} />
+        <mesh position={[0, 0.37, 0]}>
+          <torusGeometry args={[0.05, 0.015, 6, 12]} />
+          <meshStandardMaterial color="#0d47a1" />
         </mesh>
-        <mesh position={[0.12, 0.08, 0]} rotation={[0, 0, -0.3]}>
-          <cylinderGeometry args={[0.02, 0.01, 0.1, 6]} />
-          <meshStandardMaterial color="#bdbdbd" />
+        <mesh position={[0, 0.05, 0.105]}>
+          <boxGeometry args={[0.06, 0.15, 0.01]} />
+          <meshStandardMaterial color="#bbdefb" emissive="#bbdefb" emissiveIntensity={0.3} />
         </mesh>
       </group>
 
-      <group position={[0.4, 0.06, -0.7]} rotation={[0, 0.5, 0.2]}>
+      <group position={[-0.9, 0.06, -0.5]} rotation={[-0.1, 0.6, 0.05]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} scale={[1.5, 1.2, 0.4]}>
+          <sphereGeometry args={[0.3, 10, 8]} />
+          <meshStandardMaterial color="#ffffff" emissive="#e0e0e0" emissiveIntensity={0.4} transparent opacity={0.55} roughness={0.05} side={2} />
+        </mesh>
+        <mesh position={[0, 0.12, -0.2]} rotation={[0.3, 0, 0]}>
+          <boxGeometry args={[0.12, 0.04, 0.2]} />
+          <meshStandardMaterial color="#e0e0e0" transparent opacity={0.4} />
+        </mesh>
+      </group>
+
+      <group position={[0.5, 0.2, -0.9]} rotation={[0.1, 0.8, 0.15]}>
         <mesh>
-          <cylinderGeometry args={[0.1, 0.1, 0.4, 10]} />
-          <meshStandardMaterial color="#ff9800" emissive="#e65100" emissiveIntensity={0.2} roughness={0.5} metalness={0.4} />
+          <cylinderGeometry args={[0.15, 0.17, 0.5, 10]} />
+          <meshStandardMaterial color="#ff9800" emissive="#e65100" emissiveIntensity={0.3} roughness={0.4} metalness={0.5} />
         </mesh>
-        <mesh position={[0, 0, 0.105]}>
-          <boxGeometry args={[0.08, 0.15, 0.01]} />
-          <meshStandardMaterial color="#fff9c4" emissive="#fff9c4" emissiveIntensity={0.3} />
+        <mesh position={[0, 0.27, 0]}>
+          <ringGeometry args={[0.1, 0.16, 10]} />
+          <meshStandardMaterial color="#e65100" metalness={0.7} side={2} />
         </mesh>
-      </group>
-
-      <group position={[-0.8, 0.05, 0.6]}>
-        <mesh rotation={[-Math.PI / 2, 0, 0.4]} scale={[1.2, 1, 0.3]}>
-          <sphereGeometry args={[0.2, 8, 6]} />
-          <meshStandardMaterial color="#ffeb3b" emissive="#f9a825" emissiveIntensity={0.2} transparent opacity={0.6} roughness={0.2} />
+        <mesh position={[0, 0, 0.16]}>
+          <boxGeometry args={[0.1, 0.18, 0.02]} />
+          <meshStandardMaterial color="#fff9c4" emissive="#fff9c4" emissiveIntensity={0.5} />
         </mesh>
       </group>
 
-      <group position={[0.2, 0.08, 0.8]} rotation={[0.5, 1.2, 0.3]}>
+      <group position={[-0.5, 0.08, 0.9]}>
+        <mesh rotation={[-1.2, 0.3, 0.4]} scale={[1, 0.6, 0.15]}>
+          <sphereGeometry args={[0.35, 10, 8]} />
+          <meshStandardMaterial color="#ffeb3b" emissive="#f9a825" emissiveIntensity={0.3} transparent opacity={0.5} roughness={0.1} side={2} />
+        </mesh>
+      </group>
+
+      <group position={[0.3, 0.15, 1.1]} rotation={[0.4, 1.0, 0.2]}>
         <mesh>
-          <boxGeometry args={[0.25, 0.15, 0.04]} />
-          <meshStandardMaterial color="#4caf50" emissive="#2e7d32" emissiveIntensity={0.2} roughness={0.6} />
+          <boxGeometry args={[0.4, 0.25, 0.06]} />
+          <meshStandardMaterial color="#4caf50" emissive="#2e7d32" emissiveIntensity={0.3} roughness={0.5} />
         </mesh>
-        <mesh position={[0, 0, 0.025]}>
-          <boxGeometry args={[0.12, 0.06, 0.01]} />
-          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} />
+        <mesh position={[0, 0, 0.035]}>
+          <boxGeometry args={[0.2, 0.1, 0.01]} />
+          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
         </mesh>
       </group>
 
-      <pointLight position={[0, 0.5, 0]} intensity={3} distance={6} color="#ff8a65" />
+      <pointLight position={[0, 0.8, 0]} intensity={4} distance={8} color="#ff8a65" />
     </group>
   );
 }

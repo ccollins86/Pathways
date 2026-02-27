@@ -18,6 +18,7 @@ interface PlayerProps {
 export function Player({ onPositionUpdate }: PlayerProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [, getKeys] = useKeyboardControls<Controls>();
+  const smoothY = useRef(0);
   const speed = 8;
   const dropItem = useGame((s) => s.dropItem);
   const activeDialogue = useGame((s) => s.activeDialogue);
@@ -63,8 +64,9 @@ export function Player({ onPositionUpdate }: PlayerProps) {
     groupRef.current.position.z = Math.max(minZ, Math.min(bounds, groupRef.current.position.z));
 
     if (currentWorld === "ocean") {
+      let targetY = 0;
       if (inBoat) {
-        groupRef.current.position.y = 0.3;
+        targetY = 0.3;
         if (groupRef.current.position.z > -2) {
           groupRef.current.position.z = -2;
         }
@@ -75,12 +77,12 @@ export function Player({ onPositionUpdate }: PlayerProps) {
             groupRef.current.position.z = waterLine;
           } else {
             const depth = Math.abs(groupRef.current.position.z - waterLine);
-            groupRef.current.position.y = -depth * 0.08;
+            targetY = -depth * 0.08;
           }
-        } else {
-          groupRef.current.position.y = 0;
         }
       }
+      smoothY.current += (targetY - smoothY.current) * Math.min(1, delta * 5);
+      groupRef.current.position.y = smoothY.current;
     }
 
     onPositionUpdate(groupRef.current.position.clone());
