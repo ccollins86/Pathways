@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-27: Polish pass - separated Kelp Forest and Seagrass Meadow positions, added trapped fish struggling in fishing nets, enlarged/improved seahorse with emissive glow (no more spinning), made sludge patches much larger/brighter, Josh dialogue uses "while" language without exact sludge counts, HUD shows progress bar without numbers
 - 2026-02-27: Added chemical spill cleanup quest - after survey completion, Josh assigns cleanup task, player boards boat with vacuum, drives to 8 green glowing sludge patches and vacuums them up, returns to Josh
 - 2026-02-27: Enhanced ocean ecosystems - much more detailed fish/marine life models, moved ecosystems deeper into the ocean and further apart, added diving suit mechanic (suit station on beach, player must equip before entering water, visual change to wetsuit), player sinks slightly underwater
 - 2026-02-27: Added Ocean World marine ecosystem survey quest - 4 ecosystems (Coral Reef, Kelp Forest, Tide Pool, Seagrass Meadow) with marine life, environmental issues, SurveyUI for counting animals/plants/identifying issues, Josh NPC quest dialogue flow

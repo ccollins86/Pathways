@@ -624,54 +624,66 @@ function ChemicalSludgePatch({
 
   return (
     <group ref={ref} position={patch.position}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <circleGeometry args={[3, 24]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <circleGeometry args={[5, 32]} />
         <meshStandardMaterial
           color="#39ff14"
           emissive="#39ff14"
+          emissiveIntensity={0.9}
+          transparent
+          opacity={0.85}
+          roughness={0.1}
+        />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
+        <circleGeometry args={[3, 20]} />
+        <meshStandardMaterial
+          color="#76ff03"
+          emissive="#76ff03"
+          emissiveIntensity={0.7}
+          transparent
+          opacity={0.75}
+          roughness={0.1}
+        />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
+        <circleGeometry args={[2.5, 16]} />
+        <meshStandardMaterial
+          color="#69f0ae"
+          emissive="#69f0ae"
           emissiveIntensity={0.6}
           transparent
           opacity={0.7}
           roughness={0.1}
         />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.5, 0.02, 1]}>
-        <circleGeometry args={[1.8, 16]} />
+
+      <mesh position={[0, 0.5, 0]}>
+        <sphereGeometry args={[2, 16, 12]} />
         <meshStandardMaterial
-          color="#76ff03"
-          emissive="#76ff03"
-          emissiveIntensity={0.5}
+          color="#39ff14"
+          emissive="#39ff14"
+          emissiveIntensity={0.6}
           transparent
-          opacity={0.6}
-          roughness={0.1}
-        />
-      </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.2, 0.02, -0.8]}>
-        <circleGeometry args={[1.5, 12]} />
-        <meshStandardMaterial
-          color="#69f0ae"
-          emissive="#69f0ae"
-          emissiveIntensity={0.4}
-          transparent
-          opacity={0.55}
-          roughness={0.1}
+          opacity={0.25}
         />
       </mesh>
 
-      {[0, 1.2, -0.8, 0.5, -1.5].map((x, i) => (
-        <mesh key={`bubble-${i}`} position={[x, 0.3 + i * 0.2, i * 0.3 - 0.5]}>
-          <sphereGeometry args={[0.15 + i * 0.05, 8, 6]} />
+      {[0, 1.5, -1.2, 0.8, -2, 1.8, -0.5].map((x, i) => (
+        <mesh key={`bubble-${i}`} position={[x, 0.2 + i * 0.15, i * 0.4 - 1]}>
+          <sphereGeometry args={[0.2 + i * 0.05, 8, 6]} />
           <meshStandardMaterial
             color="#b9f6ca"
             emissive="#39ff14"
-            emissiveIntensity={0.8}
+            emissiveIntensity={1}
             transparent
-            opacity={0.6}
+            opacity={0.7}
           />
         </mesh>
       ))}
 
-      <pointLight position={[0, 1, 0]} color="#39ff14" intensity={4} distance={12} />
+      <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
+      <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
 
       {inBoat && isNear && !world2Dialogue && (
         <Text
@@ -767,11 +779,11 @@ export function OceanWorld() {
       openWorld2Dialogue([
         {
           speaker: "Josh",
-          text: `You've cleaned ${sludgeCleanedCount} out of ${sludgePatches.length} sludge patches so far. Keep going!`,
+          text: "There's still green sludge out there in the ocean! We can't stop until it's all cleaned up.",
         },
         {
           speaker: "Josh",
-          text: "Get back in the boat, drive to the green glowing sludge, and vacuum it all up!",
+          text: "While there is still sludge in the water, keep vacuuming it up! Get back in the boat and keep cleaning!",
         },
       ]);
       return;
@@ -798,7 +810,7 @@ export function OceanWorld() {
         },
         {
           speaker: "Josh",
-          text: "Board the boat, drive it out to each sludge patch, and use the vacuum to suck it all up. There are 8 patches total.",
+          text: "Board the boat, drive it out to each sludge patch, and use the vacuum to suck it all up. We don't know how much is out there, so while there's still sludge, keep cleaning!",
         },
         {
           speaker: "Josh",

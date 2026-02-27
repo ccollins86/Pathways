@@ -47,7 +47,7 @@ function generateEcosystems(): EcosystemData[] {
     },
     {
       name: "Kelp Forest",
-      position: [30, -1, -40],
+      position: [35, -1, -25],
       animalCount: 4,
       plantCount: 6,
       issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
@@ -63,7 +63,7 @@ function generateEcosystems(): EcosystemData[] {
     },
     {
       name: "Seagrass Meadow",
-      position: [35, -1, -55],
+      position: [-30, -1, -75],
       animalCount: 4,
       plantCount: 5,
       issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],

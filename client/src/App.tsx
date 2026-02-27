@@ -194,9 +194,9 @@ function World2HUD() {
     if (allSludgeCleaned) {
       objectiveText = "All sludge cleaned up! Return to Josh to report!";
     } else if (inBoat) {
-      objectiveText = `Drive to the green sludge and press E to vacuum! (${sludgeCleanedCount}/${sludgePatches.length})`;
+      objectiveText = "Drive to the green sludge and press E to vacuum! Keep cleaning while there's still sludge!";
     } else {
-      objectiveText = `Board the cleanup boat at the dock and vacuum up all the chemical sludge! (${sludgeCleanedCount}/${sludgePatches.length})`;
+      objectiveText = "Board the cleanup boat at the dock and vacuum up all the chemical sludge!";
     }
   } else if (oceanQuestCompleted) {
     objectiveText = "Talk to Josh — he has an urgent new task for you!";
@@ -274,7 +274,7 @@ function World2HUD() {
             </div>
             <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
             <div style={{ marginBottom: 4 }}>
-              Sludge vacuumed: {sludgeCleanedCount} / {sludgePatches.length}
+              Sludge cleanup progress:
             </div>
             <div style={{
               background: "rgba(57, 255, 20, 0.15)",
