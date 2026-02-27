@@ -36,40 +36,24 @@ function generateSludgePatches(): SludgePatch[] {
 }
 
 function generateEcosystems(): EcosystemData[] {
-  return [
-    {
-      name: "Coral Reef",
-      position: [-30, -1, -30],
-      animalCount: 5,
-      plantCount: 4,
-      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
-      surveyed: false,
-    },
-    {
-      name: "Kelp Forest",
-      position: [35, -1, -25],
-      animalCount: 4,
-      plantCount: 6,
-      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
-      surveyed: false,
-    },
-    {
-      name: "Tide Pool",
-      position: [-35, -1, -60],
-      animalCount: 3,
-      plantCount: 3,
-      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
-      surveyed: false,
-    },
-    {
-      name: "Seagrass Meadow",
-      position: [-30, -1, -75],
-      animalCount: 4,
-      plantCount: 5,
-      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
-      surveyed: false,
-    },
+  const baseEcosystems = [
+    { name: "Coral Reef", position: [-30, -1, -30] as [number, number, number], baseAnimals: 5, plantCount: 4 },
+    { name: "Kelp Forest", position: [35, -1, -25] as [number, number, number], baseAnimals: 4, plantCount: 6 },
+    { name: "Tide Pool", position: [-35, -1, -60] as [number, number, number], baseAnimals: 3, plantCount: 3 },
+    { name: "Seagrass Meadow", position: [-30, -1, -75] as [number, number, number], baseAnimals: 4, plantCount: 5 },
   ];
+  return baseEcosystems.map((eco) => {
+    const issue = ISSUE_TYPES[Math.floor(Math.random() * 3)];
+    const trappedFishCount = issue === "nets" ? 3 : 0;
+    return {
+      name: eco.name,
+      position: eco.position,
+      animalCount: eco.baseAnimals + trappedFishCount,
+      plantCount: eco.plantCount,
+      issue,
+      surveyed: false,
+    };
+  });
 }
 
 export type ItemType =

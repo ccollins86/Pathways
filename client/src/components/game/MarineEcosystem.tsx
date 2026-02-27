@@ -208,14 +208,17 @@ function Crab({ position }: { position: [number, number, number] }) {
 function Turtle({ position }: { position: [number, number, number] }) {
   const ref = useRef<THREE.Group>(null);
   const speed = useMemo(() => 0.15 + Math.random() * 0.1, []);
+  const startPos = useMemo(() => position, []);
 
   useFrame((state) => {
     if (ref.current) {
       const t = state.clock.elapsedTime * speed;
-      ref.current.position.x = position[0] + Math.sin(t) * 2;
-      ref.current.position.z = position[2] + Math.cos(t * 0.6) * 1.5;
-      ref.current.position.y = position[1] + Math.sin(t * 0.8) * 0.3;
-      ref.current.rotation.y = Math.atan2(Math.cos(t), -Math.sin(t) * 0.6);
+      ref.current.position.x = startPos[0] + Math.sin(t) * 2;
+      ref.current.position.z = startPos[2] + Math.cos(t * 0.6) * 1.5;
+      ref.current.position.y = startPos[1] + Math.sin(t * 0.8) * 0.3;
+      const dx = Math.cos(t) * 2;
+      const dz = -Math.sin(t * 0.6) * 0.6 * 1.5;
+      ref.current.rotation.y = Math.atan2(dx, dz);
     }
   });
 
@@ -285,65 +288,74 @@ function Seahorse({ position }: { position: [number, number, number] }) {
   useFrame((state) => {
     if (ref.current) {
       const t = state.clock.elapsedTime;
-      ref.current.position.y = startPos[1] + Math.sin(t * 0.8) * 0.3;
-      ref.current.position.x = startPos[0] + Math.sin(t * 0.4) * 0.5;
+      ref.current.position.y = startPos[1] + Math.sin(t * 0.8) * 0.15;
+      ref.current.position.x = startPos[0] + Math.sin(t * 0.4) * 0.3;
     }
   });
 
   return (
-    <group ref={ref} position={position} scale={[2.2, 2.2, 2.2]}>
-      <mesh position={[0, 0.15, 0]}>
-        <cylinderGeometry args={[0.09, 0.06, 0.4, 10]} />
-        <meshStandardMaterial color="#ff9800" emissive="#ff6f00" emissiveIntensity={0.3} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.08, 0.06, 0.18, 10]} />
-        <meshStandardMaterial color="#f57c00" emissive="#e65100" emissiveIntensity={0.25} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, -0.14, 0]}>
-        <cylinderGeometry args={[0.06, 0.035, 0.18, 10]} />
-        <meshStandardMaterial color="#e65100" emissive="#bf360c" emissiveIntensity={0.25} roughness={0.4} />
-      </mesh>
-      <mesh position={[0.02, 0.38, 0]} scale={[1, 1.1, 0.9]}>
-        <sphereGeometry args={[0.12, 14, 12]} />
+    <group ref={ref} position={position} scale={[1.3, 1.3, 1.3]}>
+      <mesh position={[0, 0.35, 0]} scale={[0.8, 1, 0.7]}>
+        <sphereGeometry args={[0.12, 12, 10]} />
         <meshStandardMaterial color="#ffb74d" emissive="#ff9800" emissiveIntensity={0.3} roughness={0.3} />
       </mesh>
-      <mesh position={[0.08, 0.42, 0.06]}>
-        <sphereGeometry args={[0.03, 10, 8]} />
+      <mesh position={[0.08, 0.38, 0.05]}>
+        <sphereGeometry args={[0.025, 8, 6]} />
         <meshStandardMaterial color="white" />
       </mesh>
-      <mesh position={[0.1, 0.42, 0.07]}>
-        <sphereGeometry args={[0.015, 8, 6]} />
+      <mesh position={[0.09, 0.38, 0.06]}>
+        <sphereGeometry args={[0.012, 6, 4]} />
         <meshStandardMaterial color="#111" />
       </mesh>
-      <mesh position={[0.08, 0.42, -0.06]}>
-        <sphereGeometry args={[0.03, 10, 8]} />
+      <mesh position={[0.08, 0.38, -0.05]}>
+        <sphereGeometry args={[0.025, 8, 6]} />
         <meshStandardMaterial color="white" />
       </mesh>
-      <mesh position={[0.1, 0.42, -0.07]}>
-        <sphereGeometry args={[0.015, 8, 6]} />
+      <mesh position={[0.09, 0.38, -0.06]}>
+        <sphereGeometry args={[0.012, 6, 4]} />
         <meshStandardMaterial color="#111" />
       </mesh>
-      <mesh position={[0.14, 0.36, 0]} rotation={[0, 0, -0.5]} scale={[0.6, 0.35, 0.12]}>
-        <cylinderGeometry args={[0.05, 0.025, 0.15, 8]} />
+      <mesh position={[0.12, 0.34, 0]} rotation={[0, 0, -0.6]}>
+        <cylinderGeometry args={[0.015, 0.035, 0.1, 6]} />
         <meshStandardMaterial color="#ffa726" emissive="#ff9800" emissiveIntensity={0.2} />
       </mesh>
-      <mesh position={[0, -0.3, 0.02]} rotation={[0.5, 0, 0]}>
-        <torusGeometry args={[0.1, 0.025, 10, 16, Math.PI * 1.5]} />
-        <meshStandardMaterial color="#e65100" emissive="#bf360c" emissiveIntensity={0.3} roughness={0.5} />
+
+      <mesh position={[0, 0.22, 0]}>
+        <cylinderGeometry args={[0.07, 0.09, 0.15, 8]} />
+        <meshStandardMaterial color="#ff9800" emissive="#ff6f00" emissiveIntensity={0.25} roughness={0.4} />
       </mesh>
-      <mesh position={[-0.02, 0.28, -0.03]} scale={[0.04, 0.25, 0.015]}>
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.08, 0.07, 0.15, 8]} />
+        <meshStandardMaterial color="#f57c00" emissive="#e65100" emissiveIntensity={0.2} roughness={0.4} />
+      </mesh>
+      <mesh position={[0, -0.02, 0]}>
+        <cylinderGeometry args={[0.065, 0.06, 0.12, 8]} />
+        <meshStandardMaterial color="#ef6c00" emissive="#e65100" emissiveIntensity={0.2} roughness={0.4} />
+      </mesh>
+      <mesh position={[0, -0.1, 0]}>
+        <cylinderGeometry args={[0.05, 0.035, 0.1, 8]} />
+        <meshStandardMaterial color="#e65100" emissive="#bf360c" emissiveIntensity={0.2} roughness={0.4} />
+      </mesh>
+
+      <mesh position={[0.02, -0.2, 0.02]} rotation={[0.6, 0, 0]}>
+        <torusGeometry args={[0.06, 0.018, 8, 12, Math.PI * 1.5]} />
+        <meshStandardMaterial color="#e65100" emissive="#bf360c" emissiveIntensity={0.25} roughness={0.5} />
+      </mesh>
+
+      <mesh position={[-0.02, 0.25, -0.02]} rotation={[0.1, 0, 0.1]} scale={[0.03, 0.18, 0.01]}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#ffcc80" emissive="#ffe0b2" emissiveIntensity={0.3} transparent opacity={0.7} />
+        <meshStandardMaterial color="#ffcc80" emissive="#ffe0b2" emissiveIntensity={0.2} transparent opacity={0.6} />
       </mesh>
-      <mesh position={[0.02, 0.45, 0]}>
-        <coneGeometry args={[0.04, 0.08, 6]} />
-        <meshStandardMaterial color="#ffa726" emissive="#ff9800" emissiveIntensity={0.3} />
+
+      <mesh position={[0.01, 0.43, 0]}>
+        <coneGeometry args={[0.03, 0.06, 5]} />
+        <meshStandardMaterial color="#ffa726" emissive="#ff9800" emissiveIntensity={0.25} />
       </mesh>
-      {[0.05, 0.12, 0.2].map((y, i) => (
+
+      {[0.05, 0.12, 0.18].map((y, i) => (
         <mesh key={`ring-${i}`} position={[0, y, 0]}>
-          <torusGeometry args={[0.07 - i * 0.006, 0.012, 8, 14]} />
-          <meshStandardMaterial color="#e65100" emissive="#ff6f00" emissiveIntensity={0.3} roughness={0.6} />
+          <torusGeometry args={[0.065 - i * 0.005, 0.008, 6, 12]} />
+          <meshStandardMaterial color="#e65100" emissive="#ff6f00" emissiveIntensity={0.25} roughness={0.6} />
         </mesh>
       ))}
     </group>

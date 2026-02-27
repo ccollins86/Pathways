@@ -461,6 +461,17 @@ function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
   });
 
   const lastActionRef = useRef(0);
+  const dialogueJustClosedRef = useRef(0);
+
+  useEffect(() => {
+    if (!cleanupQuestStarted) return;
+    const unsub = useGame.subscribe((state, prev) => {
+      if (prev.world2Dialogue && !state.world2Dialogue) {
+        dialogueJustClosedRef.current = Date.now();
+      }
+    });
+    return unsub;
+  }, [cleanupQuestStarted]);
 
   useEffect(() => {
     if (!cleanupQuestStarted) return;
@@ -469,6 +480,7 @@ function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
         const w2d = useGame.getState().world2Dialogue;
         if (w2d) return;
         const now = Date.now();
+        if (now - dialogueJustClosedRef.current < 300) return;
         if (now - lastActionRef.current < 500) return;
         lastActionRef.current = now;
         if (!inBoat) {

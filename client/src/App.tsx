@@ -169,6 +169,7 @@ function World2DialogueUI() {
 }
 
 function World2HUD() {
+  const [hudOpen, setHudOpen] = useState(true);
   const world2Dialogue = useGame((s) => s.world2Dialogue);
   const currentSurveyIndex = useGame((s) => s.currentSurveyIndex);
   const restart = useGame((s) => s.restart);
@@ -217,82 +218,101 @@ function World2HUD() {
           position: "absolute",
           top: 16,
           left: 16,
-          background: "rgba(0, 30, 60, 0.8)",
-          borderRadius: 8,
-          padding: "12px 18px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
           zIndex: 50,
-          maxWidth: 380,
-          border: "1px solid rgba(0, 188, 212, 0.3)",
         }}
       >
-        <div
+        <button
+          onClick={() => setHudOpen(!hudOpen)}
           style={{
+            background: "rgba(0, 30, 60, 0.85)",
+            border: "1px solid rgba(0, 188, 212, 0.4)",
+            borderRadius: hudOpen ? "8px 8px 0 0" : 8,
+            padding: "6px 14px",
+            color: "#00bcd4",
+            fontFamily: "'Inter', sans-serif",
             fontSize: 11,
             fontWeight: 700,
-            color: "#00bcd4",
             textTransform: "uppercase",
             letterSpacing: 1,
-            marginBottom: 4,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            width: "100%",
           }}
         >
-          Ocean World
-        </div>
-        <div style={{ fontSize: 14, lineHeight: 1.5 }}>
-          {objectiveText}
-        </div>
-        {oceanQuestStarted && !oceanQuestCompleted && (
-          <div style={{ marginTop: 8, fontSize: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-              <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
-                {hasDivingSuit ? "✓" : "○"}
-              </span>
-              <span style={{ opacity: hasDivingSuit ? 0.5 : 1, fontWeight: !hasDivingSuit ? 600 : 400 }}>Diving Suit</span>
+          <span>Tasks</span>
+          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+        </button>
+        {hudOpen && (
+          <div
+            style={{
+              background: "rgba(0, 30, 60, 0.8)",
+              borderRadius: "0 0 8px 8px",
+              padding: "8px 18px 12px",
+              color: "white",
+              fontFamily: "'Inter', sans-serif",
+              maxWidth: 380,
+              border: "1px solid rgba(0, 188, 212, 0.3)",
+              borderTop: "none",
+            }}
+          >
+            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+              {objectiveText}
             </div>
-            <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
-            {ecosystems.map((eco, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                <span style={{ color: eco.surveyed ? "#66bb6a" : "#ff9800" }}>
-                  {eco.surveyed ? "✓" : "○"}
-                </span>
-                <span style={{ opacity: eco.surveyed ? 0.5 : 1 }}>{eco.name}</span>
+            {oceanQuestStarted && !oceanQuestCompleted && (
+              <div style={{ marginTop: 8, fontSize: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
+                    {hasDivingSuit ? "✓" : "○"}
+                  </span>
+                  <span style={{ opacity: hasDivingSuit ? 0.5 : 1, fontWeight: !hasDivingSuit ? 600 : 400 }}>Diving Suit</span>
+                </div>
+                <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
+                {ecosystems.map((eco, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: eco.surveyed ? "#66bb6a" : "#ff9800" }}>
+                      {eco.surveyed ? "✓" : "○"}
+                    </span>
+                    <span style={{ opacity: eco.surveyed ? 0.5 : 1 }}>{eco.name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        {cleanupQuestStarted && !cleanupQuestCompleted && (
-          <div style={{ marginTop: 8, fontSize: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
-              Chemical Spill Cleanup:
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-              <span style={{ color: inBoat ? "#66bb6a" : "#ff9800" }}>
-                {inBoat ? "✓" : "○"}
-              </span>
-              <span style={{ fontWeight: !inBoat ? 600 : 400 }}>Board cleanup boat</span>
-            </div>
-            <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
-            <div style={{ marginBottom: 4 }}>
-              Sludge cleanup progress:
-            </div>
-            <div style={{
-              background: "rgba(57, 255, 20, 0.15)",
-              borderRadius: 4,
-              height: 8,
-              overflow: "hidden",
-              border: "1px solid rgba(57, 255, 20, 0.3)",
-            }}>
-              <div style={{
-                width: `${(sludgeCleanedCount / sludgePatches.length) * 100}%`,
-                height: "100%",
-                background: "#39ff14",
-                transition: "width 0.3s ease",
-              }} />
-            </div>
-            {allSludgeCleaned && (
-              <div style={{ color: "#69f0ae", fontWeight: 600, marginTop: 4 }}>
-                All clean! Return to Josh!
+            )}
+            {cleanupQuestStarted && !cleanupQuestCompleted && (
+              <div style={{ marginTop: 8, fontSize: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
+                  Chemical Spill Cleanup:
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{ color: inBoat ? "#66bb6a" : "#ff9800" }}>
+                    {inBoat ? "✓" : "○"}
+                  </span>
+                  <span style={{ fontWeight: !inBoat ? 600 : 400 }}>Board cleanup boat</span>
+                </div>
+                <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
+                <div style={{ marginBottom: 4 }}>
+                  Sludge cleanup progress:
+                </div>
+                <div style={{
+                  background: "rgba(57, 255, 20, 0.15)",
+                  borderRadius: 4,
+                  height: 8,
+                  overflow: "hidden",
+                  border: "1px solid rgba(57, 255, 20, 0.3)",
+                }}>
+                  <div style={{
+                    width: `${(sludgeCleanedCount / sludgePatches.length) * 100}%`,
+                    height: "100%",
+                    background: "#39ff14",
+                    transition: "width 0.3s ease",
+                  }} />
+                </div>
+                {allSludgeCleaned && (
+                  <div style={{ color: "#69f0ae", fontWeight: 600, marginTop: 4 }}>
+                    All clean! Return to Josh!
+                  </div>
+                )}
               </div>
             )}
           </div>
