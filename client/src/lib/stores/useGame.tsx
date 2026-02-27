@@ -21,7 +21,7 @@ function generateEcosystems(): EcosystemData[] {
   return [
     {
       name: "Coral Reef",
-      position: [-18, 0, -8],
+      position: [-30, -1, -30],
       animalCount: 5,
       plantCount: 4,
       issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
@@ -29,7 +29,7 @@ function generateEcosystems(): EcosystemData[] {
     },
     {
       name: "Kelp Forest",
-      position: [20, 0, -12],
+      position: [30, -1, -40],
       animalCount: 4,
       plantCount: 6,
       issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
@@ -37,7 +37,7 @@ function generateEcosystems(): EcosystemData[] {
     },
     {
       name: "Tide Pool",
-      position: [-22, 0, 3],
+      position: [-35, -1, -60],
       animalCount: 3,
       plantCount: 3,
       issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
@@ -45,7 +45,7 @@ function generateEcosystems(): EcosystemData[] {
     },
     {
       name: "Seagrass Meadow",
-      position: [22, 0, -2],
+      position: [35, -1, -55],
       animalCount: 4,
       plantCount: 5,
       issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
@@ -122,6 +122,7 @@ interface GameState {
   ecosystems: EcosystemData[];
   currentSurveyIndex: number | null;
   oceanQuestCompleted: boolean;
+  hasDivingSuit: boolean;
 
   start: () => void;
   restart: () => void;
@@ -160,6 +161,7 @@ interface GameState {
   closeSurvey: () => void;
   completeEcosystemSurvey: (index: number) => void;
   completeOceanQuest: () => void;
+  equipDivingSuit: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -209,6 +211,7 @@ export const useGame = create<GameState>()(
     ecosystems: generateEcosystems(),
     currentSurveyIndex: null,
     oceanQuestCompleted: false,
+    hasDivingSuit: false,
 
     start: () => {
       set((state) => {
@@ -262,6 +265,7 @@ export const useGame = create<GameState>()(
         ecosystems: generateEcosystems(),
         currentSurveyIndex: null,
         oceanQuestCompleted: false,
+        hasDivingSuit: false,
       }));
     },
 
@@ -406,6 +410,7 @@ export const useGame = create<GameState>()(
       set({ ecosystems: updated, currentSurveyIndex: null });
     },
     completeOceanQuest: () => set({ oceanQuestCompleted: true }),
+    equipDivingSuit: () => set({ hasDivingSuit: true }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();

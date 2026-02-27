@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Text, useTexture } from "@react-three/drei";
@@ -250,7 +250,7 @@ function OceanSky() {
   return (
     <>
       <color attach="background" args={["#87ceeb"]} />
-      <fog attach="fog" args={["#87ceeb", 60, 150]} />
+      <fog attach="fog" args={["#87ceeb", 40, 200]} />
     </>
   );
 }
@@ -260,17 +260,17 @@ function OceanLights() {
     <>
       <ambientLight intensity={0.6} color="#fff8dc" />
       <directionalLight
-        position={[20, 30, 10]}
+        position={[20, 40, 10]}
         intensity={1.2}
         color="#fff5e6"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
-        shadow-camera-far={100}
-        shadow-camera-left={-40}
-        shadow-camera-right={40}
-        shadow-camera-top={40}
-        shadow-camera-bottom={-40}
+        shadow-camera-far={200}
+        shadow-camera-left={-80}
+        shadow-camera-right={80}
+        shadow-camera-top={80}
+        shadow-camera-bottom={-80}
       />
       <hemisphereLight args={["#87ceeb", "#f5deb3", 0.4]} />
     </>
@@ -327,6 +327,115 @@ function BeachSign() {
       >
         Nature Preserve
       </Text>
+    </group>
+  );
+}
+
+function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }) {
+  const [isNear, setIsNear] = useState(false);
+  const hasDivingSuit = useGame((s) => s.hasDivingSuit);
+  const equipDivingSuit = useGame((s) => s.equipDivingSuit);
+  const world2Dialogue = useGame((s) => s.world2Dialogue);
+  const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
+  const stationPos: [number, number, number] = [-8, 0, 2];
+
+  useFrame(() => {
+    const dx = playerPosition.x - stationPos[0];
+    const dz = playerPosition.z - stationPos[2];
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    setIsNear(dist < 3.5);
+  });
+
+  useEffect(() => {
+    if (hasDivingSuit || world2Dialogue) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.key === "e" || e.key === "E") && isNear) {
+        equipDivingSuit();
+        openWorld2Dialogue([
+          {
+            speaker: "System",
+            text: "You put on the diving suit! You can now explore the underwater ecosystems. Head into the ocean!",
+          },
+        ]);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isNear, hasDivingSuit, equipDivingSuit, world2Dialogue, openWorld2Dialogue]);
+
+  return (
+    <group position={stationPos}>
+      <mesh position={[0, 1, 0]} castShadow>
+        <boxGeometry args={[1.5, 2, 0.3]} />
+        <meshStandardMaterial color="#455a64" roughness={0.6} metalness={0.2} />
+      </mesh>
+      <mesh position={[-0.4, 1.8, 0]} castShadow>
+        <cylinderGeometry args={[0.04, 0.04, 1.5, 6]} />
+        <meshStandardMaterial color="#37474f" />
+      </mesh>
+      <mesh position={[0.4, 1.8, 0]} castShadow>
+        <cylinderGeometry args={[0.04, 0.04, 1.5, 6]} />
+        <meshStandardMaterial color="#37474f" />
+      </mesh>
+      <mesh position={[-0.4, 2.6, 0]}>
+        <sphereGeometry args={[0.06, 8, 6]} />
+        <meshStandardMaterial color="#37474f" />
+      </mesh>
+      <mesh position={[0.4, 2.6, 0]}>
+        <sphereGeometry args={[0.06, 8, 6]} />
+        <meshStandardMaterial color="#37474f" />
+      </mesh>
+      <mesh position={[-0.4, 2.6, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.85, 6]} />
+        <meshStandardMaterial color="#37474f" />
+      </mesh>
+
+      {!hasDivingSuit && (
+        <>
+          <mesh position={[0, 1.3, 0.2]}>
+            <boxGeometry args={[0.5, 0.7, 0.15]} />
+            <meshStandardMaterial color="#263238" />
+          </mesh>
+          <mesh position={[0, 1.7, 0.2]} scale={[0.8, 1, 0.6]}>
+            <sphereGeometry args={[0.2, 10, 8]} />
+            <meshStandardMaterial color="#37474f" />
+          </mesh>
+          <mesh position={[0, 1.7, 0.3]}>
+            <boxGeometry args={[0.25, 0.15, 0.05]} />
+            <meshStandardMaterial color="#81d4fa" transparent opacity={0.6} />
+          </mesh>
+          <mesh position={[0, 0.85, 0.25]}>
+            <cylinderGeometry args={[0.08, 0.08, 0.3, 8]} />
+            <meshStandardMaterial color="#ffb300" roughness={0.4} metalness={0.3} />
+          </mesh>
+        </>
+      )}
+
+      <Text
+        position={[0, 2.8, 0.2]}
+        fontSize={0.2}
+        color="#fff"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000"
+      >
+        {hasDivingSuit ? "Suit Equipped ✓" : "Diving Suit"}
+      </Text>
+
+      {!hasDivingSuit && isNear && !world2Dialogue && (
+        <Text
+          position={[0, 0.3, 0.2]}
+          fontSize={0.18}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000"
+        >
+          Press E to equip
+        </Text>
+      )}
     </group>
   );
 }
@@ -412,7 +521,11 @@ export function OceanWorld() {
       },
       {
         speaker: "Josh",
-        text: "We have 4 marine ecosystems out in the water that need surveying. I need you to visit each one.",
+        text: "We have 4 marine ecosystems out in the ocean that need surveying. I need you to dive underwater and visit each one.",
+      },
+      {
+        speaker: "Josh",
+        text: "But first — you'll need a diving suit! Grab one from the Diving Suit Station near the shoreline before heading into the water.",
       },
       {
         speaker: "Josh",
@@ -424,11 +537,11 @@ export function OceanWorld() {
       },
       {
         speaker: "Josh",
-        text: "The 4 ecosystems are: the Coral Reef, the Kelp Forest, the Tide Pool, and the Seagrass Meadow. You'll see them marked out in the water.",
+        text: "The 4 ecosystems are: the Coral Reef, the Kelp Forest, the Tide Pool, and the Seagrass Meadow. They're spread out across the ocean floor.",
       },
       {
         speaker: "Josh",
-        text: "Walk to each one and press E to begin your survey. Report back to me when you've surveyed all four. Good luck!",
+        text: "Put on your diving suit, swim to each one and press E to begin your survey. Report back to me when you've surveyed all four. Good luck!",
       },
     ]);
   }, [world2Dialogue, currentSurveyIndex, oceanQuestStarted, oceanQuestCompleted, allSurveyed, ecosystems, startOceanQuest, completeOceanQuest, openWorld2Dialogue]);
@@ -447,6 +560,8 @@ export function OceanWorld() {
 
       <Player onPositionUpdate={handlePositionUpdate} />
       <FollowCamera playerPosition={playerPos} />
+
+      <DivingSuitStation playerPosition={playerPos} />
 
       <NPC
         name="Josh"

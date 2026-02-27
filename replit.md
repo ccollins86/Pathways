@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-27: Enhanced ocean ecosystems - much more detailed fish/marine life models, moved ecosystems deeper into the ocean and further apart, added diving suit mechanic (suit station on beach, player must equip before entering water, visual change to wetsuit), player sinks slightly underwater
 - 2026-02-27: Added Ocean World marine ecosystem survey quest - 4 ecosystems (Coral Reef, Kelp Forest, Tide Pool, Seagrass Meadow) with marine life, environmental issues, SurveyUI for counting animals/plants/identifying issues, Josh NPC quest dialogue flow
 - 2026-02-26: Added Ocean World (World 2) - beach environment with ocean, palm trees, building, and NPC Josh; accessible via portal after quest + quiz
 - 2026-02-26: Added portal feature - glowing portal appears after quest + practice quiz completion, leads to Ocean World

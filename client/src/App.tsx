@@ -175,6 +175,7 @@ function World2HUD() {
   const oceanQuestStarted = useGame((s) => s.oceanQuestStarted);
   const ecosystems = useGame((s) => s.ecosystems);
   const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
+  const hasDivingSuit = useGame((s) => s.hasDivingSuit);
 
   if (world2Dialogue || currentSurveyIndex !== null) return null;
 
@@ -186,8 +187,10 @@ function World2HUD() {
   } else if (oceanQuestStarted) {
     if (surveyedCount === 4) {
       objectiveText = "All ecosystems surveyed! Report back to Josh.";
+    } else if (!hasDivingSuit) {
+      objectiveText = "Grab a diving suit from the station near the shore before entering the water!";
     } else {
-      objectiveText = `Survey marine ecosystems (${surveyedCount}/4). Walk to a zone and press E.`;
+      objectiveText = `Survey marine ecosystems (${surveyedCount}/4). Swim to a zone and press E.`;
     }
   }
 
@@ -225,6 +228,13 @@ function World2HUD() {
         </div>
         {oceanQuestStarted && !oceanQuestCompleted && (
           <div style={{ marginTop: 8, fontSize: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
+                {hasDivingSuit ? "✓" : "○"}
+              </span>
+              <span style={{ opacity: hasDivingSuit ? 0.5 : 1, fontWeight: !hasDivingSuit ? 600 : 400 }}>Diving Suit</span>
+            </div>
+            <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 4 }} />
             {ecosystems.map((eco, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                 <span style={{ color: eco.surveyed ? "#66bb6a" : "#ff9800" }}>
@@ -301,7 +311,7 @@ function App() {
             position: [0, 10, 17],
             fov: 50,
             near: 0.1,
-            far: 200,
+            far: 300,
           }}
           gl={{
             antialias: true,
