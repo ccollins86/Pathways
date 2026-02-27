@@ -24,7 +24,7 @@ function Ocean() {
       <meshStandardMaterial
         color="#0077be"
         transparent
-        opacity={0.85}
+        opacity={0.5}
         roughness={0.2}
         metalness={0.1}
       />
@@ -49,7 +49,7 @@ function WaterWaves() {
       <meshStandardMaterial
         color="#00a0e4"
         transparent
-        opacity={0.5}
+        opacity={0.35}
         roughness={0.1}
         metalness={0.2}
       />
@@ -250,7 +250,7 @@ function OceanSky() {
   return (
     <>
       <color attach="background" args={["#87ceeb"]} />
-      <fog attach="fog" args={["#87ceeb", 40, 200]} />
+      <fog attach="fog" args={["#1a6898", 60, 250]} />
     </>
   );
 }
@@ -258,10 +258,10 @@ function OceanSky() {
 function OceanLights() {
   return (
     <>
-      <ambientLight intensity={0.6} color="#fff8dc" />
+      <ambientLight intensity={0.9} color="#b3e5fc" />
       <directionalLight
-        position={[20, 40, 10]}
-        intensity={1.2}
+        position={[20, 50, 10]}
+        intensity={1.5}
         color="#fff5e6"
         castShadow
         shadow-mapSize-width={2048}
@@ -272,7 +272,10 @@ function OceanLights() {
         shadow-camera-top={80}
         shadow-camera-bottom={-80}
       />
-      <hemisphereLight args={["#87ceeb", "#f5deb3", 0.4]} />
+      <hemisphereLight args={["#87ceeb", "#4fc3f7", 0.6]} />
+      <pointLight position={[0, 10, -40]} color="#4fc3f7" intensity={3} distance={120} />
+      <pointLight position={[-30, 8, -50]} color="#00bcd4" intensity={2} distance={80} />
+      <pointLight position={[30, 8, -50]} color="#00bcd4" intensity={2} distance={80} />
     </>
   );
 }

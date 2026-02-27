@@ -693,14 +693,23 @@ const ISSUE_COMPONENTS: Record<EnvironmentalIssue, React.FC<{ position: [number,
 
 function UnderwaterGlow({ position }: { position: [number, number, number] }) {
   const ref = useRef<THREE.PointLight>(null);
+  const ref2 = useRef<THREE.PointLight>(null);
 
   useFrame((state) => {
     if (ref.current) {
-      ref.current.intensity = 1.5 + Math.sin(state.clock.elapsedTime * 0.5) * 0.3;
+      ref.current.intensity = 5 + Math.sin(state.clock.elapsedTime * 0.5) * 1;
+    }
+    if (ref2.current) {
+      ref2.current.intensity = 3 + Math.sin(state.clock.elapsedTime * 0.7 + 1) * 0.5;
     }
   });
 
-  return <pointLight ref={ref} position={[position[0], position[1] + 3, position[2]]} color="#00bcd4" intensity={1.5} distance={15} />;
+  return (
+    <>
+      <pointLight ref={ref} position={[position[0], position[1] + 5, position[2]]} color="#4fc3f7" intensity={5} distance={30} />
+      <pointLight ref={ref2} position={[position[0], position[1] + 2, position[2]]} color="#ffffff" intensity={3} distance={20} />
+    </>
+  );
 }
 
 function SeaFloor({ position }: { position: [number, number, number] }) {
@@ -708,7 +717,7 @@ function SeaFloor({ position }: { position: [number, number, number] }) {
     <group position={position}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
         <circleGeometry args={[5.5, 32]} />
-        <meshStandardMaterial color="#5d4037" roughness={0.9} />
+        <meshStandardMaterial color="#8d6e63" roughness={0.7} />
       </mesh>
       {[[-2, 0, -1.5], [1.8, 0, 2], [-1, 0, 2.5], [2.5, 0, -0.5]].map((pos, i) => (
         <mesh key={`pebble-${i}`} position={pos as [number, number, number]} rotation={[0, i * 1.5, 0]}>
@@ -763,20 +772,22 @@ export function MarineEcosystem({
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
         <circleGeometry args={[5, 32]} />
         <meshStandardMaterial
-          color={surveyed ? "#1b5e20" : "#0d47a1"}
+          color={surveyed ? "#2e7d32" : "#1565c0"}
+          emissive={surveyed ? "#1b5e20" : "#0d47a1"}
+          emissiveIntensity={0.4}
           transparent
-          opacity={0.25}
+          opacity={0.5}
         />
       </mesh>
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
-        <ringGeometry args={[4.8, 5, 32]} />
+        <ringGeometry args={[4.8, 5.2, 32]} />
         <meshStandardMaterial
           color={surveyed ? "#66bb6a" : isNear ? "#ffeb3b" : "#4fc3f7"}
+          emissive={surveyed ? "#66bb6a" : isNear ? "#ffeb3b" : "#4fc3f7"}
+          emissiveIntensity={isNear ? 0.8 : 0.5}
           transparent
-          opacity={isNear ? 0.7 : 0.4}
-          emissive={isNear ? "#ffeb3b" : "#4fc3f7"}
-          emissiveIntensity={isNear ? 0.3 : 0.1}
+          opacity={isNear ? 0.9 : 0.7}
         />
       </mesh>
 
@@ -784,12 +795,12 @@ export function MarineEcosystem({
       {IssueComponent && <IssueComponent position={[2, 0, 2]} />}
 
       <Text
-        position={[0, 2.5, 0]}
-        fontSize={0.45}
-        color={surveyed ? "#66bb6a" : "white"}
+        position={[0, 3, 0]}
+        fontSize={0.55}
+        color={surveyed ? "#a5d6a7" : "#e1f5fe"}
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.03}
+        outlineWidth={0.04}
         outlineColor="#000000"
       >
         {surveyed ? `${name} ✓` : name}
