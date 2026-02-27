@@ -110,11 +110,12 @@ function World2DialogueUI() {
     if (!world2Dialogue) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "e" || e.key === "E" || e.key === " " || e.key === "Enter") {
+        e.stopImmediatePropagation();
         advanceWorld2Dialogue();
       }
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    window.addEventListener("keydown", handleKey, true);
+    return () => window.removeEventListener("keydown", handleKey, true);
   }, [world2Dialogue, advanceWorld2Dialogue]);
 
   if (!world2Dialogue) return null;

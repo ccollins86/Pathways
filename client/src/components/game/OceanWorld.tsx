@@ -834,6 +834,7 @@ export function OceanWorld() {
 
     if (allSurveyed && !oceanQuestCompleted) {
       completeOceanQuest();
+      startCleanupQuest();
       openWorld2Dialogue([
         {
           speaker: "Josh",
@@ -845,7 +846,27 @@ export function OceanWorld() {
         },
         {
           speaker: "Josh",
-          text: "Great job, marine biologist! Talk to me again — I have an urgent new task for you.",
+          text: "But wait — Emergency! We just got reports of a massive chemical spill in the ocean!",
+        },
+        {
+          speaker: "Josh",
+          text: "A tanker ship leaked toxic chemical sludge — it's that bright green glowing stuff spreading across the water.",
+        },
+        {
+          speaker: "Josh",
+          text: "This sludge is extremely dangerous to all the marine life we just surveyed. We need to clean it up immediately!",
+        },
+        {
+          speaker: "Josh",
+          text: "I've set up a cleanup boat at the dock near the shore. It has a large industrial vacuum mounted on it.",
+        },
+        {
+          speaker: "Josh",
+          text: "Board the boat, drive it out to each sludge patch, and use the vacuum to suck it all up. We don't know how much is out there, so while there's still sludge, keep cleaning!",
+        },
+        {
+          speaker: "Josh",
+          text: "Head to the Boat Dock to the left of the beach. Press E to board, then drive with WASD. Press E near the sludge to vacuum it. Good luck!",
         },
       ]);
       return;

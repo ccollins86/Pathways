@@ -34,6 +34,7 @@ export function GameHUD() {
   const portalActive = useGame((s) => s.portalActive);
 
   const [showLesson, setShowLesson] = useState(false);
+  const [tasksOpen, setTasksOpen] = useState(true);
 
   if (activeDialogue) return null;
 
@@ -397,11 +398,18 @@ export function GameHUD() {
             textTransform: "uppercase",
             letterSpacing: 1,
             marginBottom: 6,
+            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            userSelect: "none",
           }}
+          onClick={() => setTasksOpen(!tasksOpen)}
         >
-          Quest Progress
+          <span>Quest Progress</span>
+          <span style={{ fontSize: 13 }}>{tasksOpen ? "\u25BC" : "\u25B6"}</span>
         </div>
-        <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        {tasksOpen && <div style={{ fontSize: 13, lineHeight: 1.8 }}>
           <div style={{ color: talkedToDan ? "#66bb6a" : "white" }}>
             {talkedToDan ? "✓" : "○"} Talk to Dan
           </div>
@@ -524,7 +532,7 @@ export function GameHUD() {
               </div>
             </>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* Controls hint */}

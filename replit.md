@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-27: Polish pass 3 - fish/turtle rotation smoothing (lerped angle fixes atan2 discontinuity spinning), dialogue E key uses capture phase + stopImmediatePropagation to block dock handler, GameHUD task list toggleable, trash debris redesigned as colorful recognizable items (red can, blue bottle, plastic bag, etc.), marine plants (Seaweed/KelpStalk/SeagrassClump) made larger/more detailed, survey→cleanup auto-transition (Josh combines survey congrats with cleanup quest start)
 - 2026-02-27: Polish pass 2 - smaller/better seahorse model, fixed turtle spinning, trapped fish count in animal totals, toggleable task HUD, boat dock E key no longer triggers during dialogue close
 - 2026-02-27: Polish pass - separated Kelp Forest and Seagrass Meadow positions, added trapped fish struggling in fishing nets, enlarged/improved seahorse with emissive glow (no more spinning), made sludge patches much larger/brighter, Josh dialogue uses "while" language without exact sludge counts, HUD shows progress bar without numbers
 - 2026-02-27: Added chemical spill cleanup quest - after survey completion, Josh assigns cleanup task, player boards boat with vacuum, drives to 8 green glowing sludge patches and vacuums them up, returns to Josh
