@@ -6,6 +6,7 @@ import { OceanWorld } from "./components/game/OceanWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
+import { SurveyUI } from "./components/game/SurveyUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -169,9 +170,26 @@ function World2DialogueUI() {
 
 function World2HUD() {
   const world2Dialogue = useGame((s) => s.world2Dialogue);
+  const currentSurveyIndex = useGame((s) => s.currentSurveyIndex);
   const restart = useGame((s) => s.restart);
+  const oceanQuestStarted = useGame((s) => s.oceanQuestStarted);
+  const ecosystems = useGame((s) => s.ecosystems);
+  const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
 
-  if (world2Dialogue) return null;
+  if (world2Dialogue || currentSurveyIndex !== null) return null;
+
+  const surveyedCount = ecosystems.filter((e) => e.surveyed).length;
+
+  let objectiveText = "Talk to Josh at the Beach Station to get started!";
+  if (oceanQuestCompleted) {
+    objectiveText = "Quest complete! Josh will have more tasks soon.";
+  } else if (oceanQuestStarted) {
+    if (surveyedCount === 4) {
+      objectiveText = "All ecosystems surveyed! Report back to Josh.";
+    } else {
+      objectiveText = `Survey marine ecosystems (${surveyedCount}/4). Walk to a zone and press E.`;
+    }
+  }
 
   return (
     <>
@@ -203,8 +221,20 @@ function World2HUD() {
           Ocean World
         </div>
         <div style={{ fontSize: 14, lineHeight: 1.5 }}>
-          Explore the beach and talk to Josh at the Beach Station!
+          {objectiveText}
         </div>
+        {oceanQuestStarted && !oceanQuestCompleted && (
+          <div style={{ marginTop: 8, fontSize: 12 }}>
+            {ecosystems.map((eco, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                <span style={{ color: eco.surveyed ? "#66bb6a" : "#ff9800" }}>
+                  {eco.surveyed ? "✓" : "○"}
+                </span>
+                <span style={{ opacity: eco.surveyed ? 0.5 : 1 }}>{eco.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div
@@ -295,6 +325,7 @@ function App() {
           <>
             <World2HUD />
             <World2DialogueUI />
+            <SurveyUI />
           </>
         )}
       </KeyboardControls>

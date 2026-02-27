@@ -4,6 +4,55 @@ import { subscribeWithSelector } from "zustand/middleware";
 export type GamePhase = "ready" | "playing" | "ended";
 export type GameWorld = "town" | "ocean";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
+export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
+
+export interface EcosystemData {
+  name: string;
+  position: [number, number, number];
+  animalCount: number;
+  plantCount: number;
+  issue: EnvironmentalIssue;
+  surveyed: boolean;
+}
+
+const ISSUE_TYPES: EnvironmentalIssue[] = ["trash", "nets", "oil_spill"];
+
+function generateEcosystems(): EcosystemData[] {
+  return [
+    {
+      name: "Coral Reef",
+      position: [-18, 0, -8],
+      animalCount: 5,
+      plantCount: 4,
+      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
+      surveyed: false,
+    },
+    {
+      name: "Kelp Forest",
+      position: [20, 0, -12],
+      animalCount: 4,
+      plantCount: 6,
+      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
+      surveyed: false,
+    },
+    {
+      name: "Tide Pool",
+      position: [-22, 0, 3],
+      animalCount: 3,
+      plantCount: 3,
+      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
+      surveyed: false,
+    },
+    {
+      name: "Seagrass Meadow",
+      position: [22, 0, -2],
+      animalCount: 4,
+      plantCount: 5,
+      issue: ISSUE_TYPES[Math.floor(Math.random() * 3)],
+      surveyed: false,
+    },
+  ];
+}
 
 export type ItemType =
   | "sandbag"
@@ -69,6 +118,11 @@ interface GameState {
   world2Dialogue: { speaker: string; text: string }[] | null;
   world2DialogueIndex: number;
 
+  oceanQuestStarted: boolean;
+  ecosystems: EcosystemData[];
+  currentSurveyIndex: number | null;
+  oceanQuestCompleted: boolean;
+
   start: () => void;
   restart: () => void;
   end: () => void;
@@ -100,6 +154,12 @@ interface GameState {
   openWorld2Dialogue: (lines: { speaker: string; text: string }[]) => void;
   advanceWorld2Dialogue: () => void;
   closeWorld2Dialogue: () => void;
+
+  startOceanQuest: () => void;
+  openSurvey: (index: number) => void;
+  closeSurvey: () => void;
+  completeEcosystemSurvey: (index: number) => void;
+  completeOceanQuest: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -144,6 +204,11 @@ export const useGame = create<GameState>()(
     currentWorld: "town" as GameWorld,
     world2Dialogue: null,
     world2DialogueIndex: 0,
+
+    oceanQuestStarted: false,
+    ecosystems: generateEcosystems(),
+    currentSurveyIndex: null,
+    oceanQuestCompleted: false,
 
     start: () => {
       set((state) => {
@@ -193,6 +258,10 @@ export const useGame = create<GameState>()(
         currentWorld: "town" as GameWorld,
         world2Dialogue: null,
         world2DialogueIndex: 0,
+        oceanQuestStarted: false,
+        ecosystems: generateEcosystems(),
+        currentSurveyIndex: null,
+        oceanQuestCompleted: false,
       }));
     },
 
@@ -325,6 +394,18 @@ export const useGame = create<GameState>()(
     },
     closeWorld2Dialogue: () =>
       set({ world2Dialogue: null, world2DialogueIndex: 0 }),
+
+    startOceanQuest: () => set({ oceanQuestStarted: true }),
+    openSurvey: (index: number) => set({ currentSurveyIndex: index }),
+    closeSurvey: () => set({ currentSurveyIndex: null }),
+    completeEcosystemSurvey: (index: number) => {
+      const { ecosystems } = get();
+      const updated = ecosystems.map((eco, i) =>
+        i === index ? { ...eco, surveyed: true } : eco
+      );
+      set({ ecosystems: updated, currentSurveyIndex: null });
+    },
+    completeOceanQuest: () => set({ oceanQuestCompleted: true }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();

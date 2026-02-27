@@ -5,6 +5,7 @@ import { Text, useTexture } from "@react-three/drei";
 import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
+import { MarineEcosystem } from "./MarineEcosystem";
 import { useGame } from "@/lib/stores/useGame";
 
 function Ocean() {
@@ -334,28 +335,103 @@ export function OceanWorld() {
   const [playerPos, setPlayerPos] = useState(new THREE.Vector3(0, 0, 15));
   const world2Dialogue = useGame((s) => s.world2Dialogue);
   const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
+  const oceanQuestStarted = useGame((s) => s.oceanQuestStarted);
+  const startOceanQuest = useGame((s) => s.startOceanQuest);
+  const ecosystems = useGame((s) => s.ecosystems);
+  const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
+  const completeOceanQuest = useGame((s) => s.completeOceanQuest);
+  const currentSurveyIndex = useGame((s) => s.currentSurveyIndex);
+
+  const allSurveyed = ecosystems.every((e) => e.surveyed);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
   }, []);
 
   const handleJoshInteract = useCallback(() => {
-    if (world2Dialogue) return;
+    if (world2Dialogue || currentSurveyIndex !== null) return;
+
+    if (oceanQuestCompleted) {
+      openWorld2Dialogue([
+        {
+          speaker: "Josh",
+          text: "Great work out there, marine biologist! Your survey data is incredibly valuable for our conservation efforts.",
+        },
+        {
+          speaker: "Josh",
+          text: "I'll have another assignment for you soon. For now, take a well-deserved break and enjoy the beach!",
+        },
+      ]);
+      return;
+    }
+
+    if (allSurveyed && !oceanQuestCompleted) {
+      completeOceanQuest();
+      openWorld2Dialogue([
+        {
+          speaker: "Josh",
+          text: "You've surveyed all four marine ecosystems? That's outstanding work!",
+        },
+        {
+          speaker: "Josh",
+          text: "Your data on the animal populations, plant life, and environmental issues will help us protect these habitats.",
+        },
+        {
+          speaker: "Josh",
+          text: "Great job, marine biologist! I'll have another task for you soon. Stay tuned!",
+        },
+      ]);
+      return;
+    }
+
+    if (oceanQuestStarted) {
+      const remaining = ecosystems.filter((e) => !e.surveyed);
+      const names = remaining.map((e) => e.name).join(", ");
+      openWorld2Dialogue([
+        {
+          speaker: "Josh",
+          text: `You still have ${remaining.length} ecosystem${remaining.length > 1 ? "s" : ""} to survey: ${names}.`,
+        },
+        {
+          speaker: "Josh",
+          text: "Walk to each ecosystem zone, count the animals and plants, and identify the environmental issue. You've got this!",
+        },
+      ]);
+      return;
+    }
+
+    startOceanQuest();
     openWorld2Dialogue([
       {
         speaker: "Josh",
-        text: "Welcome to the Ocean World! I'm Josh. Looks like you made it through the portal safely.",
+        text: "Welcome to the LA Marine Nature Preserve! I'm Josh, the head researcher here at the Beach Station.",
       },
       {
         speaker: "Josh",
-        text: "This beach station is our base of operations. There's a lot to explore around here!",
+        text: "You must be our new marine biologist. Perfect timing — I have an important assignment for you!",
       },
       {
         speaker: "Josh",
-        text: "More adventures are coming soon. For now, enjoy the ocean view and take a look around!",
+        text: "We have 4 marine ecosystems out in the water that need surveying. I need you to visit each one.",
+      },
+      {
+        speaker: "Josh",
+        text: "At each ecosystem, count the number of marine animals and marine plants you observe.",
+      },
+      {
+        speaker: "Josh",
+        text: "Also, each ecosystem has an environmental issue — it could be lots of trash, fishing nets trapping fish, or an oil spill. I need you to identify which one.",
+      },
+      {
+        speaker: "Josh",
+        text: "The 4 ecosystems are: the Coral Reef, the Kelp Forest, the Tide Pool, and the Seagrass Meadow. You'll see them marked out in the water.",
+      },
+      {
+        speaker: "Josh",
+        text: "Walk to each one and press E to begin your survey. Report back to me when you've surveyed all four. Good luck!",
       },
     ]);
-  }, [world2Dialogue, openWorld2Dialogue]);
+  }, [world2Dialogue, currentSurveyIndex, oceanQuestStarted, oceanQuestCompleted, allSurveyed, ecosystems, startOceanQuest, completeOceanQuest, openWorld2Dialogue]);
 
   return (
     <>
@@ -380,6 +456,21 @@ export function OceanWorld() {
         playerPosition={playerPos}
         onInteract={handleJoshInteract}
       />
+
+      {oceanQuestStarted && ecosystems.map((eco, i) => (
+        <MarineEcosystem
+          key={i}
+          index={i}
+          name={eco.name}
+          position={eco.position}
+          animalCount={eco.animalCount}
+          plantCount={eco.plantCount}
+          issue={eco.issue}
+          surveyed={eco.surveyed}
+          playerPosition={playerPos}
+          questStarted={oceanQuestStarted}
+        />
+      ))}
     </>
   );
 }

@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-02-27: Added Ocean World marine ecosystem survey quest - 4 ecosystems (Coral Reef, Kelp Forest, Tide Pool, Seagrass Meadow) with marine life, environmental issues, SurveyUI for counting animals/plants/identifying issues, Josh NPC quest dialogue flow
 - 2026-02-26: Added Ocean World (World 2) - beach environment with ocean, palm trees, building, and NPC Josh; accessible via portal after quest + quiz
 - 2026-02-26: Added portal feature - glowing portal appears after quest + practice quiz completion, leads to Ocean World
 - 2026-02-16: Created modular game-template/ directory - config-driven copy for building new educational games
@@ -40,6 +41,17 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/components/game/PracticeBooth.tsx` - Interactive booth for programming practice quiz
 - `client/src/components/game/PracticeQuizUI.tsx` - 8 multiple-choice questions on if/else-if/else branching
 - `client/src/components/game/Portal.tsx` - Glowing portal ring that appears after quest + quiz completion
+- `client/src/components/game/MarineEcosystem.tsx` - 3D ecosystem zones with marine animals, plants, and environmental issues
+- `client/src/components/game/SurveyUI.tsx` - Survey popup for counting animals/plants and identifying environmental issues
+
+### Ocean World Quest Flow
+1. Player enters Ocean World via portal
+2. Talk to Josh at Beach Station -> he assigns marine survey task + calls startOceanQuest
+3. 4 ecosystem zones appear: Coral Reef, Kelp Forest, Tide Pool, Seagrass Meadow
+4. Walk to each ecosystem, press E to open SurveyUI
+5. Count animals, count plants, identify environmental issue (trash/nets/oil_spill)
+6. After all 4 surveyed, return to Josh -> congratulations dialogue
+7. Quest complete, Josh mentions more tasks coming
 
 ### Game Flow
 1. Start screen -> click "Start Game"
@@ -62,3 +74,4 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - **Sara** - Hints and flavor dialogue
 - **Mike** - Hints and flavor dialogue
 - **Lisa** - General disaster prep education
+- **Josh** (Ocean World) - Marine research boss, assigns ecosystem survey quest
