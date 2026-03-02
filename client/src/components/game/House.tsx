@@ -86,15 +86,15 @@ export function House() {
       </mesh>
 
       {/* Front columns */}
-      {[-2.5, 2.5].map((xOff, i) => (
-        <mesh key={`col-${i}`} position={[hx + xOff, WALL_H / 2, hz + D / 2 + 1]} castShadow>
+      {[-2.5, 2.5].map((xOff) => (
+        <mesh key={`col-${xOff}`} position={[hx + xOff, WALL_H / 2, hz + D / 2 + 1]} castShadow>
           <cylinderGeometry args={[0.25, 0.3, WALL_H, 12]} />
           <meshStandardMaterial color="#e8e0d0" />
         </mesh>
       ))}
       {/* Column bases */}
-      {[-2.5, 2.5].map((xOff, i) => (
-        <mesh key={`colbase-${i}`} position={[hx + xOff, 0.15, hz + D / 2 + 1]}>
+      {[-2.5, 2.5].map((xOff) => (
+        <mesh key={`colbase-${xOff}`} position={[hx + xOff, 0.15, hz + D / 2 + 1]}>
           <boxGeometry args={[0.8, 0.3, 0.8]} />
           <meshStandardMaterial color="#d4ccc0" />
         </mesh>
@@ -146,15 +146,15 @@ export function House() {
       </mesh>
 
       {/* 2nd floor windows - front */}
-      {[-4, -1.5, 1.5, 4].map((xOff, i) => (
-        <mesh key={`w2f-${i}`} position={[hx + xOff, WALL_H + FLOOR2_H / 2, hz + D / 2 + 0.14]}>
+      {[-4, -1.5, 1.5, 4].map((xOff) => (
+        <mesh key={`w2f-${xOff}`} position={[hx + xOff, WALL_H + FLOOR2_H / 2, hz + D / 2 + 0.14]}>
           <boxGeometry args={[1, 1.4, 0.05]} />
           <meshStandardMaterial color="#87ceeb" transparent opacity={0.5} />
         </mesh>
       ))}
       {/* 2nd floor windows - back */}
-      {[-4, -1.5, 1.5, 4].map((xOff, i) => (
-        <mesh key={`w2b-${i}`} position={[hx + xOff, WALL_H + FLOOR2_H / 2, hz - D / 2 - 0.14]}>
+      {[-4, -1.5, 1.5, 4].map((xOff) => (
+        <mesh key={`w2b-${xOff}`} position={[hx + xOff, WALL_H + FLOOR2_H / 2, hz - D / 2 - 0.14]}>
           <boxGeometry args={[1, 1.4, 0.05]} />
           <meshStandardMaterial color="#87ceeb" transparent opacity={0.5} />
         </mesh>
@@ -216,8 +216,8 @@ export function House() {
       </mesh>
 
       {/* Front windows (decorative) */}
-      {[-5, 5].map((xOff, i) => (
-        <mesh key={`fw-${i}`} position={[hx + xOff, 2.2, hz + D / 2 + 0.14]}>
+      {[-5, 5].map((xOff) => (
+        <mesh key={`fw-${xOff}`} position={[hx + xOff, 2.2, hz + D / 2 + 0.14]}>
           <boxGeometry args={[1.2, 1.4, 0.05]} />
           <meshStandardMaterial color="#87ceeb" transparent opacity={0.5} />
         </mesh>
