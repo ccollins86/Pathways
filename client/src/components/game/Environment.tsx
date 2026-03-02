@@ -69,7 +69,7 @@ export function Environment() {
       const distToHouse = Math.sqrt(
         (x - HOUSE_POS[0]) ** 2 + (z - HOUSE_POS[2]) ** 2
       );
-      if (distToHouse > 12) {
+      if (distToHouse > 20) {
         positions.push([x, 0, z]);
       }
     }
@@ -84,7 +84,7 @@ export function Environment() {
       const distToHouse = Math.sqrt(
         (x - HOUSE_POS[0]) ** 2 + (z - HOUSE_POS[2]) ** 2
       );
-      if (Math.abs(x) > 3 && Math.abs(z) > 3 && distToHouse > 12) {
+      if (Math.abs(x) > 3 && Math.abs(z) > 3 && distToHouse > 20) {
         positions.push([x, 0, z]);
       }
     }

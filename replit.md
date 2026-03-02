@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-03-02: Transformed Bob's house into a mansion with backyard - two-story structure with columns, grand double doors, chimney, fireplace, grand staircase, couch, larger furniture; backyard has swimming pool, patio with umbrella/table/chairs, fenced area, garden beds with flowers, backyard trees; updated interaction target positions and item spawns for larger footprint; increased environment clearance radius to 20
 - 2026-02-27: Added Ocean Practice Station - 3D booth in OceanWorld at [-8,0,14], unlocked after lessons complete (oceanLessonPhase=3), 8 quiz questions on for/while loops, confetti + success.mp3 on correct answers, score tracking (10 pts each), OceanPracticeQuizUI component, store state (oceanPracticeUnlocked/Active/Score/Completed)
 - 2026-02-27: Added Ocean World programming lessons - after cleanup quest completion, two lesson overlays appear: (1) For Loops lesson connecting ecosystem survey to for-each loops, (2) While Loops lesson connecting sludge cleanup to while loops; oceanLessonPhase state (0=none,1=forLoop,2=whileLoop,3=done); HUD hides during lessons
 - 2026-02-27: Polish pass 3 - fish/turtle rotation smoothing (lerped angle fixes atan2 discontinuity spinning), dialogue E key uses capture phase + stopImmediatePropagation to block dock handler, GameHUD task list toggleable, trash debris redesigned as colorful recognizable items (red can, blue bottle, plastic bag, etc.), marine plants (Seaweed/KelpStalk/SeagrassClump) made larger/more detailed, survey→cleanup auto-transition (Josh combines survey congrats with cleanup quest start)
@@ -44,7 +45,7 @@ A 3D educational game built with React Three Fiber where players learn about nat
 ### Key Files (continued)
 - `client/src/components/game/WorldItem.tsx` - Pickupable items with unique IDs, consumed tracking
 - `client/src/components/game/InteractionTarget.tsx` - Use-item-at-location targets with correct/wrong item handling
-- `client/src/components/game/House.tsx` - House with interior, exports HOUSE_POS constant
+- `client/src/components/game/House.tsx` - Mansion with 2 floors, columns, chimney, fireplace, staircase, backyard with pool/patio/garden/fence, exports HOUSE_POS constant
 - `client/src/components/game/PracticeBooth.tsx` - Interactive booth for programming practice quiz
 - `client/src/components/game/PracticeQuizUI.tsx` - 8 multiple-choice questions on if/else-if/else branching
 - `client/src/components/game/Portal.tsx` - Glowing portal ring that appears after quest + quiz completion
