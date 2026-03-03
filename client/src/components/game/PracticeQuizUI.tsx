@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useGame, type Question } from "@/lib/stores/useGame";
 
 const FALLBACK_QUESTIONS: Question[] = [
@@ -174,9 +174,17 @@ export function PracticeQuizUI() {
   const practiceScore = useGame((s) => s.practiceScore);
   const completePractice = useGame((s) => s.completePractice);
   const townQuestions = useGame((s) => s.townQuestions);
-  const townQuestionsLoading = useGame((s) => s.townQuestionsLoading);
 
-  const QUESTIONS = townQuestions || FALLBACK_QUESTIONS;
+  const shuffledFallback = useMemo(() => {
+    const shuffled = [...FALLBACK_QUESTIONS];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, []);
+
+  const QUESTIONS = townQuestions || shuffledFallback;
 
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -205,35 +213,6 @@ export function PracticeQuizUI() {
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 1200);
   }, []);
-
-  if (townQuestionsLoading && !townQuestions) {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          background: "rgba(13, 25, 48, 0.97)",
-          borderRadius: 16,
-          padding: "32px 40px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          zIndex: 200,
-          border: "3px solid #4fc3f7",
-          boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
-          textAlign: "center",
-        }}
-      >
-        <div style={{ fontSize: 18, fontWeight: 700, color: "#4fc3f7", marginBottom: 12 }}>
-          Generating Questions...
-        </div>
-        <div style={{ fontSize: 14, opacity: 0.7 }}>
-          The AI is creating fresh practice questions for you!
-        </div>
-      </div>
-    );
-  }
 
   const question = QUESTIONS[currentQ];
   const isLastQuestion = currentQ >= QUESTIONS.length - 1;
