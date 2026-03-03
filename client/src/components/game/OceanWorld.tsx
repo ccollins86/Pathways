@@ -897,6 +897,10 @@ export function OceanWorld() {
   const openOceanPractice = useGame((s) => s.openOceanPractice);
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
 
+  useEffect(() => {
+    useGame.getState().preloadOceanQuestions();
+  }, []);
+
   const allSurveyed = ecosystems.every((e) => e.surveyed);
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
   const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;

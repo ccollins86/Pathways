@@ -1,16 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useGame } from "@/lib/stores/useGame";
+import { useGame, type Question } from "@/lib/stores/useGame";
 
-interface Question {
-  id: number;
-  code: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-}
-
-const QUESTIONS: Question[] = [
+const FALLBACK_QUESTIONS: Question[] = [
   {
     id: 1,
     code: `let fruits = ["apple", "banana", "cherry"];
@@ -166,6 +157,10 @@ export function OceanPracticeQuizUI() {
   const addOceanPracticeScore = useGame((s) => s.addOceanPracticeScore);
   const oceanPracticeScore = useGame((s) => s.oceanPracticeScore);
   const completeOceanPractice = useGame((s) => s.completeOceanPractice);
+  const oceanQuestions = useGame((s) => s.oceanQuestions);
+  const oceanQuestionsLoading = useGame((s) => s.oceanQuestionsLoading);
+
+  const QUESTIONS = oceanQuestions || FALLBACK_QUESTIONS;
 
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -194,6 +189,35 @@ export function OceanPracticeQuizUI() {
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 1200);
   }, []);
+
+  if (oceanQuestionsLoading && !oceanQuestions) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(0, 20, 50, 0.97)",
+          borderRadius: 16,
+          padding: "32px 40px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          zIndex: 200,
+          border: "3px solid #69f0ae",
+          boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#69f0ae", marginBottom: 12 }}>
+          Generating Questions...
+        </div>
+        <div style={{ fontSize: 14, opacity: 0.7 }}>
+          The AI is creating fresh practice questions for you!
+        </div>
+      </div>
+    );
+  }
 
   const question = QUESTIONS[currentQ];
   const isLastQuestion = currentQ >= QUESTIONS.length - 1;

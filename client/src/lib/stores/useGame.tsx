@@ -1,6 +1,15 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
+export interface Question {
+  id: number;
+  code: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
 export type GamePhase = "ready" | "playing" | "ended";
 export type GameWorld = "town" | "ocean";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
@@ -136,6 +145,13 @@ interface GameState {
   oceanPracticeScore: number;
   oceanPracticeCompleted: boolean;
 
+  townQuestions: Question[] | null;
+  oceanQuestions: Question[] | null;
+  townQuestionsLoading: boolean;
+  oceanQuestionsLoading: boolean;
+  preloadTownQuestions: () => void;
+  preloadOceanQuestions: () => void;
+
   start: () => void;
   restart: () => void;
   end: () => void;
@@ -248,6 +264,53 @@ export const useGame = create<GameState>()(
     oceanPracticeScore: 0,
     oceanPracticeCompleted: false,
 
+    townQuestions: null,
+    oceanQuestions: null,
+    townQuestionsLoading: false,
+    oceanQuestionsLoading: false,
+    preloadTownQuestions: () => {
+      const state = get();
+      if (state.townQuestions || state.townQuestionsLoading) return;
+      set({ townQuestionsLoading: true });
+      fetch("/api/generate-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: "if-else", count: 8 }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            set({ townQuestions: data.questions, townQuestionsLoading: false });
+          } else {
+            set({ townQuestionsLoading: false });
+          }
+        })
+        .catch(() => {
+          set({ townQuestionsLoading: false });
+        });
+    },
+    preloadOceanQuestions: () => {
+      const state = get();
+      if (state.oceanQuestions || state.oceanQuestionsLoading) return;
+      set({ oceanQuestionsLoading: true });
+      fetch("/api/generate-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: "loops", count: 8 }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            set({ oceanQuestions: data.questions, oceanQuestionsLoading: false });
+          } else {
+            set({ oceanQuestionsLoading: false });
+          }
+        })
+        .catch(() => {
+          set({ oceanQuestionsLoading: false });
+        });
+    },
+
     start: () => {
       set((state) => {
         if (state.phase === "ready") {
@@ -310,6 +373,10 @@ export const useGame = create<GameState>()(
         oceanPracticeActive: false,
         oceanPracticeScore: 0,
         oceanPracticeCompleted: false,
+        townQuestions: null,
+        oceanQuestions: null,
+        townQuestionsLoading: false,
+        oceanQuestionsLoading: false,
       }));
     },
 

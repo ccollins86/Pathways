@@ -28,6 +28,10 @@ export function Game() {
   const activeDialogue = useGame((s) => s.activeDialogue);
   const tasksActive = useGame((s) => s.tasksActive);
   const carriedItem = useGame((s) => s.carriedItem);
+
+  useEffect(() => {
+    useGame.getState().preloadTownQuestions();
+  }, []);
   const hurricaneTasks = useGame((s) => s.hurricaneTasks);
   const wildfireTasks = useGame((s) => s.wildfireTasks);
   const earthquakeTasks = useGame((s) => s.earthquakeTasks);
