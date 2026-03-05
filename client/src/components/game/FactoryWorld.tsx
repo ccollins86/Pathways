@@ -834,6 +834,99 @@ function FactoryDecor() {
   );
 }
 
+function FactoryPracticeBooth({ position, playerPosition }: { position: [number, number, number]; playerPosition: THREE.Vector3 }) {
+  const factoryPracticeUnlocked = useGame((s) => s.factoryPracticeUnlocked);
+  const factoryPracticeCompleted = useGame((s) => s.factoryPracticeCompleted);
+  const factoryPracticeActive = useGame((s) => s.factoryPracticeActive);
+  const openFactoryPractice = useGame((s) => s.openFactoryPractice);
+  const [isNear, setIsNear] = useState(false);
+  const nearRef = useRef(false);
+  const posVec = useRef(new THREE.Vector3(position[0], position[1], position[2]));
+  const glowRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const dist = playerPosition.distanceTo(posVec.current);
+    const near = dist < 4;
+    if (near !== nearRef.current) {
+      nearRef.current = near;
+      setIsNear(near);
+    }
+    if (glowRef.current && factoryPracticeUnlocked && !factoryPracticeCompleted) {
+      const mat = glowRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 0.5 + Math.sin(state.clock.elapsedTime * 2) * 0.3;
+    }
+  });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const s = useGame.getState();
+      if (e.code === "KeyE" && nearRef.current && s.factoryPracticeUnlocked && !s.factoryPracticeCompleted && !s.factoryPracticeActive && !s.world3Dialogue && !s.activeMachine) {
+        openFactoryPractice();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [openFactoryPractice]);
+
+  if (!factoryPracticeUnlocked) return null;
+
+  const boothColor = factoryPracticeCompleted ? "#4caf50" : "#ff9800";
+
+  return (
+    <group position={position}>
+      <mesh position={[0, 1.2, 0]} castShadow>
+        <boxGeometry args={[3, 2.4, 2]} />
+        <meshStandardMaterial color="#37474f" />
+      </mesh>
+      <mesh position={[0, 2.5, 0]} castShadow>
+        <boxGeometry args={[3.2, 0.15, 2.2]} />
+        <meshStandardMaterial color="#263238" />
+      </mesh>
+      <mesh ref={glowRef} position={[0, 1.5, 1.02]}>
+        <boxGeometry args={[2.2, 1.2, 0.05]} />
+        <meshStandardMaterial color={boothColor} emissive={boothColor} emissiveIntensity={0.5} />
+      </mesh>
+      <Text
+        position={[0, 3.2, 0]}
+        fontSize={0.35}
+        color={boothColor}
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000000"
+        fontWeight="bold"
+      >
+        PRACTICE STATION
+      </Text>
+      {factoryPracticeCompleted && (
+        <Text
+          position={[0, 2.8, 0]}
+          fontSize={0.2}
+          color="#69f0ae"
+          anchorX="center"
+          anchorY="middle"
+        >
+          COMPLETED
+        </Text>
+      )}
+      {isNear && !factoryPracticeCompleted && !factoryPracticeActive && (
+        <Text
+          position={[0, 3.8, 0]}
+          fontSize={0.25}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Press E to Practice
+        </Text>
+      )}
+      <pointLight position={[0, 3, 1]} color={boothColor} intensity={4} distance={8} />
+    </group>
+  );
+}
+
 export function FactoryWorld() {
   const [playerPos, setPlayerPos] = useState(new THREE.Vector3(0, 0, 25));
   const world3Dialogue = useGame((s) => s.world3Dialogue);
@@ -971,6 +1064,7 @@ export function FactoryWorld() {
 
       <PackingTable position={[0, 0, 10]} playerPosition={playerPos} />
       <ShippingTruck position={[20, 0, 25]} playerPosition={playerPos} />
+      <FactoryPracticeBooth position={[-15, 0, 20]} playerPosition={playerPos} />
     </>
   );
 }

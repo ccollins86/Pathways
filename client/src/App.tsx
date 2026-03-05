@@ -10,6 +10,7 @@ import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
 import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
+import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -456,8 +457,10 @@ function World3HUD() {
   const carryingProduct = useGame((s) => s.carryingProduct);
   const carryingBox = useGame((s) => s.carryingBox);
   const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
+  const factoryLessonPhase = useGame((s) => s.factoryLessonPhase);
+  const factoryPracticeActive = useGame((s) => s.factoryPracticeActive);
 
-  if (world3Dialogue || activeMachine) return null;
+  if (world3Dialogue || activeMachine || factoryLessonPhase > 0 || factoryPracticeActive) return null;
 
   const stateLabel = (state: string) => {
     if (state === "idle") return "Not started";
@@ -884,6 +887,272 @@ function OceanPracticeQuizWrapper() {
   return <OceanPracticeQuizUI />;
 }
 
+function FactoryLessonUI() {
+  const factoryLessonPhase = useGame((s) => s.factoryLessonPhase);
+  const advanceFactoryLesson = useGame((s) => s.advanceFactoryLesson);
+  const unlockFactoryPractice = useGame((s) => s.unlockFactoryPractice);
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+
+  if (world3Dialogue) return null;
+  if (factoryLessonPhase < 1 || factoryLessonPhase > 2) return null;
+
+  if (factoryLessonPhase === 1) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(30, 20, 5, 0.97)",
+          borderRadius: 16,
+          padding: "28px 36px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          zIndex: 200,
+          border: "3px solid #ff9800",
+          boxShadow: "0 0 40px rgba(255, 152, 0, 0.4)",
+          maxWidth: 640,
+          maxHeight: "85vh",
+          overflowY: "auto",
+        }}
+      >
+        <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#ff9800" }}>
+          Functions in Programming
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          Great job fulfilling the Olympic Village order! You just used <strong style={{ color: "#ffeb3b" }}>three different machines</strong>,
+          each one taking specific inputs (quantity, size, colors, lettering) and producing a finished product as output.
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          This is exactly how <strong style={{ color: "#ff9800" }}>functions</strong> work in programming!
+          A function is a reusable block of code that takes <strong style={{ color: "#4fc3f7" }}>inputs (parameters)</strong>,
+          does some work, and produces an <strong style={{ color: "#69f0ae" }}>output (return value)</strong>.
+        </div>
+
+        <div
+          style={{
+            background: "rgba(0, 0, 0, 0.5)",
+            borderRadius: 8,
+            padding: "16px 20px",
+            fontFamily: "'Courier New', monospace",
+            fontSize: 13,
+            lineHeight: 1.8,
+            marginBottom: 16,
+            border: "1px solid rgba(255, 152, 0, 0.3)",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          <span style={{ color: "#546e7a" }}>{"// The Hat Maker machine as a function:\n"}</span>
+          <span style={{ color: "#c792ea" }}>function </span>
+          <span style={{ color: "#82aaff" }}>makeHat</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>quantity</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>size</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>topColor</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>brimColor</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>lettering</span>
+          <span style={{ color: "#89ddff" }}>)</span>
+          <span style={{ color: "#c3e88d" }}>{" {\n"}</span>
+          <span style={{ color: "#546e7a" }}>{"  // The machine does all the work inside...\n"}</span>
+          <span style={{ color: "#c3e88d" }}>{"  "}</span>
+          <span style={{ color: "#c792ea" }}>return </span>
+          <span style={{ color: "#f78c6c" }}>finishedHats</span>
+          <span style={{ color: "#89ddff" }}>;</span>
+          <span style={{ color: "#c3e88d" }}>{"\n}\n\n"}</span>
+          <span style={{ color: "#546e7a" }}>{"// You called it with specific inputs:\n"}</span>
+          <span style={{ color: "#c792ea" }}>let </span>
+          <span style={{ color: "#f78c6c" }}>hats</span>
+          <span style={{ color: "#89ddff" }}> = </span>
+          <span style={{ color: "#82aaff" }}>makeHat</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>2</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"large"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"white"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"green"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"Italy"'}</span>
+          <span style={{ color: "#89ddff" }}>);</span>
+        </div>
+
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+          The <strong style={{ color: "#4fc3f7" }}>parameters</strong> (quantity, size, topColor, brimColor, lettering)
+          are like the settings on the machine — they tell the function what to do.
+          The <strong style={{ color: "#ffeb3b" }}>arguments</strong> (2, "large", "white", "green", "Italy")
+          are the actual values you supplied.
+          And the function <strong style={{ color: "#69f0ae" }}>returned</strong> the finished hats — your output!
+        </div>
+
+        <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+          Each machine is like a different function — same concept, different purpose!
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
+            onClick={advanceFactoryLesson}
+            style={{
+              padding: "12px 32px",
+              background: "#ff9800",
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Continue
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(30, 20, 5, 0.97)",
+        borderRadius: 16,
+        padding: "28px 36px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: "3px solid #69f0ae",
+        boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+        maxWidth: 640,
+        maxHeight: "85vh",
+        overflowY: "auto",
+      }}
+    >
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
+        Functions Group Tasks Together
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        Think about what each machine did internally — it took raw materials, cut them to size, applied colors,
+        stamped the lettering, and assembled the final product. That's <strong style={{ color: "#ffeb3b" }}>a lot of steps</strong>!
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        But you didn't have to do each step manually. You just called the function with your inputs,
+        and the machine handled all the complexity for you. That's the power of functions —
+        they <strong style={{ color: "#69f0ae" }}>cluster all the tasks needed</strong> to accomplish something,
+        so you can just call the function and get what you want.
+      </div>
+
+      <div
+        style={{
+          background: "rgba(0, 0, 0, 0.5)",
+          borderRadius: 8,
+          padding: "16px 20px",
+          fontFamily: "'Courier New', monospace",
+          fontSize: 13,
+          lineHeight: 1.8,
+          marginBottom: 16,
+          border: "1px solid rgba(105, 240, 174, 0.3)",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        <span style={{ color: "#546e7a" }}>{"// Your full order — 3 function calls:\n\n"}</span>
+        <span style={{ color: "#c792ea" }}>let </span>
+        <span style={{ color: "#f78c6c" }}>hats</span>
+        <span style={{ color: "#89ddff" }}>{" = "}</span>
+        <span style={{ color: "#82aaff" }}>makeHat</span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#f78c6c" }}>2</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"large"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"white"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"green"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"Italy"'}</span>
+        <span style={{ color: "#89ddff" }}>);</span>
+        {"\n"}
+        <span style={{ color: "#c792ea" }}>let </span>
+        <span style={{ color: "#f78c6c" }}>shirts</span>
+        <span style={{ color: "#89ddff" }}>{" = "}</span>
+        <span style={{ color: "#82aaff" }}>makeTshirt</span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#f78c6c" }}>3</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"medium"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"red"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"blue"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"USA"'}</span>
+        <span style={{ color: "#89ddff" }}>);</span>
+        {"\n"}
+        <span style={{ color: "#c792ea" }}>let </span>
+        <span style={{ color: "#f78c6c" }}>jackets</span>
+        <span style={{ color: "#89ddff" }}>{" = "}</span>
+        <span style={{ color: "#82aaff" }}>makeJacket</span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#f78c6c" }}>5</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"large"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"black"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"red"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"Germany"'}</span>
+        <span style={{ color: "#89ddff" }}>);</span>
+      </div>
+
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        Each function took <strong style={{ color: "#4fc3f7" }}>different inputs</strong> and
+        produced <strong style={{ color: "#69f0ae" }}>different outputs</strong>, but they all
+        followed the same pattern: <em>call the function, pass your inputs, get your result</em>.
+      </div>
+
+      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+        Now head to the Practice Station to test your knowledge of functions!
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          onClick={unlockFactoryPractice}
+          style={{
+            padding: "12px 32px",
+            background: "#69f0ae",
+            border: "none",
+            borderRadius: 8,
+            color: "#1a1a1a",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}
+        >
+          Continue Playing
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FactoryPracticeQuizWrapper() {
+  const factoryPracticeActive = useGame((s) => s.factoryPracticeActive);
+  if (!factoryPracticeActive) return null;
+  return <FactoryPracticeQuizUI />;
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
@@ -944,6 +1213,8 @@ function App() {
             <World3HUD />
             <World3DialogueUI />
             <MachineSettingsUI />
+            <FactoryLessonUI />
+            <FactoryPracticeQuizWrapper />
           </>
         )}
       </KeyboardControls>

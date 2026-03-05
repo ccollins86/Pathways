@@ -157,6 +157,11 @@ interface GameState {
   carryingProduct: "hats" | "tshirts" | "jackets" | null;
   carryingBox: "hats" | "tshirts" | "jackets" | null;
   factoryOrderComplete: boolean;
+  factoryLessonPhase: number;
+  factoryPracticeUnlocked: boolean;
+  factoryPracticeActive: boolean;
+  factoryPracticeScore: number;
+  factoryPracticeCompleted: boolean;
 
   start: () => void;
   restart: () => void;
@@ -223,6 +228,13 @@ interface GameState {
   boxProduct: () => void;
   loadBox: () => void;
   checkFactoryComplete: () => void;
+  advanceFactoryLesson: () => void;
+  unlockFactoryPractice: () => void;
+  openFactoryPractice: () => void;
+  closeFactoryPractice: () => void;
+  addFactoryPracticeScore: (points: number) => void;
+  resetFactoryPracticeScore: () => void;
+  completeFactoryPractice: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -296,6 +308,11 @@ export const useGame = create<GameState>()(
     carryingProduct: null,
     carryingBox: null,
     factoryOrderComplete: false,
+    factoryLessonPhase: 0,
+    factoryPracticeUnlocked: false,
+    factoryPracticeActive: false,
+    factoryPracticeScore: 0,
+    factoryPracticeCompleted: false,
 
     start: () => {
       set((state) => {
@@ -370,6 +387,11 @@ export const useGame = create<GameState>()(
         carryingProduct: null,
         carryingBox: null,
         factoryOrderComplete: false,
+        factoryLessonPhase: 0,
+        factoryPracticeUnlocked: false,
+        factoryPracticeActive: false,
+        factoryPracticeScore: 0,
+        factoryPracticeCompleted: false,
       }));
     },
 
@@ -620,15 +642,33 @@ export const useGame = create<GameState>()(
       else if (carryingBox === "jackets") set({ jacketMachineState: "loaded", carryingBox: null });
       const state = get();
       if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
-        set({ factoryOrderComplete: true });
+        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
       }
     },
     checkFactoryComplete: () => {
       const { hatMachineState, tshirtMachineState, jacketMachineState } = get();
       if (hatMachineState === "loaded" && tshirtMachineState === "loaded" && jacketMachineState === "loaded") {
-        set({ factoryOrderComplete: true });
+        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
       }
     },
+    advanceFactoryLesson: () => {
+      const { factoryLessonPhase } = get();
+      if (factoryLessonPhase < 2) {
+        set({ factoryLessonPhase: factoryLessonPhase + 1 });
+      }
+    },
+    unlockFactoryPractice: () =>
+      set({ factoryPracticeUnlocked: true, factoryLessonPhase: 0 }),
+    openFactoryPractice: () =>
+      set({ factoryPracticeActive: true, factoryPracticeScore: 0 }),
+    closeFactoryPractice: () =>
+      set({ factoryPracticeActive: false }),
+    addFactoryPracticeScore: (points) =>
+      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points })),
+    resetFactoryPracticeScore: () =>
+      set({ factoryPracticeScore: 0 }),
+    completeFactoryPractice: () =>
+      set({ factoryPracticeCompleted: true, factoryPracticeActive: false }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
