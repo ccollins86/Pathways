@@ -9,6 +9,7 @@ import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
+import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -446,14 +447,42 @@ function World3DialogueUI() {
 function World3HUD() {
   const [hudOpen, setHudOpen] = useState(true);
   const world3Dialogue = useGame((s) => s.world3Dialogue);
+  const activeMachine = useGame((s) => s.activeMachine);
   const restart = useGame((s) => s.restart);
   const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
+  const hatMachineState = useGame((s) => s.hatMachineState);
+  const tshirtMachineState = useGame((s) => s.tshirtMachineState);
+  const jacketMachineState = useGame((s) => s.jacketMachineState);
+  const carryingProduct = useGame((s) => s.carryingProduct);
+  const carryingBox = useGame((s) => s.carryingBox);
+  const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
 
-  if (world3Dialogue) return null;
+  if (world3Dialogue || activeMachine) return null;
+
+  const stateLabel = (state: string) => {
+    if (state === "idle") return "Not started";
+    if (state === "produced") return "Pick up products";
+    if (state === "picked_up") return "Pack in box";
+    if (state === "boxed") return "Load on truck";
+    if (state === "loaded") return "Done!";
+    return state;
+  };
+
+  const stateColor = (state: string) => {
+    if (state === "loaded") return "#4caf50";
+    if (state === "idle") return "#999";
+    return "#ffeb3b";
+  };
 
   let objectiveText = "Talk to George, the floor manager, to get started!";
-  if (factoryQuestStarted) {
-    objectiveText = "Explore the manufacturing floor! Check out the Hat Maker, T-Shirt Maker, and Jacket Maker.";
+  if (factoryOrderComplete) {
+    objectiveText = "Order complete! Talk to George.";
+  } else if (carryingBox) {
+    objectiveText = `Carrying a box of ${carryingBox} — load it on the shipping truck!`;
+  } else if (carryingProduct) {
+    objectiveText = `Carrying ${carryingProduct} — go to the packing table to box them!`;
+  } else if (factoryQuestStarted) {
+    objectiveText = "Fulfill the Olympic Village order! Configure machines, pick up products, box them, and load the truck.";
   }
 
   return (
@@ -508,22 +537,47 @@ function World3HUD() {
             {factoryQuestStarted && (
               <div style={{ marginTop: 8, fontSize: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                  <span style={{ color: "#ff9800" }}>●</span>
-                  <span>Hat Maker</span>
+                  <span style={{ color: stateColor(hatMachineState) }}>●</span>
+                  <span>Hats (2 Large): {stateLabel(hatMachineState)}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                  <span style={{ color: "#2196f3" }}>●</span>
-                  <span>T-Shirt Maker</span>
+                  <span style={{ color: stateColor(tshirtMachineState) }}>●</span>
+                  <span>T-Shirts (3 Medium): {stateLabel(tshirtMachineState)}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ color: "#4caf50" }}>●</span>
-                  <span>Jacket Maker</span>
+                  <span style={{ color: stateColor(jacketMachineState) }}>●</span>
+                  <span>Jackets (5 Large): {stateLabel(jacketMachineState)}</span>
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {(carryingProduct || carryingBox) && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 80,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: carryingBox ? "rgba(76, 175, 80, 0.9)" : "rgba(255, 152, 0, 0.9)",
+            borderRadius: 12,
+            padding: "10px 24px",
+            color: "white",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 16,
+            fontWeight: 700,
+            zIndex: 50,
+            textAlign: "center",
+            border: "2px solid white",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+        >
+          {carryingProduct && `Carrying: ${carryingProduct.charAt(0).toUpperCase() + carryingProduct.slice(1)}`}
+          {carryingBox && `Carrying Box: ${carryingBox.charAt(0).toUpperCase() + carryingBox.slice(1)}`}
+        </div>
+      )}
 
       <div
         onClick={restart}
@@ -868,6 +922,7 @@ function App() {
           <>
             <World3HUD />
             <World3DialogueUI />
+            <MachineSettingsUI />
           </>
         )}
       </KeyboardControls>

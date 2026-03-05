@@ -141,6 +141,14 @@ interface GameState {
   world3DialogueIndex: number;
   factoryQuestStarted: boolean;
 
+  activeMachine: "hat" | "tshirt" | "jacket" | null;
+  hatMachineState: "idle" | "produced" | "picked_up" | "boxed" | "loaded";
+  tshirtMachineState: "idle" | "produced" | "picked_up" | "boxed" | "loaded";
+  jacketMachineState: "idle" | "produced" | "picked_up" | "boxed" | "loaded";
+  carryingProduct: "hats" | "tshirts" | "jackets" | null;
+  carryingBox: "hats" | "tshirts" | "jackets" | null;
+  factoryOrderComplete: boolean;
+
   start: () => void;
   restart: () => void;
   end: () => void;
@@ -198,6 +206,14 @@ interface GameState {
   advanceWorld3Dialogue: () => void;
   closeWorld3Dialogue: () => void;
   startFactoryQuest: () => void;
+
+  openMachineSettings: (machine: "hat" | "tshirt" | "jacket") => void;
+  closeMachineSettings: () => void;
+  submitMachineOrder: (machine: "hat" | "tshirt" | "jacket") => void;
+  pickUpProduct: (product: "hats" | "tshirts" | "jackets") => void;
+  boxProduct: () => void;
+  loadBox: () => void;
+  checkFactoryComplete: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -263,6 +279,14 @@ export const useGame = create<GameState>()(
     world3Dialogue: null,
     world3DialogueIndex: 0,
     factoryQuestStarted: false,
+
+    activeMachine: null,
+    hatMachineState: "idle",
+    tshirtMachineState: "idle",
+    jacketMachineState: "idle",
+    carryingProduct: null,
+    carryingBox: null,
+    factoryOrderComplete: false,
 
     start: () => {
       set((state) => {
@@ -330,6 +354,13 @@ export const useGame = create<GameState>()(
         world3Dialogue: null,
         world3DialogueIndex: 0,
         factoryQuestStarted: false,
+        activeMachine: null,
+        hatMachineState: "idle",
+        tshirtMachineState: "idle",
+        jacketMachineState: "idle",
+        carryingProduct: null,
+        carryingBox: null,
+        factoryOrderComplete: false,
       }));
     },
 
@@ -526,6 +557,43 @@ export const useGame = create<GameState>()(
     closeWorld3Dialogue: () =>
       set({ world3Dialogue: null, world3DialogueIndex: 0 }),
     startFactoryQuest: () => set({ factoryQuestStarted: true }),
+
+    openMachineSettings: (machine) => set({ activeMachine: machine }),
+    closeMachineSettings: () => set({ activeMachine: null }),
+    submitMachineOrder: (machine) => {
+      if (machine === "hat") set({ hatMachineState: "produced", activeMachine: null });
+      else if (machine === "tshirt") set({ tshirtMachineState: "produced", activeMachine: null });
+      else if (machine === "jacket") set({ jacketMachineState: "produced", activeMachine: null });
+    },
+    pickUpProduct: (product) => {
+      if (product === "hats") set({ hatMachineState: "picked_up", carryingProduct: "hats" });
+      else if (product === "tshirts") set({ tshirtMachineState: "picked_up", carryingProduct: "tshirts" });
+      else if (product === "jackets") set({ jacketMachineState: "picked_up", carryingProduct: "jackets" });
+    },
+    boxProduct: () => {
+      const { carryingProduct } = get();
+      if (!carryingProduct) return;
+      if (carryingProduct === "hats") set({ hatMachineState: "boxed", carryingProduct: null, carryingBox: "hats" });
+      else if (carryingProduct === "tshirts") set({ tshirtMachineState: "boxed", carryingProduct: null, carryingBox: "tshirts" });
+      else if (carryingProduct === "jackets") set({ jacketMachineState: "boxed", carryingProduct: null, carryingBox: "jackets" });
+    },
+    loadBox: () => {
+      const { carryingBox } = get();
+      if (!carryingBox) return;
+      if (carryingBox === "hats") set({ hatMachineState: "loaded", carryingBox: null });
+      else if (carryingBox === "tshirts") set({ tshirtMachineState: "loaded", carryingBox: null });
+      else if (carryingBox === "jackets") set({ jacketMachineState: "loaded", carryingBox: null });
+      const state = get();
+      if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
+        set({ factoryOrderComplete: true });
+      }
+    },
+    checkFactoryComplete: () => {
+      const { hatMachineState, tshirtMachineState, jacketMachineState } = get();
+      if (hatMachineState === "loaded" && tshirtMachineState === "loaded" && jacketMachineState === "loaded") {
+        set({ factoryOrderComplete: true });
+      }
+    },
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();

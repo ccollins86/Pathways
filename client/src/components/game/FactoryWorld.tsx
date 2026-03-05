@@ -48,7 +48,6 @@ function FactoryWalls() {
           </mesh>
         </group>
       ))}
-
     </group>
   );
 }
@@ -56,7 +55,6 @@ function FactoryWalls() {
 function FactoryCeiling() {
   return (
     <group>
-
       {[-15, 0, 15].map((x, i) => (
         <group key={`beam-${i}`}>
           <mesh position={[x, 7.5, 0]}>
@@ -101,7 +99,6 @@ function FactoryLights() {
 function ConveyorBelt({ position, length }: { position: [number, number, number]; length: number }) {
   const rollersCount = Math.floor(length / 0.8);
   const rollersRef = useRef<THREE.Group>(null);
-  const beltRef = useRef<THREE.Mesh>(null);
   const carrierRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
@@ -114,13 +111,12 @@ function ConveyorBelt({ position, length }: { position: [number, number, number]
     if (carrierRef.current) {
       const cycle = ((t * 0.5) % 1);
       carrierRef.current.position.z = -length / 2 + cycle * length;
-      carrierRef.current.visible = true;
     }
   });
 
   return (
     <group position={position}>
-      <mesh ref={beltRef} position={[0, 0.4, 0]} castShadow>
+      <mesh position={[0, 0.4, 0]} castShadow>
         <boxGeometry args={[2, 0.08, length]} />
         <meshStandardMaterial color="#333333" roughness={0.8} />
       </mesh>
@@ -170,16 +166,31 @@ function Machine({
   color,
   accentColor,
   productShape,
+  machineType,
+  playerPosition,
+  machineState,
 }: {
   position: [number, number, number];
   label: string;
   color: string;
   accentColor: string;
   productShape: "hat" | "tshirt" | "jacket";
+  machineType: "hat" | "tshirt" | "jacket";
+  playerPosition: THREE.Vector3;
+  machineState: string;
 }) {
   const glowRef = useRef<THREE.Mesh>(null);
   const armRef = useRef<THREE.Group>(null);
   const productRef = useRef<THREE.Group>(null);
+  const [nearMachine, setNearMachine] = useState(false);
+  const nearMachineRef = useRef(false);
+  const machinePos = useRef(new THREE.Vector3(position[0], position[1], position[2]));
+  const openMachineSettings = useGame((s) => s.openMachineSettings);
+  const activeMachine = useGame((s) => s.activeMachine);
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+  const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
+
+  const outputPos = useMemo(() => new THREE.Vector3(position[0] + 6, position[1], position[2]), [position]);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -193,7 +204,28 @@ function Machine({
     if (productRef.current) {
       productRef.current.rotation.y = t * 0.5;
     }
+    const dist = playerPosition.distanceTo(machinePos.current);
+    const isNear = dist < 5;
+    if (isNear !== nearMachineRef.current) {
+      nearMachineRef.current = isNear;
+      setNearMachine(isNear);
+    }
   });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const w3d = useGame.getState().world3Dialogue;
+      const am = useGame.getState().activeMachine;
+      const ms = useGame.getState();
+      const stateKey = `${machineType}MachineState` as keyof typeof ms;
+      const currentState = ms[stateKey];
+      if (e.code === "KeyE" && nearMachine && !w3d && !am && currentState === "idle" && ms.factoryQuestStarted) {
+        openMachineSettings(machineType);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [nearMachine, machineType, openMachineSettings]);
 
   return (
     <group position={position}>
@@ -275,6 +307,20 @@ function Machine({
 
       <ConveyorBelt position={[3.5, 0, 0]} length={4} />
 
+      {nearMachine && machineState === "idle" && !activeMachine && !world3Dialogue && factoryQuestStarted && (
+        <Text
+          position={[0, 5.2, 0]}
+          fontSize={0.3}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Press E to configure
+        </Text>
+      )}
+
       <pointLight position={[0, 4, 1]} color={accentColor} intensity={3} distance={8} />
     </group>
   );
@@ -294,10 +340,6 @@ function HatProduct({ color }: { color: string }) {
       <mesh position={[0, 0.5, 0]} castShadow>
         <cylinderGeometry args={[0.32, 0.3, 0.05, 16]} />
         <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh position={[0.15, 0.35, 0.3]} castShadow>
-        <boxGeometry args={[0.2, 0.12, 0.08]} />
-        <meshStandardMaterial color="#1a1a1a" />
       </mesh>
     </group>
   );
@@ -361,6 +403,331 @@ function JacketProduct({ color }: { color: string }) {
   );
 }
 
+function ProductPickup({
+  position,
+  productType,
+  accentColor,
+  label,
+  playerPosition,
+}: {
+  position: [number, number, number];
+  productType: "hats" | "tshirts" | "jackets";
+  accentColor: string;
+  label: string;
+  playerPosition: THREE.Vector3;
+}) {
+  const pickUpProduct = useGame((s) => s.pickUpProduct);
+  const carryingProduct = useGame((s) => s.carryingProduct);
+  const [isNear, setIsNear] = useState(false);
+  const nearRef = useRef(false);
+  const posVec = useRef(new THREE.Vector3(position[0], position[1], position[2]));
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    const dist = playerPosition.distanceTo(posVec.current);
+    const near = dist < 4;
+    if (near !== nearRef.current) {
+      nearRef.current = near;
+      setIsNear(near);
+    }
+    if (groupRef.current) {
+      groupRef.current.position.y = 0.8 + Math.sin(state.clock.elapsedTime * 2) * 0.15;
+    }
+  });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const w3d = useGame.getState().world3Dialogue;
+      const am = useGame.getState().activeMachine;
+      const cp = useGame.getState().carryingProduct;
+      const cb = useGame.getState().carryingBox;
+      if (e.code === "KeyE" && nearRef.current && !w3d && !am && !cp && !cb) {
+        pickUpProduct(productType);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [productType, pickUpProduct]);
+
+  return (
+    <group position={position}>
+      <group ref={groupRef}>
+        <mesh castShadow>
+          <boxGeometry args={[1.2, 0.8, 1.2]} />
+          <meshStandardMaterial color="#8d6e63" />
+        </mesh>
+        <mesh position={[0, 0.42, 0]}>
+          <boxGeometry args={[1.0, 0.04, 1.0]} />
+          <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={1.5} />
+        </mesh>
+      </group>
+      <Text
+        position={[0, 2, 0]}
+        fontSize={0.25}
+        color={accentColor}
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000000"
+      >
+        {label}
+      </Text>
+      {isNear && !carryingProduct && (
+        <Text
+          position={[0, 2.5, 0]}
+          fontSize={0.25}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Press E to pick up
+        </Text>
+      )}
+      <pointLight position={[0, 1.5, 0]} color={accentColor} intensity={5} distance={6} />
+    </group>
+  );
+}
+
+function PackingTable({ position, playerPosition }: { position: [number, number, number]; playerPosition: THREE.Vector3 }) {
+  const boxProduct = useGame((s) => s.boxProduct);
+  const carryingProduct = useGame((s) => s.carryingProduct);
+  const hatMachineState = useGame((s) => s.hatMachineState);
+  const tshirtMachineState = useGame((s) => s.tshirtMachineState);
+  const jacketMachineState = useGame((s) => s.jacketMachineState);
+  const [isNear, setIsNear] = useState(false);
+  const nearRef = useRef(false);
+  const posVec = useRef(new THREE.Vector3(position[0], position[1], position[2]));
+
+  useFrame(() => {
+    const dist = playerPosition.distanceTo(posVec.current);
+    const near = dist < 4;
+    if (near !== nearRef.current) {
+      nearRef.current = near;
+      setIsNear(near);
+    }
+  });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const w3d = useGame.getState().world3Dialogue;
+      const am = useGame.getState().activeMachine;
+      const cp = useGame.getState().carryingProduct;
+      if (e.code === "KeyE" && nearRef.current && !w3d && !am && cp) {
+        boxProduct();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [boxProduct]);
+
+  const boxedItems = [
+    hatMachineState === "boxed" || hatMachineState === "loaded" ? "Hats" : null,
+    tshirtMachineState === "boxed" || tshirtMachineState === "loaded" ? "T-Shirts" : null,
+    jacketMachineState === "boxed" || jacketMachineState === "loaded" ? "Jackets" : null,
+  ].filter(Boolean);
+
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.5, 0]} castShadow>
+        <boxGeometry args={[4, 0.12, 2]} />
+        <meshStandardMaterial color="#8d6e63" />
+      </mesh>
+      {[[-1.6, -0.8], [-1.6, 0.8], [1.6, -0.8], [1.6, 0.8]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.25, z]} castShadow>
+          <boxGeometry args={[0.1, 0.5, 0.1]} />
+          <meshStandardMaterial color="#5d4037" />
+        </mesh>
+      ))}
+
+      {[-1, 0, 1].map((xOff, i) => (
+        <group key={`box-${i}`} position={[xOff * 1.2, 0.75, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[1, 0.5, 0.8]} />
+            <meshStandardMaterial color="#d7ccc8" />
+          </mesh>
+          <mesh position={[0, 0, 0.41]}>
+            <boxGeometry args={[0.8, 0.04, 0.02]} />
+            <meshStandardMaterial color="#795548" />
+          </mesh>
+          <mesh position={[0, 0, 0.41]} rotation={[0, 0, Math.PI / 2]}>
+            <boxGeometry args={[0.4, 0.04, 0.02]} />
+            <meshStandardMaterial color="#795548" />
+          </mesh>
+        </group>
+      ))}
+
+      <Text
+        position={[0, 1.8, 0]}
+        fontSize={0.3}
+        color="#ff9800"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000000"
+        fontWeight="bold"
+      >
+        PACKING TABLE
+      </Text>
+
+      {isNear && carryingProduct && (
+        <Text
+          position={[0, 2.3, 0]}
+          fontSize={0.25}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Press E to pack in box
+        </Text>
+      )}
+    </group>
+  );
+}
+
+function ShippingTruck({ position, playerPosition }: { position: [number, number, number]; playerPosition: THREE.Vector3 }) {
+  const loadBox = useGame((s) => s.loadBox);
+  const carryingBox = useGame((s) => s.carryingBox);
+  const hatMachineState = useGame((s) => s.hatMachineState);
+  const tshirtMachineState = useGame((s) => s.tshirtMachineState);
+  const jacketMachineState = useGame((s) => s.jacketMachineState);
+  const [isNear, setIsNear] = useState(false);
+  const nearRef = useRef(false);
+  const posVec = useRef(new THREE.Vector3(position[0], position[1], position[2]));
+
+  useFrame(() => {
+    const dist = playerPosition.distanceTo(posVec.current);
+    const near = dist < 5;
+    if (near !== nearRef.current) {
+      nearRef.current = near;
+      setIsNear(near);
+    }
+  });
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const w3d = useGame.getState().world3Dialogue;
+      const am = useGame.getState().activeMachine;
+      const cb = useGame.getState().carryingBox;
+      if (e.code === "KeyE" && nearRef.current && !w3d && !am && cb) {
+        loadBox();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [loadBox]);
+
+  const loadedCount = [hatMachineState, tshirtMachineState, jacketMachineState].filter(s => s === "loaded").length;
+
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.01, -8]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[8, 4]} />
+        <meshStandardMaterial color="#444444" roughness={0.95} />
+      </mesh>
+
+      <group position={[0, 0, -4]}>
+        <mesh position={[0, 1.2, 0]} castShadow>
+          <boxGeometry args={[4, 2.4, 8]} />
+          <meshStandardMaterial color="#6d4c41" />
+        </mesh>
+        <mesh position={[0, 2.5, 0]} castShadow>
+          <boxGeometry args={[4.1, 0.15, 8.1]} />
+          <meshStandardMaterial color="#5d4037" />
+        </mesh>
+
+        {[-1.95, 1.95].map((x, i) => (
+          <mesh key={`side-${i}`} position={[x, 1.2, 0]} castShadow>
+            <boxGeometry args={[0.1, 2.4, 8]} />
+            <meshStandardMaterial color="#5d4037" />
+          </mesh>
+        ))}
+
+        <mesh position={[0, 1.2, -4]} castShadow>
+          <boxGeometry args={[4, 2.4, 0.1]} />
+          <meshStandardMaterial color="#5d4037" />
+        </mesh>
+
+        {[-1.2, -0.4, 0.4, 1.2].map((x, i) => (
+          <mesh key={`wheel-${i}`} position={[x, 0.3, -6]} rotation={[0, 0, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[0.3, 0.3, 0.2, 12]} />
+            <meshStandardMaterial color="#1a1a1a" />
+          </mesh>
+        ))}
+
+        <group position={[0, 1.5, -4.5]}>
+          <mesh castShadow>
+            <boxGeometry args={[3.5, 2.5, 2]} />
+            <meshStandardMaterial color="#6d4c41" />
+          </mesh>
+          <mesh position={[0, 0.3, 1.01]}>
+            <boxGeometry args={[2.5, 1.2, 0.05]} />
+            <meshStandardMaterial color="#87ceeb" transparent opacity={0.3} />
+          </mesh>
+        </group>
+      </group>
+
+      <mesh position={[-2.5, 3, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[6, 0.3, 0.3]} />
+        <meshStandardMaterial color="#555555" metalness={0.5} />
+      </mesh>
+      <mesh position={[2.5, 3, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[6, 0.3, 0.3]} />
+        <meshStandardMaterial color="#555555" metalness={0.5} />
+      </mesh>
+
+      {loadedCount > 0 && Array.from({ length: loadedCount }).map((_, i) => (
+        <mesh key={`loaded-${i}`} position={[-0.8 + i * 0.8, 0.6, -3 - i * 1.5]} castShadow>
+          <boxGeometry args={[1, 0.7, 0.8]} />
+          <meshStandardMaterial color="#d7ccc8" />
+        </mesh>
+      ))}
+
+      <Text
+        position={[0, 3.5, 1]}
+        fontSize={0.4}
+        color="#ff9800"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.03}
+        outlineColor="#000000"
+        fontWeight="bold"
+      >
+        SHIPPING TRUCK
+      </Text>
+
+      <Text
+        position={[0, 0.5, 1.5]}
+        fontSize={0.25}
+        color="#ffeb3b"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000000"
+      >
+        Olympic Village - Italy
+      </Text>
+
+      {isNear && carryingBox && (
+        <Text
+          position={[0, 4.2, 1]}
+          fontSize={0.3}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          Press E to load box
+        </Text>
+      )}
+    </group>
+  );
+}
+
 function SafetySign({ position, text }: { position: [number, number, number]; text: string }) {
   return (
     <group position={position}>
@@ -402,7 +769,7 @@ function FactoryDecor() {
         </group>
       ))}
 
-      {[[25, 0, -20], [25, 0, 5], [25, 0, 20]].map(([x, y, z], i) => (
+      {[[25, 0, -20], [25, 0, 5]].map(([x, y, z], i) => (
         <group key={`crate-${i}`} position={[x, y, z]}>
           <mesh position={[0, 0.5, 0]} castShadow>
             <boxGeometry args={[1.2, 1, 1.2]} />
@@ -453,37 +820,6 @@ function FactoryDecor() {
         </mesh>
       </group>
 
-      {[[-12, 0, 27], [12, 0, 27]].map(([x, y, z], i) => (
-        <group key={`forklift-${i}`} position={[x, y, z]}>
-          <mesh position={[0, 0.4, 0]} castShadow>
-            <boxGeometry args={[1.2, 0.5, 2]} />
-            <meshStandardMaterial color="#ff8f00" />
-          </mesh>
-          <mesh position={[0, 0.9, -0.3]} castShadow>
-            <boxGeometry args={[1, 0.8, 1]} />
-            <meshStandardMaterial color="#ff8f00" />
-          </mesh>
-          <mesh position={[0, 0.3, 1.2]} castShadow>
-            <boxGeometry args={[0.8, 0.06, 0.6]} />
-            <meshStandardMaterial color="#555555" metalness={0.5} />
-          </mesh>
-          <mesh position={[-0.35, 0.5, 1.2]} castShadow>
-            <boxGeometry args={[0.06, 0.5, 0.06]} />
-            <meshStandardMaterial color="#555555" metalness={0.5} />
-          </mesh>
-          <mesh position={[0.35, 0.5, 1.2]} castShadow>
-            <boxGeometry args={[0.06, 0.5, 0.06]} />
-            <meshStandardMaterial color="#555555" metalness={0.5} />
-          </mesh>
-          {[-0.5, 0.5].map((wx, wi) => (
-            <mesh key={wi} position={[wx, 0.15, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-              <cylinderGeometry args={[0.15, 0.15, 0.1, 12]} />
-              <meshStandardMaterial color="#1a1a1a" />
-            </mesh>
-          ))}
-        </group>
-      ))}
-
       <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[4, 60]} />
         <meshStandardMaterial color="#ffeb3b" transparent opacity={0.3} />
@@ -504,6 +840,10 @@ export function FactoryWorld() {
   const openWorld3Dialogue = useGame((s) => s.openWorld3Dialogue);
   const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
   const startFactoryQuest = useGame((s) => s.startFactoryQuest);
+  const hatMachineState = useGame((s) => s.hatMachineState);
+  const tshirtMachineState = useGame((s) => s.tshirtMachineState);
+  const jacketMachineState = useGame((s) => s.jacketMachineState);
+  const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos.clone());
@@ -514,21 +854,37 @@ export function FactoryWorld() {
 
     if (!factoryQuestStarted) {
       openWorld3Dialogue([
-        { speaker: "George", text: "Welcome to the manufacturing plant! I'm George, the floor manager here." },
-        { speaker: "George", text: "We produce three types of products: hats, t-shirts, and jackets." },
-        { speaker: "George", text: "Each machine is specialized — take a look around and get familiar with the floor." },
-        { speaker: "George", text: "The Hat Maker is on the left, the T-Shirt Maker is in the center, and the Jacket Maker is on the right." },
-        { speaker: "George", text: "Go ahead and explore the machines. I'll be here if you need anything!" },
+        { speaker: "George", text: "Welcome to the manufacturing plant! I'm George, the floor manager." },
+        { speaker: "George", text: "We just received a big order from the Olympic Village in Italy! I need your help to fulfill it." },
+        { speaker: "George", text: "Here's what they need:" },
+        { speaker: "George", text: "First: 2 size LARGE hats — white top, green brim, with red lettering that says \"Italy\"." },
+        { speaker: "George", text: "Second: 3 size MEDIUM t-shirts — red sleeves, blue body, with white lettering that says \"USA\"." },
+        { speaker: "George", text: "Third: 5 size LARGE jackets — black sleeves, red body, with yellow lettering that says \"Germany\"." },
+        { speaker: "George", text: "Go to each machine and configure the settings to match the order. Press E near a machine to open its control panel." },
+        { speaker: "George", text: "After each machine produces the items, pick them up, pack them in a box at the packing table, then load the box onto the shipping truck." },
+        { speaker: "George", text: "Let's get this order filled! The Olympic Village is counting on us!" },
       ]);
       startFactoryQuest();
+    } else if (factoryOrderComplete) {
+      openWorld3Dialogue([
+        { speaker: "George", text: "Outstanding work! All three shipments are loaded and ready to go!" },
+        { speaker: "George", text: "The Olympic Village in Italy is going to be thrilled with their hats, t-shirts, and jackets." },
+        { speaker: "George", text: "You're a natural at this. Great job fulfilling the order!" },
+      ]);
     } else {
       openWorld3Dialogue([
-        { speaker: "George", text: "How's it going? Take your time exploring the machines." },
-        { speaker: "George", text: "Each one produces a different product — hats, t-shirts, and jackets." },
-        { speaker: "George", text: "Let me know if you have any questions!" },
+        { speaker: "George", text: "Remember the order for the Olympic Village:" },
+        { speaker: "George", text: "2 LARGE hats: white top, green brim, \"Italy\" in red." },
+        { speaker: "George", text: "3 MEDIUM t-shirts: red sleeves, blue body, \"USA\" in white." },
+        { speaker: "George", text: "5 LARGE jackets: black sleeves, red body, \"Germany\" in yellow." },
+        { speaker: "George", text: "Use each machine, pick up the products, box them at the packing table, and load them on the truck!" },
       ]);
     }
-  }, [world3Dialogue, factoryQuestStarted, openWorld3Dialogue, startFactoryQuest]);
+  }, [world3Dialogue, factoryQuestStarted, factoryOrderComplete, openWorld3Dialogue, startFactoryQuest]);
+
+  const hatOutputPos: [number, number, number] = [-15 + 6, 0, -5];
+  const tshirtOutputPos: [number, number, number] = [0 + 6, 0, -15];
+  const jacketOutputPos: [number, number, number] = [15 + 6, 0, -5];
 
   return (
     <>
@@ -556,6 +912,9 @@ export function FactoryWorld() {
         color="#455a64"
         accentColor="#f44336"
         productShape="hat"
+        machineType="hat"
+        playerPosition={playerPos}
+        machineState={hatMachineState}
       />
 
       <Machine
@@ -564,6 +923,9 @@ export function FactoryWorld() {
         color="#455a64"
         accentColor="#2196f3"
         productShape="tshirt"
+        machineType="tshirt"
+        playerPosition={playerPos}
+        machineState={tshirtMachineState}
       />
 
       <Machine
@@ -572,7 +934,43 @@ export function FactoryWorld() {
         color="#455a64"
         accentColor="#4caf50"
         productShape="jacket"
+        machineType="jacket"
+        playerPosition={playerPos}
+        machineState={jacketMachineState}
       />
+
+      {hatMachineState === "produced" && (
+        <ProductPickup
+          position={hatOutputPos}
+          productType="hats"
+          accentColor="#f44336"
+          label="HATS READY"
+          playerPosition={playerPos}
+        />
+      )}
+
+      {tshirtMachineState === "produced" && (
+        <ProductPickup
+          position={tshirtOutputPos}
+          productType="tshirts"
+          accentColor="#2196f3"
+          label="T-SHIRTS READY"
+          playerPosition={playerPos}
+        />
+      )}
+
+      {jacketMachineState === "produced" && (
+        <ProductPickup
+          position={jacketOutputPos}
+          productType="jackets"
+          accentColor="#4caf50"
+          label="JACKETS READY"
+          playerPosition={playerPos}
+        />
+      )}
+
+      <PackingTable position={[0, 0, 10]} playerPosition={playerPos} />
+      <ShippingTruck position={[20, 0, 25]} playerPosition={playerPos} />
     </>
   );
 }

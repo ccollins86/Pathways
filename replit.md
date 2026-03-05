@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-03-05: Added Olympic Village order fulfillment to Factory World - George assigns order (2 large hats, 3 medium t-shirts, 5 large jackets) with specific colors/lettering; MachineSettingsUI popup (quantity stepper, size dropdown, color dropdowns, lettering text input); machines produce output boxes (bobbing/highlighted); player picks up products, boxes at PackingTable, loads onto ShippingTruck (UPS-style with open back); per-machine state tracking (idle→produced→picked_up→boxed→loaded); World3HUD shows detailed order progress; carrying indicator overlay
 - 2026-03-05: Added Factory World (World 3) - manufacturing plant with NPC George (floor manager), 3 labeled machines (Hat Maker, T-Shirt Maker, Jacket Maker) with animated arms/conveyor belts/product displays, factory environment (walls, ceiling, windows, beams, light fixtures, barrels, crates, forklifts, safety signs, control room, floor markings); portal appears in Ocean World after completing practice quiz; World 3 dialogue system (world3Dialogue), World3HUD, World3DialogueUI; GameWorld type extended to "factory"
 - 2026-02-27: Added Ocean Practice Station - 3D booth in OceanWorld at [-8,0,14], unlocked after lessons complete (oceanLessonPhase=3), 8 quiz questions on for/while loops, confetti + success.mp3 on correct answers, score tracking (10 pts each), OceanPracticeQuizUI component, store state (oceanPracticeUnlocked/Active/Score/Completed)
 - 2026-02-27: Added Ocean World programming lessons - after cleanup quest completion, two lesson overlays appear: (1) For Loops lesson connecting ecosystem survey to for-each loops, (2) While Loops lesson connecting sludge cleanup to while loops; oceanLessonPhase state (0=none,1=forLoop,2=whileLoop,3=done); HUD hides during lessons
@@ -91,12 +92,18 @@ A 3D educational game built with React Three Fiber where players learn about nat
 ### Factory World (World 3) Flow
 1. After completing ocean practice quiz, a portal appears in Ocean World at [0, 0, 10]
 2. Walking into the portal transitions to Factory World
-3. Talk to George (floor manager) -> introduces the manufacturing plant
-4. Explore 3 machines: Hat Maker (left), T-Shirt Maker (center), Jacket Maker (right)
-5. Each machine has animated arms, conveyor belts, and product displays
+3. Talk to George (floor manager) -> he assigns the Olympic Village order
+4. Order: 2 large hats (white top, green brim, red "Italy"), 3 medium t-shirts (red sleeves, blue body, white "USA"), 5 large jackets (black sleeves, red body, yellow "Germany")
+5. Press E near each machine -> MachineSettingsUI popup with quantity, size, color, lettering fields
+6. Submit order -> products appear at conveyor output end (bobbing/highlighted boxes)
+7. Press E near output -> pick up products (carryingProduct state)
+8. Walk to packing table [0,0,10] -> press E to box products (carryingBox state)
+9. Walk to shipping truck [20,0,25] -> press E to load box onto truck
+10. Repeat for all 3 product types -> factoryOrderComplete when all loaded
 
 ### Key Files (World 3)
-- `client/src/components/game/FactoryWorld.tsx` - Factory World with walls, ceiling, machines, George NPC, factory decor
+- `client/src/components/game/FactoryWorld.tsx` - Factory World with walls, ceiling, machines, George NPC, product pickup, packing table, shipping truck, factory decor
+- `client/src/components/game/MachineSettingsUI.tsx` - Machine configuration popup (quantity stepper, size dropdown, color dropdowns, lettering text input)
 
 ### NPCs
 - **Dan** (USC stand) - Quest giver, disaster prep instructions
