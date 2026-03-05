@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-03-05: Added Factory World (World 3) - manufacturing plant with NPC George (floor manager), 3 labeled machines (Hat Maker, T-Shirt Maker, Jacket Maker) with animated arms/conveyor belts/product displays, factory environment (walls, ceiling, windows, beams, light fixtures, barrels, crates, forklifts, safety signs, control room, floor markings); portal appears in Ocean World after completing practice quiz; World 3 dialogue system (world3Dialogue), World3HUD, World3DialogueUI; GameWorld type extended to "factory"
 - 2026-02-27: Added Ocean Practice Station - 3D booth in OceanWorld at [-8,0,14], unlocked after lessons complete (oceanLessonPhase=3), 8 quiz questions on for/while loops, confetti + success.mp3 on correct answers, score tracking (10 pts each), OceanPracticeQuizUI component, store state (oceanPracticeUnlocked/Active/Score/Completed)
 - 2026-02-27: Added Ocean World programming lessons - after cleanup quest completion, two lesson overlays appear: (1) For Loops lesson connecting ecosystem survey to for-each loops, (2) While Loops lesson connecting sludge cleanup to while loops; oceanLessonPhase state (0=none,1=forLoop,2=whileLoop,3=done); HUD hides during lessons
 - 2026-02-27: Polish pass 3 - fish/turtle rotation smoothing (lerped angle fixes atan2 discontinuity spinning), dialogue E key uses capture phase + stopImmediatePropagation to block dock handler, GameHUD task list toggleable, trash debris redesigned as colorful recognizable items (red can, blue bottle, plastic bag, etc.), marine plants (Seaweed/KelpStalk/SeagrassClump) made larger/more detailed, survey→cleanup auto-transition (Josh combines survey congrats with cleanup quest start)
@@ -87,6 +88,16 @@ A 3D educational game built with React Three Fiber where players learn about nat
 12. After finishing all quiz questions, a glowing portal appears at [0, 0, -15]
 13. Walking into the portal transitions to Ocean World (World 2)
 
+### Factory World (World 3) Flow
+1. After completing ocean practice quiz, a portal appears in Ocean World at [0, 0, 10]
+2. Walking into the portal transitions to Factory World
+3. Talk to George (floor manager) -> introduces the manufacturing plant
+4. Explore 3 machines: Hat Maker (left), T-Shirt Maker (center), Jacket Maker (right)
+5. Each machine has animated arms, conveyor belts, and product displays
+
+### Key Files (World 3)
+- `client/src/components/game/FactoryWorld.tsx` - Factory World with walls, ceiling, machines, George NPC, factory decor
+
 ### NPCs
 - **Dan** (USC stand) - Quest giver, disaster prep instructions
 - **Bob** (east side) - Reveals which disaster is coming (random)
@@ -94,3 +105,4 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - **Mike** - Hints and flavor dialogue
 - **Lisa** - General disaster prep education
 - **Josh** (Ocean World) - Marine research boss, assigns ecosystem survey quest and chemical spill cleanup quest
+- **George** (Factory World) - Floor manager, introduces the manufacturing plant and machines

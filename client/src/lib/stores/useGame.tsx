@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "ready" | "playing" | "ended";
-export type GameWorld = "town" | "ocean";
+export type GameWorld = "town" | "ocean" | "factory";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
 
@@ -135,6 +135,11 @@ interface GameState {
   oceanPracticeActive: boolean;
   oceanPracticeScore: number;
   oceanPracticeCompleted: boolean;
+  oceanPortalActive: boolean;
+
+  world3Dialogue: { speaker: string; text: string }[] | null;
+  world3DialogueIndex: number;
+  factoryQuestStarted: boolean;
 
   start: () => void;
   restart: () => void;
@@ -187,6 +192,12 @@ interface GameState {
   addOceanPracticeScore: (points: number) => void;
   resetOceanPracticeScore: () => void;
   completeOceanPractice: () => void;
+  enterFactoryPortal: () => void;
+
+  openWorld3Dialogue: (lines: { speaker: string; text: string }[]) => void;
+  advanceWorld3Dialogue: () => void;
+  closeWorld3Dialogue: () => void;
+  startFactoryQuest: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -247,6 +258,11 @@ export const useGame = create<GameState>()(
     oceanPracticeActive: false,
     oceanPracticeScore: 0,
     oceanPracticeCompleted: false,
+    oceanPortalActive: false,
+
+    world3Dialogue: null,
+    world3DialogueIndex: 0,
+    factoryQuestStarted: false,
 
     start: () => {
       set((state) => {
@@ -310,6 +326,10 @@ export const useGame = create<GameState>()(
         oceanPracticeActive: false,
         oceanPracticeScore: 0,
         oceanPracticeCompleted: false,
+        oceanPortalActive: false,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+        factoryQuestStarted: false,
       }));
     },
 
@@ -479,7 +499,33 @@ export const useGame = create<GameState>()(
     closeOceanPractice: () => set({ oceanPracticeActive: false }),
     addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points })),
     resetOceanPracticeScore: () => set({ oceanPracticeScore: 0 }),
-    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false }),
+    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false, oceanPortalActive: true }),
+
+    enterFactoryPortal: () => {
+      set({
+        currentWorld: "factory" as GameWorld,
+        phase: "playing" as GamePhase,
+        world2Dialogue: null,
+        world2DialogueIndex: 0,
+        oceanPracticeActive: false,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+      });
+    },
+
+    openWorld3Dialogue: (lines) =>
+      set({ world3Dialogue: lines, world3DialogueIndex: 0 }),
+    advanceWorld3Dialogue: () => {
+      const { world3DialogueIndex, world3Dialogue } = get();
+      if (world3Dialogue && world3DialogueIndex < world3Dialogue.length - 1) {
+        set({ world3DialogueIndex: world3DialogueIndex + 1 });
+      } else {
+        set({ world3Dialogue: null, world3DialogueIndex: 0 });
+      }
+    },
+    closeWorld3Dialogue: () =>
+      set({ world3Dialogue: null, world3DialogueIndex: 0 }),
+    startFactoryQuest: () => set({ factoryQuestStarted: true }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();

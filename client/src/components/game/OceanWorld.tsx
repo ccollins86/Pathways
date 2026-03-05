@@ -6,6 +6,7 @@ import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { MarineEcosystem } from "./MarineEcosystem";
+import { Portal } from "./Portal";
 import { useGame, SludgePatch } from "@/lib/stores/useGame";
 
 function Ocean() {
@@ -896,6 +897,8 @@ export function OceanWorld() {
   const oceanPracticeActive = useGame((s) => s.oceanPracticeActive);
   const openOceanPractice = useGame((s) => s.openOceanPractice);
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
+  const oceanPortalActive = useGame((s) => s.oceanPortalActive);
+  const enterFactoryPortal = useGame((s) => s.enterFactoryPortal);
 
   const allSurveyed = ecosystems.every((e) => e.surveyed);
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
@@ -1140,6 +1143,14 @@ export function OceanWorld() {
         active={oceanPracticeActive}
         onInteract={openOceanPractice}
       />
+
+      {oceanPortalActive && (
+        <Portal
+          position={[0, 0, 10]}
+          playerPosition={playerPos}
+          onEnter={enterFactoryPortal}
+        />
+      )}
     </>
   );
 }

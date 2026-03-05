@@ -3,6 +3,7 @@ import { Suspense, useState, useCallback, useEffect } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
+import { FactoryWorld } from "./components/game/FactoryWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
@@ -198,7 +199,7 @@ function World2HUD() {
 
   let objectiveText = "Talk to Josh at the Beach Station to get started!";
   if (oceanPracticeCompleted) {
-    objectiveText = "All quizzes complete! You've mastered for loops and while loops!";
+    objectiveText = "Quiz complete! A portal has appeared — walk through it to enter the Manufacturing Plant!";
   } else if (oceanPracticeUnlocked) {
     objectiveText = "Visit the Ocean Practice Station to test your for/while loop knowledge!";
   } else if (cleanupQuestCompleted && oceanLessonPhase >= 3) {
@@ -357,6 +358,180 @@ function World2HUD() {
           top: 16,
           right: 16,
           background: "rgba(0, 30, 60, 0.8)",
+          borderRadius: 8,
+          padding: "8px 16px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: "pointer",
+          zIndex: 50,
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        Back to Town
+      </div>
+    </>
+  );
+}
+
+function World3DialogueUI() {
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+  const world3DialogueIndex = useGame((s) => s.world3DialogueIndex);
+  const advanceWorld3Dialogue = useGame((s) => s.advanceWorld3Dialogue);
+
+  useEffect(() => {
+    if (!world3Dialogue) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "e" || e.key === "E" || e.key === " " || e.key === "Enter") {
+        e.stopImmediatePropagation();
+        advanceWorld3Dialogue();
+      }
+    };
+    window.addEventListener("keydown", handleKey, true);
+    return () => window.removeEventListener("keydown", handleKey, true);
+  }, [world3Dialogue, advanceWorld3Dialogue]);
+
+  if (!world3Dialogue) return null;
+
+  const line = world3Dialogue[world3DialogueIndex];
+  const isLast = world3DialogueIndex >= world3Dialogue.length - 1;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 80,
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(40, 30, 10, 0.92)",
+        borderRadius: 12,
+        padding: "20px 28px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 100,
+        maxWidth: 520,
+        width: "90%",
+        border: "2px solid rgba(255, 152, 0, 0.4)",
+        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#ff9800",
+          textTransform: "uppercase",
+          letterSpacing: 1,
+          marginBottom: 8,
+        }}
+      >
+        {line.speaker}
+      </div>
+      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div
+        style={{
+          fontSize: 12,
+          color: "rgba(255,255,255,0.5)",
+          marginTop: 12,
+          textAlign: "right",
+        }}
+      >
+        {isLast ? "Press E to close" : "Press E to continue"}
+      </div>
+    </div>
+  );
+}
+
+function World3HUD() {
+  const [hudOpen, setHudOpen] = useState(true);
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+  const restart = useGame((s) => s.restart);
+  const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
+
+  if (world3Dialogue) return null;
+
+  let objectiveText = "Talk to George, the floor manager, to get started!";
+  if (factoryQuestStarted) {
+    objectiveText = "Explore the manufacturing floor! Check out the Hat Maker, T-Shirt Maker, and Jacket Maker.";
+  }
+
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          zIndex: 50,
+        }}
+      >
+        <button
+          onClick={() => setHudOpen(!hudOpen)}
+          style={{
+            background: "rgba(40, 30, 10, 0.85)",
+            border: "1px solid rgba(255, 152, 0, 0.4)",
+            borderRadius: hudOpen ? "8px 8px 0 0" : 8,
+            padding: "6px 14px",
+            color: "#ff9800",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            width: "100%",
+          }}
+        >
+          <span>Tasks</span>
+          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+        </button>
+        {hudOpen && (
+          <div
+            style={{
+              background: "rgba(40, 30, 10, 0.8)",
+              borderRadius: "0 0 8px 8px",
+              padding: "8px 18px 12px",
+              color: "white",
+              fontFamily: "'Inter', sans-serif",
+              maxWidth: 380,
+              border: "1px solid rgba(255, 152, 0, 0.3)",
+              borderTop: "none",
+            }}
+          >
+            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+              {objectiveText}
+            </div>
+            {factoryQuestStarted && (
+              <div style={{ marginTop: 8, fontSize: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{ color: "#ff9800" }}>●</span>
+                  <span>Hat Maker</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{ color: "#2196f3" }}>●</span>
+                  <span>T-Shirt Maker</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ color: "#4caf50" }}>●</span>
+                  <span>Jacket Maker</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div
+        onClick={restart}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          background: "rgba(40, 30, 10, 0.8)",
           borderRadius: 8,
           padding: "8px 16px",
           color: "white",
@@ -665,7 +840,9 @@ function App() {
           }}
         >
           <Suspense fallback={null}>
-            {currentWorld === "town" ? <Game /> : <OceanWorld />}
+            {currentWorld === "town" && <Game />}
+            {currentWorld === "ocean" && <OceanWorld />}
+            {currentWorld === "factory" && <FactoryWorld />}
           </Suspense>
         </Canvas>
 
@@ -684,6 +861,13 @@ function App() {
             <SurveyUI />
             <OceanLessonUI />
             <OceanPracticeQuizWrapper />
+          </>
+        )}
+
+        {phase === "playing" && currentWorld === "factory" && (
+          <>
+            <World3HUD />
+            <World3DialogueUI />
           </>
         )}
       </KeyboardControls>
