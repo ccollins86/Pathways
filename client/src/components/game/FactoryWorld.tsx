@@ -27,10 +27,6 @@ function FactoryWalls() {
         <boxGeometry args={[wallLength, wallHeight, 0.3]} />
         <meshStandardMaterial color={wallColor} />
       </mesh>
-      <mesh position={[0, wallHeight / 2, 30]} castShadow receiveShadow>
-        <boxGeometry args={[wallLength, wallHeight, 0.3]} />
-        <meshStandardMaterial color={wallColor} />
-      </mesh>
       <mesh position={[-30, wallHeight / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.3, wallHeight, wallLength]} />
         <meshStandardMaterial color={wallColor} />
@@ -53,18 +49,6 @@ function FactoryWalls() {
         </group>
       ))}
 
-      {[[-20, 29.85], [-10, 29.85], [0, 29.85], [10, 29.85], [20, 29.85]].map(([x, z], i) => (
-        <group key={`window-front-${i}`}>
-          <mesh position={[x, 5, z]}>
-            <boxGeometry args={[3, 2.5, 0.1]} />
-            <meshStandardMaterial color="#87ceeb" transparent opacity={0.4} emissive="#87ceeb" emissiveIntensity={0.3} />
-          </mesh>
-          <mesh position={[x, 5, z - 0.05]}>
-            <boxGeometry args={[3.2, 2.7, 0.05]} />
-            <meshStandardMaterial color="#555555" />
-          </mesh>
-        </group>
-      ))}
     </group>
   );
 }
@@ -72,10 +56,6 @@ function FactoryWalls() {
 function FactoryCeiling() {
   return (
     <group>
-      <mesh position={[0, 8, 0]}>
-        <boxGeometry args={[60, 0.3, 60]} />
-        <meshStandardMaterial color="#6b6b6b" />
-      </mesh>
 
       {[-15, 0, 15].map((x, i) => (
         <group key={`beam-${i}`}>
@@ -102,15 +82,18 @@ function FactoryCeiling() {
 function FactoryLights() {
   return (
     <group>
-      <ambientLight intensity={0.4} color="#e8e0d0" />
+      <ambientLight intensity={0.7} color="#e8e0d0" />
       <directionalLight
-        position={[10, 15, 10]}
-        intensity={0.6}
+        position={[10, 6, 10]}
+        intensity={0.8}
         color="#fff8e1"
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
+      <pointLight position={[-15, 5, 10]} color="#fffde7" intensity={4} distance={30} />
+      <pointLight position={[15, 5, 10]} color="#fffde7" intensity={4} distance={30} />
+      <pointLight position={[0, 5, -10]} color="#fffde7" intensity={4} distance={30} />
     </group>
   );
 }
