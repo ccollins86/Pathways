@@ -6,6 +6,15 @@ export type GameWorld = "town" | "ocean" | "factory";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
 
+export interface MachineOrderSettings {
+  quantity: number;
+  size: string;
+  color1: string;
+  color2: string;
+  color3?: string;
+  lettering: string;
+}
+
 export interface EcosystemData {
   name: string;
   position: [number, number, number];
@@ -209,7 +218,7 @@ interface GameState {
 
   openMachineSettings: (machine: "hat" | "tshirt" | "jacket") => void;
   closeMachineSettings: () => void;
-  submitMachineOrder: (machine: "hat" | "tshirt" | "jacket") => void;
+  submitMachineOrder: (machine: "hat" | "tshirt" | "jacket", settings: MachineOrderSettings) => string | null;
   pickUpProduct: (product: "hats" | "tshirts" | "jackets") => void;
   boxProduct: () => void;
   loadBox: () => void;
@@ -560,10 +569,36 @@ export const useGame = create<GameState>()(
 
     openMachineSettings: (machine) => set({ activeMachine: machine }),
     closeMachineSettings: () => set({ activeMachine: null }),
-    submitMachineOrder: (machine) => {
-      if (machine === "hat") set({ hatMachineState: "produced", activeMachine: null });
-      else if (machine === "tshirt") set({ tshirtMachineState: "produced", activeMachine: null });
-      else if (machine === "jacket") set({ jacketMachineState: "produced", activeMachine: null });
+    submitMachineOrder: (machine, settings) => {
+      const normalize = (s: string) => s.trim().toLowerCase();
+      if (machine === "hat") {
+        if (settings.quantity !== 2) return "Quantity should be 2 hats!";
+        if (normalize(settings.size) !== "large") return "Size should be Large!";
+        if (normalize(settings.color1) !== "white") return "Top color should be White!";
+        if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Brim color should be Green!";
+        if (normalize(settings.lettering) !== "italy") return 'Lettering should be "Italy"!';
+        set({ hatMachineState: "produced", activeMachine: null });
+        return null;
+      } else if (machine === "tshirt") {
+        if (settings.quantity !== 3) return "Quantity should be 3 t-shirts!";
+        if (normalize(settings.size) !== "medium") return "Size should be Medium!";
+        if (normalize(settings.color1) !== "#e53935" && normalize(settings.color1) !== "red") return "Sleeve color should be Red!";
+        if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Body color should be Blue!";
+        if (normalize(settings.color3 || "") !== "white") return "Lettering color should be White!";
+        if (normalize(settings.lettering) !== "usa") return 'Lettering should be "USA"!';
+        set({ tshirtMachineState: "produced", activeMachine: null });
+        return null;
+      } else if (machine === "jacket") {
+        if (settings.quantity !== 5) return "Quantity should be 5 jackets!";
+        if (normalize(settings.size) !== "large") return "Size should be Large!";
+        if (normalize(settings.color1) !== "black") return "Sleeve color should be Black!";
+        if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Body color should be Red!";
+        if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Lettering color should be Yellow!";
+        if (normalize(settings.lettering) !== "germany") return 'Lettering should be "Germany"!';
+        set({ jacketMachineState: "produced", activeMachine: null });
+        return null;
+      }
+      return null;
     },
     pickUpProduct: (product) => {
       if (product === "hats") set({ hatMachineState: "picked_up", carryingProduct: "hats" });

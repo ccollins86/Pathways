@@ -158,6 +158,7 @@ export function MachineSettingsUI() {
   const [color2, setColor2] = useState("");
   const [color3, setColor3] = useState("");
   const [lettering, setLettering] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeMachine) {
@@ -167,6 +168,7 @@ export function MachineSettingsUI() {
       setColor2("");
       setColor3("");
       setLettering("");
+      setErrorMessage(null);
     }
   }, [activeMachine]);
 
@@ -190,7 +192,18 @@ export function MachineSettingsUI() {
 
   const handleSubmit = () => {
     if (!isFormValid()) return;
-    submitMachineOrder(activeMachine);
+    setErrorMessage(null);
+    const result = submitMachineOrder(activeMachine, {
+      quantity,
+      size,
+      color1,
+      color2,
+      color3: color3 || undefined,
+      lettering,
+    });
+    if (result) {
+      setErrorMessage(result);
+    }
   };
 
   return (
@@ -269,6 +282,23 @@ export function MachineSettingsUI() {
           <Select label="Lettering Color" value={color3} onChange={setColor3} options={COLOR_OPTIONS} />
           <TextInput label="Text on Jacket" value={lettering} onChange={setLettering} placeholder="e.g. Germany" />
         </>
+      )}
+
+      {errorMessage && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: "10px 14px",
+            background: "rgba(244, 67, 54, 0.2)",
+            border: "1px solid #f44336",
+            borderRadius: 8,
+            color: "#ff8a80",
+            fontSize: 14,
+            fontWeight: 600,
+          }}
+        >
+          {errorMessage}
+        </div>
       )}
 
       <div

@@ -535,18 +535,39 @@ function World3HUD() {
               {objectiveText}
             </div>
             {factoryQuestStarted && (
-              <div style={{ marginTop: 8, fontSize: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                  <span style={{ color: stateColor(hatMachineState) }}>●</span>
-                  <span>Hats (2 Large): {stateLabel(hatMachineState)}</span>
+              <div style={{ marginTop: 8, fontSize: 11 }}>
+                <div style={{ marginBottom: 8, padding: "6px 10px", background: "rgba(244,67,54,0.15)", borderRadius: 6, borderLeft: "3px solid #f44336" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: stateColor(hatMachineState), fontSize: 14 }}>●</span>
+                    <span style={{ fontWeight: 700, color: "#f44336" }}>Hats: {stateLabel(hatMachineState)}</span>
+                  </div>
+                  <div style={{ color: "#ccc", paddingLeft: 20, lineHeight: 1.4 }}>
+                    Qty: 2 | Size: Large<br />
+                    Top: White | Brim: Green<br />
+                    Lettering: "Italy" (Red)
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                  <span style={{ color: stateColor(tshirtMachineState) }}>●</span>
-                  <span>T-Shirts (3 Medium): {stateLabel(tshirtMachineState)}</span>
+                <div style={{ marginBottom: 8, padding: "6px 10px", background: "rgba(33,150,243,0.15)", borderRadius: 6, borderLeft: "3px solid #2196f3" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: stateColor(tshirtMachineState), fontSize: 14 }}>●</span>
+                    <span style={{ fontWeight: 700, color: "#2196f3" }}>T-Shirts: {stateLabel(tshirtMachineState)}</span>
+                  </div>
+                  <div style={{ color: "#ccc", paddingLeft: 20, lineHeight: 1.4 }}>
+                    Qty: 3 | Size: Medium<br />
+                    Sleeves: Red | Body: Blue<br />
+                    Lettering: "USA" (White)
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ color: stateColor(jacketMachineState) }}>●</span>
-                  <span>Jackets (5 Large): {stateLabel(jacketMachineState)}</span>
+                <div style={{ padding: "6px 10px", background: "rgba(76,175,80,0.15)", borderRadius: 6, borderLeft: "3px solid #4caf50" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: stateColor(jacketMachineState), fontSize: 14 }}>●</span>
+                    <span style={{ fontWeight: 700, color: "#4caf50" }}>Jackets: {stateLabel(jacketMachineState)}</span>
+                  </div>
+                  <div style={{ color: "#ccc", paddingLeft: 20, lineHeight: 1.4 }}>
+                    Qty: 5 | Size: Large<br />
+                    Sleeves: Black | Body: Red<br />
+                    Lettering: "Germany" (Yellow)
+                  </div>
                 </div>
               </div>
             )}
