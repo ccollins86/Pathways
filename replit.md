@@ -4,6 +4,8 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-03-05: Code deduplication refactor - extracted shared QuizUI component (QuizUI.tsx) used by both PracticeQuizUI and OceanPracticeQuizUI via theme/actions props; Game.tsx items/targets refactored from repeated JSX to data-driven arrays with .map(); game-template duplicate components replaced with re-exports from client; CORS middleware added for cross-origin API support
+- 2026-03-05: Integrated LLM-generated practice questions via OpenAI (Replit AI Integration) - POST /api/generate-questions endpoint, questions pre-loaded per session, hardcoded fallback questions shuffled randomly
 - 2026-02-27: Added Ocean Practice Station - 3D booth in OceanWorld at [-8,0,14], unlocked after lessons complete (oceanLessonPhase=3), 8 quiz questions on for/while loops, confetti + success.mp3 on correct answers, score tracking (10 pts each), OceanPracticeQuizUI component, store state (oceanPracticeUnlocked/Active/Score/Completed)
 - 2026-02-27: Added Ocean World programming lessons - after cleanup quest completion, two lesson overlays appear: (1) For Loops lesson connecting ecosystem survey to for-each loops, (2) While Loops lesson connecting sludge cleanup to while loops; oceanLessonPhase state (0=none,1=forLoop,2=whileLoop,3=done); HUD hides during lessons
 - 2026-02-27: Polish pass 3 - fish/turtle rotation smoothing (lerped angle fixes atan2 discontinuity spinning), dialogue E key uses capture phase + stopImmediatePropagation to block dock handler, GameHUD task list toggleable, trash debris redesigned as colorful recognizable items (red can, blue bottle, plastic bag, etc.), marine plants (Seaweed/KelpStalk/SeagrassClump) made larger/more detailed, survey→cleanup auto-transition (Josh combines survey congrats with cleanup quest start)
@@ -46,7 +48,8 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/components/game/InteractionTarget.tsx` - Use-item-at-location targets with correct/wrong item handling
 - `client/src/components/game/House.tsx` - House with interior, exports HOUSE_POS constant
 - `client/src/components/game/PracticeBooth.tsx` - Interactive booth for programming practice quiz
-- `client/src/components/game/PracticeQuizUI.tsx` - 8 multiple-choice questions on if/else-if/else branching
+- `client/src/components/game/QuizUI.tsx` - Shared quiz component with configurable theme, actions, and questions
+- `client/src/components/game/PracticeQuizUI.tsx` - Town quiz wrapper (if/else questions, blue theme)
 - `client/src/components/game/Portal.tsx` - Glowing portal ring that appears after quest + quiz completion
 - `client/src/components/game/MarineEcosystem.tsx` - 3D ecosystem zones with marine animals, plants, and environmental issues
 - `client/src/components/game/SurveyUI.tsx` - Survey popup for counting animals/plants and identifying environmental issues

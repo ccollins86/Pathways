@@ -1,7 +1,8 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
+import type { ItemType } from "@/lib/stores/useGame";
 import { Ground } from "./Ground";
 import { Lights } from "./Lights";
 import { Sky } from "./Sky";
@@ -277,6 +278,116 @@ export function Game() {
     ]);
   }, [activeDialogue, openDialogue]);
 
+  const worldItems: { itemId: string; itemType: ItemType; position: [number, number, number] }[] = useMemo(() => [
+    { itemId: "sandbag-front", itemType: "sandbag", position: [hp[0] + 10, 0, hp[2] + 6] },
+    { itemId: "sandbag-back", itemType: "sandbag", position: [hp[0] + 12, 0, hp[2] - 4] },
+    { itemId: "board-w1", itemType: "wood_board", position: [hp[0] - 10, 0, hp[2] + 8] },
+    { itemId: "board-w2", itemType: "wood_board", position: [hp[0] - 12, 0, hp[2] - 5] },
+    { itemId: "flame-retardant", itemType: "flame_retardant", position: [hp[0] + 14, 0, hp[2] + 1] },
+    { itemId: "rake", itemType: "rake", position: [hp[0] - 8, 0, hp[2] - 9] },
+    { itemId: "safety-strap", itemType: "safety_strap", position: [hp[0] + 8, 0, hp[2] - 8] },
+    { itemId: "wrench", itemType: "wrench", position: [hp[0] - 13, 0, hp[2] + 3] },
+  ], [hp]);
+
+  const interactionTargets = useMemo(() => [
+    {
+      position: [hp[0], 0.1, hp[2] + 6] as [number, number, number],
+      label: "Place sandbag at front door",
+      requiredItem: "sandbag" as ItemType,
+      disaster: "hurricane" as const,
+      completeTask: () => completeHurricaneTask("frontDoorSandbagged"),
+      failMessage: (d: string) => `You sandbagged the doors, but a ${d} is coming, not a hurricane! Sandbags won't help here.`,
+      completed: hurricaneTasks.frontDoorSandbagged,
+      completedLabel: "Front door sandbagged!",
+    },
+    {
+      position: [hp[0], 0.1, hp[2] - 6] as [number, number, number],
+      label: "Place sandbag at back door",
+      requiredItem: "sandbag" as ItemType,
+      disaster: "hurricane" as const,
+      completeTask: () => completeHurricaneTask("backDoorSandbagged"),
+      failMessage: (d: string) => `You sandbagged the doors, but a ${d} is coming, not a hurricane! Sandbags won't help here.`,
+      completed: hurricaneTasks.backDoorSandbagged,
+      completedLabel: "Back door sandbagged!",
+    },
+    {
+      position: [hp[0] - 7, 0.1, hp[2]] as [number, number, number],
+      label: "Board up window 1",
+      requiredItem: "wood_board" as ItemType,
+      disaster: "hurricane" as const,
+      completeTask: () => completeHurricaneTask("window1Boarded"),
+      failMessage: (d: string) => `You boarded the windows, but a ${d} is coming, not a hurricane! Boarding windows won't help here.`,
+      completed: hurricaneTasks.window1Boarded,
+      completedLabel: "Window 1 boarded!",
+    },
+    {
+      position: [hp[0] + 7, 0.1, hp[2]] as [number, number, number],
+      label: "Board up window 2",
+      requiredItem: "wood_board" as ItemType,
+      disaster: "hurricane" as const,
+      completeTask: () => completeHurricaneTask("window2Boarded"),
+      failMessage: (d: string) => `You boarded the windows, but a ${d} is coming, not a hurricane! Boarding windows won't help here.`,
+      completed: hurricaneTasks.window2Boarded,
+      completedLabel: "Window 2 boarded!",
+    },
+    {
+      position: [hp[0] + 7, 0.1, hp[2] + 5] as [number, number, number],
+      label: "Spray flame retardant",
+      requiredItem: "flame_retardant" as ItemType,
+      interactRadius: 3,
+      disaster: "wildfire" as const,
+      completeTask: () => completeWildfireTask("houseSprayed"),
+      failMessage: (d: string) => `You sprayed flame retardant, but a ${d} is coming, not a wildfire! This won't help.`,
+      completed: wildfireTasks.houseSprayed,
+      completedLabel: "House sprayed!",
+    },
+    {
+      position: [hp[0] - 7, 0.1, hp[2] + 5] as [number, number, number],
+      label: "Clear vegetation",
+      requiredItem: "rake" as ItemType,
+      interactRadius: 3,
+      disaster: "wildfire" as const,
+      completeTask: () => completeWildfireTask("vegetationCleared"),
+      failMessage: (d: string) => `You cleared vegetation, but a ${d} is coming, not a wildfire! This won't help.`,
+      completed: wildfireTasks.vegetationCleared,
+      completedLabel: "Vegetation cleared!",
+    },
+    {
+      position: [hp[0] - 4, 0.1, hp[2] - 5] as [number, number, number],
+      label: "Strap furniture",
+      requiredItem: "safety_strap" as ItemType,
+      interactRadius: 3,
+      disaster: "earthquake" as const,
+      completeTask: () => completeEarthquakeTask("furnitureStrapped"),
+      failMessage: (d: string) => `You strapped the furniture, but a ${d} is coming, not an earthquake! This won't help.`,
+      completed: earthquakeTasks.furnitureStrapped,
+      completedLabel: "Furniture secured!",
+    },
+    {
+      position: [hp[0] + 4, 0.1, hp[2] - 5] as [number, number, number],
+      label: "Shut off gas line",
+      requiredItem: "wrench" as ItemType,
+      interactRadius: 3,
+      disaster: "earthquake" as const,
+      completeTask: () => completeEarthquakeTask("gasShutOff"),
+      failMessage: (d: string) => `You shut off the gas, but a ${d} is coming, not an earthquake! This won't help.`,
+      completed: earthquakeTasks.gasShutOff,
+      completedLabel: "Gas line shut off!",
+    },
+  ], [hp, hurricaneTasks, wildfireTasks, earthquakeTasks, completeHurricaneTask, completeWildfireTask, completeEarthquakeTask]);
+
+  const vegetationMeshes = useMemo(() => [
+    { position: [hp[0] - 7.5, 0.4, hp[2] + 5.5] as [number, number, number], type: "sphere" as const, args: [0.5, 8, 6], color: "#2d6b2d" },
+    { position: [hp[0] - 6.3, 0.35, hp[2] + 5.8] as [number, number, number], type: "sphere" as const, args: [0.4, 8, 6], color: "#3a7a3a" },
+    { position: [hp[0] - 7.8, 0.3, hp[2] + 4.3] as [number, number, number], type: "sphere" as const, args: [0.45, 8, 6], color: "#2a5e2a" },
+    { position: [hp[0] - 6.5, 0.3, hp[2] + 4.5] as [number, number, number], type: "sphere" as const, args: [0.35, 8, 6], color: "#357835" },
+    { position: [hp[0] - 7, 0.35, hp[2] + 6] as [number, number, number], type: "sphere" as const, args: [0.4, 8, 6], color: "#2f6f2f" },
+    { position: [hp[0] - 6.8, 0.4, hp[2] + 5.2] as [number, number, number], rotation: [0, 0.3, 0.1] as [number, number, number], type: "box" as const, args: [0.06, 0.8, 0.06], color: "#4a8c4a" },
+    { position: [hp[0] - 7.3, 0.35, hp[2] + 4.8] as [number, number, number], rotation: [0, -0.5, -0.1] as [number, number, number], type: "box" as const, args: [0.06, 0.7, 0.06], color: "#3d7d3d" },
+    { position: [hp[0] - 6.6, 0.3, hp[2] + 5.6] as [number, number, number], rotation: [0, 1.2, 0.15] as [number, number, number], type: "box" as const, args: [0.06, 0.6, 0.06], color: "#4f904f" },
+    { position: [hp[0] - 7.6, 0.35, hp[2] + 5] as [number, number, number], rotation: [0, 0.8, -0.12] as [number, number, number], type: "box" as const, args: [0.06, 0.75, 0.06], color: "#458545" },
+  ], [hp]);
+
   return (
     <>
       <Sky />
@@ -339,226 +450,51 @@ export function Game() {
         onInteract={handleLisaInteract}
       />
 
-      {/* === ALL DISASTER ITEMS & TARGETS (always visible when tasks active) === */}
       {tasksActive && !questCompleted && !questFailed && (
         <>
-          {/* ---- HURRICANE ITEMS ---- */}
-          <WorldItem
-            itemId="sandbag-front"
-            itemType="sandbag"
-            position={[hp[0] + 10, 0, hp[2] + 6]}
-            playerPosition={playerPos}
-          />
-          <WorldItem
-            itemId="sandbag-back"
-            itemType="sandbag"
-            position={[hp[0] + 12, 0, hp[2] - 4]}
-            playerPosition={playerPos}
-          />
-          <WorldItem
-            itemId="board-w1"
-            itemType="wood_board"
-            position={[hp[0] - 10, 0, hp[2] + 8]}
-            playerPosition={playerPos}
-          />
-          <WorldItem
-            itemId="board-w2"
-            itemType="wood_board"
-            position={[hp[0] - 12, 0, hp[2] - 5]}
-            playerPosition={playerPos}
-          />
+          {worldItems.map((item) => (
+            <WorldItem
+              key={item.itemId}
+              itemId={item.itemId}
+              itemType={item.itemType}
+              position={item.position}
+              playerPosition={playerPos}
+            />
+          ))}
 
-          {/* ---- WILDFIRE ITEMS ---- */}
-          <WorldItem
-            itemId="flame-retardant"
-            itemType="flame_retardant"
-            position={[hp[0] + 14, 0, hp[2] + 1]}
-            playerPosition={playerPos}
-          />
-          <WorldItem
-            itemId="rake"
-            itemType="rake"
-            position={[hp[0] - 8, 0, hp[2] - 9]}
-            playerPosition={playerPos}
-          />
+          {interactionTargets.map((target) => (
+            <InteractionTarget
+              key={target.label}
+              position={target.position}
+              label={target.label}
+              requiredItem={target.requiredItem}
+              interactRadius={target.interactRadius}
+              playerPosition={playerPos}
+              onUse={() =>
+                knownDisaster === target.disaster
+                  ? target.completeTask()
+                  : failQuest(target.failMessage(knownDisaster!))
+              }
+              onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
+              completed={target.completed}
+              completedLabel={target.completedLabel}
+            />
+          ))}
 
-          {/* ---- EARTHQUAKE ITEMS ---- */}
-          <WorldItem
-            itemId="safety-strap"
-            itemType="safety_strap"
-            position={[hp[0] + 8, 0, hp[2] - 8]}
-            playerPosition={playerPos}
-          />
-          <WorldItem
-            itemId="wrench"
-            itemType="wrench"
-            position={[hp[0] - 13, 0, hp[2] + 3]}
-            playerPosition={playerPos}
-          />
-
-          {/* ---- HURRICANE TARGETS ---- */}
-          <InteractionTarget
-            position={[hp[0], 0.1, hp[2] + 6]}
-            label="Place sandbag at front door"
-            requiredItem="sandbag"
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "hurricane"
-                ? completeHurricaneTask("frontDoorSandbagged")
-                : failQuest("You sandbagged the doors, but a " + knownDisaster + " is coming, not a hurricane! Sandbags won't help here.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={hurricaneTasks.frontDoorSandbagged}
-            completedLabel="Front door sandbagged!"
-          />
-          <InteractionTarget
-            position={[hp[0], 0.1, hp[2] - 6]}
-            label="Place sandbag at back door"
-            requiredItem="sandbag"
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "hurricane"
-                ? completeHurricaneTask("backDoorSandbagged")
-                : failQuest("You sandbagged the doors, but a " + knownDisaster + " is coming, not a hurricane! Sandbags won't help here.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={hurricaneTasks.backDoorSandbagged}
-            completedLabel="Back door sandbagged!"
-          />
-          <InteractionTarget
-            position={[hp[0] - 7, 0.1, hp[2]]}
-            label="Board up window 1"
-            requiredItem="wood_board"
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "hurricane"
-                ? completeHurricaneTask("window1Boarded")
-                : failQuest("You boarded the windows, but a " + knownDisaster + " is coming, not a hurricane! Boarding windows won't help here.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={hurricaneTasks.window1Boarded}
-            completedLabel="Window 1 boarded!"
-          />
-          <InteractionTarget
-            position={[hp[0] + 7, 0.1, hp[2]]}
-            label="Board up window 2"
-            requiredItem="wood_board"
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "hurricane"
-                ? completeHurricaneTask("window2Boarded")
-                : failQuest("You boarded the windows, but a " + knownDisaster + " is coming, not a hurricane! Boarding windows won't help here.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={hurricaneTasks.window2Boarded}
-            completedLabel="Window 2 boarded!"
-          />
-
-          {/* ---- WILDFIRE TARGETS ---- */}
-          <InteractionTarget
-            position={[hp[0] + 7, 0.1, hp[2] + 5]}
-            label="Spray flame retardant"
-            requiredItem="flame_retardant"
-            interactRadius={3}
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "wildfire"
-                ? completeWildfireTask("houseSprayed")
-                : failQuest("You sprayed flame retardant, but a " + knownDisaster + " is coming, not a wildfire! This won't help.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={wildfireTasks.houseSprayed}
-            completedLabel="House sprayed!"
-          />
-          <InteractionTarget
-            position={[hp[0] - 7, 0.1, hp[2] + 5]}
-            label="Clear vegetation"
-            requiredItem="rake"
-            interactRadius={3}
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "wildfire"
-                ? completeWildfireTask("vegetationCleared")
-                : failQuest("You cleared vegetation, but a " + knownDisaster + " is coming, not a wildfire! This won't help.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={wildfireTasks.vegetationCleared}
-            completedLabel="Vegetation cleared!"
-          />
           {!wildfireTasks.vegetationCleared && (
             <group>
-              {/* Bushes around the vegetation clearing spot */}
-              <mesh position={[hp[0] - 7.5, 0.4, hp[2] + 5.5]}>
-                <sphereGeometry args={[0.5, 8, 6]} />
-                <meshStandardMaterial color="#2d6b2d" />
-              </mesh>
-              <mesh position={[hp[0] - 6.3, 0.35, hp[2] + 5.8]}>
-                <sphereGeometry args={[0.4, 8, 6]} />
-                <meshStandardMaterial color="#3a7a3a" />
-              </mesh>
-              <mesh position={[hp[0] - 7.8, 0.3, hp[2] + 4.3]}>
-                <sphereGeometry args={[0.45, 8, 6]} />
-                <meshStandardMaterial color="#2a5e2a" />
-              </mesh>
-              <mesh position={[hp[0] - 6.5, 0.3, hp[2] + 4.5]}>
-                <sphereGeometry args={[0.35, 8, 6]} />
-                <meshStandardMaterial color="#357835" />
-              </mesh>
-              <mesh position={[hp[0] - 7, 0.35, hp[2] + 6]}>
-                <sphereGeometry args={[0.4, 8, 6]} />
-                <meshStandardMaterial color="#2f6f2f" />
-              </mesh>
-              {/* Tall grass / weeds */}
-              <mesh position={[hp[0] - 6.8, 0.4, hp[2] + 5.2]} rotation={[0, 0.3, 0.1]}>
-                <boxGeometry args={[0.06, 0.8, 0.06]} />
-                <meshStandardMaterial color="#4a8c4a" />
-              </mesh>
-              <mesh position={[hp[0] - 7.3, 0.35, hp[2] + 4.8]} rotation={[0, -0.5, -0.1]}>
-                <boxGeometry args={[0.06, 0.7, 0.06]} />
-                <meshStandardMaterial color="#3d7d3d" />
-              </mesh>
-              <mesh position={[hp[0] - 6.6, 0.3, hp[2] + 5.6]} rotation={[0, 1.2, 0.15]}>
-                <boxGeometry args={[0.06, 0.6, 0.06]} />
-                <meshStandardMaterial color="#4f904f" />
-              </mesh>
-              <mesh position={[hp[0] - 7.6, 0.35, hp[2] + 5]} rotation={[0, 0.8, -0.12]}>
-                <boxGeometry args={[0.06, 0.75, 0.06]} />
-                <meshStandardMaterial color="#458545" />
-              </mesh>
+              {vegetationMeshes.map((v, i) => (
+                <mesh key={i} position={v.position} rotation={v.rotation}>
+                  {v.type === "sphere" ? (
+                    <sphereGeometry args={v.args as [number, number, number]} />
+                  ) : (
+                    <boxGeometry args={v.args as [number, number, number]} />
+                  )}
+                  <meshStandardMaterial color={v.color} />
+                </mesh>
+              ))}
             </group>
           )}
-
-          {/* ---- EARTHQUAKE TARGETS ---- */}
-          <InteractionTarget
-            position={[hp[0] - 4, 0.1, hp[2] - 5]}
-            label="Strap furniture"
-            requiredItem="safety_strap"
-            interactRadius={3}
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "earthquake"
-                ? completeEarthquakeTask("furnitureStrapped")
-                : failQuest("You strapped the furniture, but a " + knownDisaster + " is coming, not an earthquake! This won't help.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={earthquakeTasks.furnitureStrapped}
-            completedLabel="Furniture secured!"
-          />
-          <InteractionTarget
-            position={[hp[0] + 4, 0.1, hp[2] - 5]}
-            label="Shut off gas line"
-            requiredItem="wrench"
-            interactRadius={3}
-            playerPosition={playerPos}
-            onUse={() =>
-              knownDisaster === "earthquake"
-                ? completeEarthquakeTask("gasShutOff")
-                : failQuest("You shut off the gas, but a " + knownDisaster + " is coming, not an earthquake! This won't help.")
-            }
-            onWrongUse={() => failQuest("That's the wrong item for this spot! Think about what preparation this location needs.")}
-            completed={earthquakeTasks.gasShutOff}
-            completedLabel="Gas line shut off!"
-          />
         </>
       )}
 
