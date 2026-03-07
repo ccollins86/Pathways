@@ -622,7 +622,6 @@ function UnderwaterDecor() {
   return (
     <group>
       <BubbleColumns />
-      <UnderwaterLightShafts />
     </group>
   );
 }
@@ -676,49 +675,6 @@ function BubbleColumn({ position }: { position: [number, number, number] }) {
             emissiveIntensity={0.3}
             transparent
             opacity={0.5}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function UnderwaterLightShafts() {
-  const shafts = useMemo(() =>
-    Array.from({ length: 6 }, (_, i) => ({
-      x: -20 + i * 8 + Math.sin(i * 2.1) * 3,
-      z: -30 - Math.abs(Math.sin(i * 1.7)) * 20,
-    })), []);
-
-  const refs = useRef<THREE.Mesh[]>([]);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    refs.current.forEach((mesh, i) => {
-      if (mesh) {
-        const mat = mesh.material as THREE.MeshStandardMaterial;
-        mat.opacity = 0.06 + Math.sin(t * 0.3 + i * 1.5) * 0.03;
-      }
-    });
-  });
-
-  return (
-    <group>
-      {shafts.map((s, i) => (
-        <mesh
-          key={i}
-          ref={(el) => { if (el) refs.current[i] = el; }}
-          position={[s.x, 5, s.z]}
-          rotation={[0, 0, Math.sin(i * 1.7) * 0.15]}
-        >
-          <cylinderGeometry args={[0.5, 3, 15, 8, 1, true]} />
-          <meshStandardMaterial
-            color="#87ceeb"
-            emissive="#b3e5fc"
-            emissiveIntensity={0.3}
-            transparent
-            opacity={0.08}
-            side={THREE.DoubleSide}
           />
         </mesh>
       ))}
