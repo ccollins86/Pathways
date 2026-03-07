@@ -366,8 +366,198 @@ function DirtPatch({ position, size = [4, 3] }: { position: [number, number, num
   );
 }
 
+function Gazebo({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.05, 0]} receiveShadow>
+        <cylinderGeometry args={[2.8, 2.8, 0.1, 8]} />
+        <meshStandardMaterial color="#b5a08a" roughness={0.9} />
+      </mesh>
+      {Array.from({ length: 6 }).map((_, i) => {
+        const a = (i / 6) * Math.PI * 2;
+        return (
+          <mesh key={i} position={[Math.cos(a) * 2.2, 1.3, Math.sin(a) * 2.2]} castShadow>
+            <cylinderGeometry args={[0.08, 0.08, 2.6, 6]} />
+            <meshStandardMaterial color="#f5f0e8" roughness={0.6} />
+          </mesh>
+        );
+      })}
+      <mesh position={[0, 2.9, 0]} castShadow>
+        <coneGeometry args={[3.0, 1.2, 8]} />
+        <meshStandardMaterial color="#8B4513" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 2.6, 0]}>
+        <cylinderGeometry args={[2.8, 3.0, 0.08, 8]} />
+        <meshStandardMaterial color="#a0522d" roughness={0.8} />
+      </mesh>
+      <ParkBench position={[-0.8, 0, 0]} rotation={Math.PI * 0.5} />
+      <ParkBench position={[0.8, 0, 0]} rotation={-Math.PI * 0.5} />
+    </group>
+  );
+}
+
+function StoneWell({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.4, 0]} castShadow>
+        <cylinderGeometry args={[0.8, 0.9, 0.8, 12]} />
+        <meshStandardMaterial color="#8a8078" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.85, 0]}>
+        <torusGeometry args={[0.82, 0.06, 8, 16]} />
+        <meshStandardMaterial color="#6a5a4a" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0.15, 0]}>
+        <cylinderGeometry args={[0.65, 0.65, 0.5, 12]} />
+        <meshStandardMaterial color="#2a4a6a" roughness={0.3} metalness={0.1} />
+      </mesh>
+      <mesh position={[-0.75, 1.1, 0]} castShadow>
+        <boxGeometry args={[0.08, 1.5, 0.08]} />
+        <meshStandardMaterial color="#5D3A1A" roughness={0.9} />
+      </mesh>
+      <mesh position={[0.75, 1.1, 0]} castShadow>
+        <boxGeometry args={[0.08, 1.5, 0.08]} />
+        <meshStandardMaterial color="#5D3A1A" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 1.9, 0]} castShadow>
+        <boxGeometry args={[1.7, 0.08, 0.08]} />
+        <meshStandardMaterial color="#5D3A1A" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 1.6, 0]}>
+        <boxGeometry args={[0.15, 0.15, 0.15]} />
+        <meshStandardMaterial color="#8a7a6a" roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+function GardenPlot({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]} receiveShadow>
+        <planeGeometry args={[5, 4]} />
+        <meshStandardMaterial color="#6b5030" roughness={1} />
+      </mesh>
+      {Array.from({ length: 4 }).map((_, row) => (
+        <group key={row}>
+          {Array.from({ length: 5 }).map((_, col) => {
+            const px = -1.8 + col * 0.9;
+            const pz = -1.2 + row * 0.8;
+            const plantType = (row + col) % 3;
+            const height = 0.2 + ((row * 3 + col * 7) % 5) * 0.06;
+            return (
+              <group key={col} position={[px, 0, pz]}>
+                <mesh position={[0, height / 2, 0]}>
+                  <cylinderGeometry args={[0.01, 0.015, height, 4]} />
+                  <meshStandardMaterial color="#3a6a2a" />
+                </mesh>
+                {plantType === 0 && (
+                  <mesh position={[0, height + 0.08, 0]}>
+                    <sphereGeometry args={[0.1, 6, 6]} />
+                    <meshStandardMaterial color="#ff4444" />
+                  </mesh>
+                )}
+                {plantType === 1 && (
+                  <mesh position={[0, height + 0.06, 0]}>
+                    <sphereGeometry args={[0.08, 6, 6]} />
+                    <meshStandardMaterial color="#ff8c00" />
+                  </mesh>
+                )}
+                {plantType === 2 && (
+                  <group>
+                    <mesh position={[0.04, height + 0.08, 0]}>
+                      <boxGeometry args={[0.12, 0.08, 0.04]} />
+                      <meshStandardMaterial color="#2d8a2d" />
+                    </mesh>
+                    <mesh position={[-0.04, height + 0.06, 0.03]}>
+                      <boxGeometry args={[0.1, 0.06, 0.04]} />
+                      <meshStandardMaterial color="#3a9a3a" />
+                    </mesh>
+                  </group>
+                )}
+              </group>
+            );
+          })}
+          <mesh position={[0, 0.02, -1.2 + row * 0.8]}>
+            <boxGeometry args={[4.2, 0.04, 0.15]} />
+            <meshStandardMaterial color="#5a4020" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+      <Fence start={[-2.7, 0, -2.2]} end={[2.7, 0, -2.2]} />
+      <Fence start={[2.7, 0, -2.2]} end={[2.7, 0, 2.2]} />
+      <Fence start={[2.7, 0, 2.2]} end={[-2.7, 0, 2.2]} />
+      <Fence start={[-2.7, 0, 2.2]} end={[-2.7, 0, -2.2]} />
+    </group>
+  );
+}
+
+function Playground({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} receiveShadow>
+        <circleGeometry args={[4, 20]} />
+        <meshStandardMaterial color="#d4b896" roughness={1} />
+      </mesh>
+      <group position={[-1.5, 0, 0]}>
+        <mesh position={[-1, 1.2, 0]} castShadow>
+          <boxGeometry args={[0.1, 2.4, 0.1]} />
+          <meshStandardMaterial color="#cc3333" metalness={0.4} roughness={0.4} />
+        </mesh>
+        <mesh position={[1, 1.2, 0]} castShadow>
+          <boxGeometry args={[0.1, 2.4, 0.1]} />
+          <meshStandardMaterial color="#cc3333" metalness={0.4} roughness={0.4} />
+        </mesh>
+        <mesh position={[0, 2.45, 0]} castShadow>
+          <boxGeometry args={[2.2, 0.08, 0.08]} />
+          <meshStandardMaterial color="#cc3333" metalness={0.4} roughness={0.4} />
+        </mesh>
+        <mesh position={[-0.4, 1.5, 0]}>
+          <boxGeometry args={[0.02, 0.9, 0.02]} />
+          <meshStandardMaterial color="#888" />
+        </mesh>
+        <mesh position={[-0.4, 1.0, 0]}>
+          <boxGeometry args={[0.3, 0.04, 0.15]} />
+          <meshStandardMaterial color="#5D3A1A" />
+        </mesh>
+        <mesh position={[0.4, 1.5, 0]}>
+          <boxGeometry args={[0.02, 0.9, 0.02]} />
+          <meshStandardMaterial color="#888" />
+        </mesh>
+        <mesh position={[0.4, 1.0, 0]}>
+          <boxGeometry args={[0.3, 0.04, 0.15]} />
+          <meshStandardMaterial color="#5D3A1A" />
+        </mesh>
+      </group>
+      <group position={[1.8, 0, 0]}>
+        <mesh position={[0, 0.6, -0.8]} castShadow>
+          <boxGeometry args={[0.4, 1.2, 0.1]} />
+          <meshStandardMaterial color="#2266cc" metalness={0.3} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.6, 0.8]} castShadow>
+          <boxGeometry args={[0.4, 1.2, 0.1]} />
+          <meshStandardMaterial color="#2266cc" metalness={0.3} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 1.25, 0]} castShadow>
+          <boxGeometry args={[0.5, 0.08, 1.8]} />
+          <meshStandardMaterial color="#2266cc" metalness={0.3} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.15, 1.4]}>
+          <boxGeometry args={[0.4, 0.08, 0.5]} />
+          <meshStandardMaterial color="#ffcc00" />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 const POND_POS: [number, number] = [15, -12];
 const POND_RADIUS = 2.5;
+
+const GAZEBO_POS: [number, number] = [20, 15];
+const WELL_POS: [number, number] = [-18, -15];
+const GARDEN_POS: [number, number] = [-20, -8];
+const PLAYGROUND_POS: [number, number] = [10, -22];
 
 const EXCLUSION_CIRCLES: { x: number; z: number; r: number }[] = [
   { x: POND_POS[0], z: POND_POS[1], r: POND_RADIUS + 1.5 },
@@ -381,6 +571,10 @@ const EXCLUSION_CIRCLES: { x: number; z: number; r: number }[] = [
   { x: 8, z: -5, r: 3 },
   { x: 20, z: 8, r: 3 },
   { x: 0, z: -15, r: 2 },
+  { x: GAZEBO_POS[0], z: GAZEBO_POS[1], r: 5 },
+  { x: WELL_POS[0], z: WELL_POS[1], r: 3 },
+  { x: GARDEN_POS[0], z: GARDEN_POS[1], r: 4.5 },
+  { x: PLAYGROUND_POS[0], z: PLAYGROUND_POS[1], r: 5.5 },
 ];
 
 function isExcluded(x: number, z: number): boolean {
@@ -504,6 +698,11 @@ export function Environment() {
 
       <DirtPatch position={[hx, 0, hz + 8.5]} size={[4, 2]} />
       <DirtPatch position={[hx - 4, 0, hz - 6]} size={[3, 2]} />
+
+      <Gazebo position={[GAZEBO_POS[0], 0, GAZEBO_POS[1]]} />
+      <StoneWell position={[WELL_POS[0], 0, WELL_POS[1]]} />
+      <GardenPlot position={[GARDEN_POS[0], 0, GARDEN_POS[1]]} />
+      <Playground position={[PLAYGROUND_POS[0], 0, PLAYGROUND_POS[1]]} />
     </>
   );
 }
