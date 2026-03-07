@@ -28,8 +28,9 @@ export function FollowCamera({ playerPosition }: FollowCameraProps) {
     if (currentWorld === "ocean") {
       const z = playerPosition.z;
       const t = Math.max(0, Math.min(1, -z / 70));
-      const camY = 10 - t * 1.5;
-      offset.current.set(0, camY, 12);
+      const camY = 10 + t * 6;
+      const camZ = 12 + t * 5;
+      offset.current.set(0, camY, camZ);
     }
 
     target.current.copy(playerPosition).add(offset.current);
