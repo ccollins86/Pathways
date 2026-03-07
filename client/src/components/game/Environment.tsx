@@ -366,6 +366,37 @@ function DirtPatch({ position, size = [4, 3] }: { position: [number, number, num
   );
 }
 
+const POND_POS: [number, number] = [15, -12];
+const POND_RADIUS = 2.5;
+
+const EXCLUSION_CIRCLES: { x: number; z: number; r: number }[] = [
+  { x: POND_POS[0], z: POND_POS[1], r: POND_RADIUS + 1.5 },
+  { x: 6, z: 6, r: 2 },
+  { x: -7, z: -8, r: 2 },
+  { x: 6, z: -3.5, r: 2 },
+  { x: 18, z: -18, r: 2 },
+  { x: 8, z: 14, r: 2 },
+  { x: 12, z: 10, r: 2 },
+  { x: -5, z: -22, r: 2 },
+  { x: 8, z: -5, r: 3 },
+  { x: 20, z: 8, r: 3 },
+  { x: 0, z: -15, r: 2 },
+];
+
+function isExcluded(x: number, z: number): boolean {
+  if (isOnRoad(x, z)) return true;
+  for (const zone of EXCLUSION_CIRCLES) {
+    const dx = x - zone.x;
+    const dz = z - zone.z;
+    if (Math.sqrt(dx * dx + dz * dz) < zone.r) return true;
+  }
+  return false;
+}
+
+function isInsideFence(x: number, z: number, hx: number, hz: number): boolean {
+  return x >= hx - 7.5 && x <= hx + 5.5 && z >= hz - 5.5 && z <= hz + 7.5;
+}
+
 export function Environment() {
   const hx = HOUSE_POS[0];
   const hz = HOUSE_POS[2];
@@ -378,8 +409,7 @@ export function Environment() {
       const radius = 15 + (i % 5) * 4;
       const x = Math.cos(angle) * radius + (((i * 7) % 5) - 2);
       const z = Math.sin(angle) * radius + (((i * 13) % 5) - 2);
-      const distToHouse = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
-      if (distToHouse > 12 && !isOnRoad(x, z)) {
+      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         const type = i % 3 === 0 ? "round" as const : "pine" as const;
         const scale = 0.8 + (((i * 17) % 10) / 25);
         positions.push({ pos: [x, 0, z], type, scale });
@@ -393,8 +423,7 @@ export function Environment() {
     for (let i = 0; i < 20; i++) {
       const x = ((i * 17 + 5) % 30) - 15;
       const z = ((i * 23 + 3) % 30) - 15;
-      const distToHouse = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
-      if (!isOnRoad(x, z) && distToHouse > 10) {
+      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         const scale = 0.7 + (((i * 13) % 8) / 12);
         positions.push({ pos: [x, 0, z], scale });
       }
@@ -407,7 +436,7 @@ export function Environment() {
     for (let i = 0; i < 12; i++) {
       const x = ((i * 19 + 7) % 24) - 12;
       const z = ((i * 29 + 11) % 24) - 12;
-      if (!isOnRoad(x, z)) {
+      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         positions.push([x, 0, z]);
       }
     }
@@ -419,8 +448,7 @@ export function Environment() {
     for (let i = 0; i < 18; i++) {
       const x = ((i * 23 + 9) % 32) - 16;
       const z = ((i * 31 + 5) % 32) - 16;
-      const distToHouse = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
-      if (!isOnRoad(x, z) && distToHouse > 8) {
+      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         positions.push([x, 0.01, z]);
       }
     }
@@ -472,10 +500,10 @@ export function Environment() {
 
       <Mailbox position={[hx - 2, 0, hz + 7.5]} />
 
-      <Pond position={[15, 0, -12]} radius={2.5} />
+      <Pond position={[POND_POS[0], 0, POND_POS[1]]} radius={POND_RADIUS} />
 
-      <DirtPatch position={[hx + 1, 0, hz + 6]} size={[5, 3]} />
-      <DirtPatch position={[hx - 5, 0, hz - 4]} size={[3, 2.5]} />
+      <DirtPatch position={[hx, 0, hz + 8.5]} size={[4, 2]} />
+      <DirtPatch position={[hx - 4, 0, hz - 6]} size={[3, 2]} />
     </>
   );
 }
