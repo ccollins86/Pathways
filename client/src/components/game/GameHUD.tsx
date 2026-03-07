@@ -939,6 +939,7 @@ export function DevPanel() {
   if (!IS_DEV) return null;
 
   const skipTo = (world: string) => {
+    setOpen(false);
     if (world === "town") {
       restart();
     } else if (world === "ocean") {
