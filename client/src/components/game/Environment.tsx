@@ -708,15 +708,14 @@ export function Environment() {
 
   const trees = useMemo(() => {
     const positions: { pos: [number, number, number]; type: "pine" | "round"; scale: number }[] = [];
-    const count = 35;
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2;
-      const radius = 15 + (i % 5) * 4;
-      const x = Math.cos(angle) * radius + (((i * 7) % 5) - 2);
-      const z = Math.sin(angle) * radius + (((i * 13) % 5) - 2);
-      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
+    for (let i = 0; i < 70; i++) {
+      const angle = (i / 70) * Math.PI * 2 + ((i * 17) % 7) * 0.3;
+      const radius = 8 + (i % 9) * 4.5;
+      const x = Math.cos(angle) * radius + (((i * 7) % 9) - 4);
+      const z = Math.sin(angle) * radius + (((i * 13) % 9) - 4);
+      if (Math.abs(x) < 48 && Math.abs(z) < 48 && !isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         const type = i % 3 === 0 ? "round" as const : "pine" as const;
-        const scale = 0.8 + (((i * 17) % 10) / 25);
+        const scale = 0.7 + (((i * 17) % 10) / 20);
         positions.push({ pos: [x, 0, z], type, scale });
       }
     }
@@ -725,11 +724,11 @@ export function Environment() {
 
   const bushes = useMemo(() => {
     const positions: { pos: [number, number, number]; scale: number }[] = [];
-    for (let i = 0; i < 20; i++) {
-      const x = ((i * 17 + 5) % 30) - 15;
-      const z = ((i * 23 + 3) % 30) - 15;
-      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
-        const scale = 0.7 + (((i * 13) % 8) / 12);
+    for (let i = 0; i < 40; i++) {
+      const x = ((i * 37 + 11) % 80) - 40;
+      const z = ((i * 53 + 7) % 80) - 40;
+      if (Math.abs(x) < 46 && Math.abs(z) < 46 && !isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
+        const scale = 0.6 + (((i * 13) % 8) / 12);
         positions.push({ pos: [x, 0, z], scale });
       }
     }
@@ -738,10 +737,10 @@ export function Environment() {
 
   const rocks = useMemo(() => {
     const positions: [number, number, number][] = [];
-    for (let i = 0; i < 12; i++) {
-      const x = ((i * 19 + 7) % 24) - 12;
-      const z = ((i * 29 + 11) % 24) - 12;
-      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
+    for (let i = 0; i < 30; i++) {
+      const x = ((i * 41 + 13) % 80) - 40;
+      const z = ((i * 59 + 17) % 80) - 40;
+      if (Math.abs(x) < 46 && Math.abs(z) < 46 && !isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         positions.push([x, 0, z]);
       }
     }
@@ -750,10 +749,10 @@ export function Environment() {
 
   const flowerPatches = useMemo(() => {
     const positions: [number, number, number][] = [];
-    for (let i = 0; i < 18; i++) {
-      const x = ((i * 23 + 9) % 32) - 16;
-      const z = ((i * 31 + 5) % 32) - 16;
-      if (!isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
+    for (let i = 0; i < 30; i++) {
+      const x = ((i * 47 + 9) % 80) - 40;
+      const z = ((i * 61 + 5) % 80) - 40;
+      if (Math.abs(x) < 44 && Math.abs(z) < 44 && !isExcluded(x, z) && !isInsideFence(x, z, hx, hz)) {
         positions.push([x, 0.01, z]);
       }
     }
