@@ -262,6 +262,110 @@ function Fence({ start, end }: { start: [number, number, number]; end: [number, 
   );
 }
 
+function ParkBench({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.22, 0]} castShadow>
+        <boxGeometry args={[1.6, 0.06, 0.5]} />
+        <meshStandardMaterial color="#8B5E3C" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.45, -0.22]} castShadow>
+        <boxGeometry args={[1.6, 0.4, 0.06]} />
+        <meshStandardMaterial color="#8B5E3C" roughness={0.85} />
+      </mesh>
+      <mesh position={[-0.65, 0.11, 0.18]} castShadow>
+        <boxGeometry args={[0.08, 0.22, 0.08]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.5} roughness={0.4} />
+      </mesh>
+      <mesh position={[0.65, 0.11, 0.18]} castShadow>
+        <boxGeometry args={[0.08, 0.22, 0.08]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.5} roughness={0.4} />
+      </mesh>
+      <mesh position={[-0.65, 0.11, -0.18]} castShadow>
+        <boxGeometry args={[0.08, 0.22, 0.08]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.5} roughness={0.4} />
+      </mesh>
+      <mesh position={[0.65, 0.11, -0.18]} castShadow>
+        <boxGeometry args={[0.08, 0.22, 0.08]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.5} roughness={0.4} />
+      </mesh>
+    </group>
+  );
+}
+
+function Mailbox({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.5, 0]} castShadow>
+        <cylinderGeometry args={[0.04, 0.05, 1.0, 6]} />
+        <meshStandardMaterial color="#5a5a5a" metalness={0.4} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 1.05, 0]} castShadow>
+        <boxGeometry args={[0.35, 0.25, 0.22]} />
+        <meshStandardMaterial color="#1565C0" metalness={0.3} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 1.18, 0]} castShadow rotation={[0, 0, 0]}>
+        <boxGeometry args={[0.37, 0.04, 0.24]} />
+        <meshStandardMaterial color="#0D47A1" metalness={0.3} roughness={0.5} />
+      </mesh>
+      <mesh position={[0.12, 1.05, 0.12]}>
+        <boxGeometry args={[0.04, 0.06, 0.02]} />
+        <meshStandardMaterial color="#ff3333" />
+      </mesh>
+    </group>
+  );
+}
+
+function Pond({ position, radius = 3 }: { position: [number, number, number]; radius?: number }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
+        <circleGeometry args={[radius, 24]} />
+        <meshStandardMaterial color="#3a7ab5" roughness={0.2} metalness={0.1} transparent opacity={0.85} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]} receiveShadow>
+        <circleGeometry args={[radius + 0.3, 24]} />
+        <meshStandardMaterial color="#6b5d4a" roughness={0.95} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[radius * 0.3, 0.025, -radius * 0.2]}>
+        <circleGeometry args={[0.15, 8]} />
+        <meshStandardMaterial color="#5aaa7a" roughness={0.7} transparent opacity={0.7} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-radius * 0.4, 0.025, radius * 0.3]}>
+        <circleGeometry args={[0.12, 8]} />
+        <meshStandardMaterial color="#5aaa7a" roughness={0.7} transparent opacity={0.7} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[radius * 0.5, 0.025, radius * 0.15]}>
+        <circleGeometry args={[0.1, 8]} />
+        <meshStandardMaterial color="#4a9a6a" roughness={0.7} transparent opacity={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
+function DirtPatch({ position, size = [4, 3] }: { position: [number, number, number]; size?: [number, number] }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]} receiveShadow>
+        <planeGeometry args={size} />
+        <meshStandardMaterial color="#9b8b6e" roughness={0.95} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[size[0] * 0.3, 0.006, size[1] * 0.2]}>
+        <circleGeometry args={[0.15, 6]} />
+        <meshStandardMaterial color="#8a7a5e" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-size[0] * 0.25, 0.006, -size[1] * 0.15]}>
+        <circleGeometry args={[0.2, 6]} />
+        <meshStandardMaterial color="#a09070" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[size[0] * 0.1, 0.006, -size[1] * 0.3]}>
+        <circleGeometry args={[0.12, 6]} />
+        <meshStandardMaterial color="#8a7a5e" roughness={1} />
+      </mesh>
+    </group>
+  );
+}
+
 export function Environment() {
   const hx = HOUSE_POS[0];
   const hz = HOUSE_POS[2];
@@ -362,6 +466,16 @@ export function Environment() {
       {lampPositions.map((pos, i) => (
         <StreetLamp key={`lamp-${i}`} position={pos} />
       ))}
+
+      <ParkBench position={[6, 0, 6]} rotation={Math.PI * 0.25} />
+      <ParkBench position={[-7, 0, -8]} rotation={-Math.PI * 0.1} />
+
+      <Mailbox position={[hx - 2, 0, hz + 7.5]} />
+
+      <Pond position={[15, 0, -12]} radius={2.5} />
+
+      <DirtPatch position={[hx + 1, 0, hz + 6]} size={[5, 3]} />
+      <DirtPatch position={[hx - 5, 0, hz - 4]} size={[3, 2.5]} />
     </>
   );
 }
