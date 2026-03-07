@@ -3,11 +3,14 @@ import { Suspense, useState, useCallback, useEffect } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
+import { FactoryWorld } from "./components/game/FactoryWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
 import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
+import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
+import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -198,7 +201,7 @@ function World2HUD() {
 
   let objectiveText = "Talk to Josh at the Beach Station to get started!";
   if (oceanPracticeCompleted) {
-    objectiveText = "All quizzes complete! You've mastered for loops and while loops!";
+    objectiveText = "Quiz complete! A portal has appeared — walk through it to enter the Manufacturing Plant!";
   } else if (oceanPracticeUnlocked) {
     objectiveText = "Visit the Ocean Practice Station to test your for/while loop knowledge!";
   } else if (cleanupQuestCompleted && oceanLessonPhase >= 3) {
@@ -357,6 +360,256 @@ function World2HUD() {
           top: 16,
           right: 16,
           background: "rgba(0, 30, 60, 0.8)",
+          borderRadius: 8,
+          padding: "8px 16px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: "pointer",
+          zIndex: 50,
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        Back to Town
+      </div>
+    </>
+  );
+}
+
+function World3DialogueUI() {
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+  const world3DialogueIndex = useGame((s) => s.world3DialogueIndex);
+  const advanceWorld3Dialogue = useGame((s) => s.advanceWorld3Dialogue);
+
+  useEffect(() => {
+    if (!world3Dialogue) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "e" || e.key === "E" || e.key === " " || e.key === "Enter") {
+        e.stopImmediatePropagation();
+        advanceWorld3Dialogue();
+      }
+    };
+    window.addEventListener("keydown", handleKey, true);
+    return () => window.removeEventListener("keydown", handleKey, true);
+  }, [world3Dialogue, advanceWorld3Dialogue]);
+
+  if (!world3Dialogue) return null;
+
+  const line = world3Dialogue[world3DialogueIndex];
+  const isLast = world3DialogueIndex >= world3Dialogue.length - 1;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 80,
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(40, 30, 10, 0.92)",
+        borderRadius: 12,
+        padding: "20px 28px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 100,
+        maxWidth: 520,
+        width: "90%",
+        border: "2px solid rgba(255, 152, 0, 0.4)",
+        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "#ff9800",
+          textTransform: "uppercase",
+          letterSpacing: 1,
+          marginBottom: 8,
+        }}
+      >
+        {line.speaker}
+      </div>
+      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div
+        style={{
+          fontSize: 12,
+          color: "rgba(255,255,255,0.5)",
+          marginTop: 12,
+          textAlign: "right",
+        }}
+      >
+        {isLast ? "Press E to close" : "Press E to continue"}
+      </div>
+    </div>
+  );
+}
+
+function World3HUD() {
+  const [hudOpen, setHudOpen] = useState(true);
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+  const activeMachine = useGame((s) => s.activeMachine);
+  const restart = useGame((s) => s.restart);
+  const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
+  const hatMachineState = useGame((s) => s.hatMachineState);
+  const tshirtMachineState = useGame((s) => s.tshirtMachineState);
+  const jacketMachineState = useGame((s) => s.jacketMachineState);
+  const carryingProduct = useGame((s) => s.carryingProduct);
+  const carryingBox = useGame((s) => s.carryingBox);
+  const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
+  const factoryLessonPhase = useGame((s) => s.factoryLessonPhase);
+  const factoryPracticeActive = useGame((s) => s.factoryPracticeActive);
+
+  if (world3Dialogue || activeMachine || factoryLessonPhase > 0 || factoryPracticeActive) return null;
+
+  const stateLabel = (state: string) => {
+    if (state === "idle") return "Not started";
+    if (state === "produced") return "Pick up products";
+    if (state === "picked_up") return "Pack in box";
+    if (state === "boxed") return "Load on truck";
+    if (state === "loaded") return "Done!";
+    return state;
+  };
+
+  const stateColor = (state: string) => {
+    if (state === "loaded") return "#4caf50";
+    if (state === "idle") return "#999";
+    return "#ffeb3b";
+  };
+
+  let objectiveText = "Talk to George, the floor manager, to get started!";
+  if (factoryOrderComplete) {
+    objectiveText = "Order complete! Talk to George.";
+  } else if (carryingBox) {
+    objectiveText = `Carrying a box of ${carryingBox} — load it on the shipping truck!`;
+  } else if (carryingProduct) {
+    objectiveText = `Carrying ${carryingProduct} — go to the packing table to box them!`;
+  } else if (factoryQuestStarted) {
+    objectiveText = "Fulfill the Olympic Village order! Configure machines, pick up products, box them, and load the truck.";
+  }
+
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          zIndex: 50,
+        }}
+      >
+        <button
+          onClick={() => setHudOpen(!hudOpen)}
+          style={{
+            background: "rgba(40, 30, 10, 0.85)",
+            border: "1px solid rgba(255, 152, 0, 0.4)",
+            borderRadius: hudOpen ? "8px 8px 0 0" : 8,
+            padding: "6px 14px",
+            color: "#ff9800",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            width: "100%",
+          }}
+        >
+          <span>Tasks</span>
+          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+        </button>
+        {hudOpen && (
+          <div
+            style={{
+              background: "rgba(40, 30, 10, 0.8)",
+              borderRadius: "0 0 8px 8px",
+              padding: "8px 18px 12px",
+              color: "white",
+              fontFamily: "'Inter', sans-serif",
+              maxWidth: 380,
+              border: "1px solid rgba(255, 152, 0, 0.3)",
+              borderTop: "none",
+            }}
+          >
+            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+              {objectiveText}
+            </div>
+            {factoryQuestStarted && (
+              <div style={{ marginTop: 8, fontSize: 11 }}>
+                <div style={{ marginBottom: 8, padding: "6px 10px", background: "rgba(244,67,54,0.15)", borderRadius: 6, borderLeft: "3px solid #f44336" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: stateColor(hatMachineState), fontSize: 14 }}>●</span>
+                    <span style={{ fontWeight: 700, color: "#f44336" }}>Hats: {stateLabel(hatMachineState)}</span>
+                  </div>
+                  <div style={{ color: "#ccc", paddingLeft: 20, lineHeight: 1.4 }}>
+                    Qty: 2 | Size: Large<br />
+                    Top: White | Brim: Green<br />
+                    Lettering: "Italy" (Red)
+                  </div>
+                </div>
+                <div style={{ marginBottom: 8, padding: "6px 10px", background: "rgba(33,150,243,0.15)", borderRadius: 6, borderLeft: "3px solid #2196f3" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: stateColor(tshirtMachineState), fontSize: 14 }}>●</span>
+                    <span style={{ fontWeight: 700, color: "#2196f3" }}>T-Shirts: {stateLabel(tshirtMachineState)}</span>
+                  </div>
+                  <div style={{ color: "#ccc", paddingLeft: 20, lineHeight: 1.4 }}>
+                    Qty: 3 | Size: Medium<br />
+                    Sleeves: Red | Body: Blue<br />
+                    Lettering: "USA" (White)
+                  </div>
+                </div>
+                <div style={{ padding: "6px 10px", background: "rgba(76,175,80,0.15)", borderRadius: 6, borderLeft: "3px solid #4caf50" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: stateColor(jacketMachineState), fontSize: 14 }}>●</span>
+                    <span style={{ fontWeight: 700, color: "#4caf50" }}>Jackets: {stateLabel(jacketMachineState)}</span>
+                  </div>
+                  <div style={{ color: "#ccc", paddingLeft: 20, lineHeight: 1.4 }}>
+                    Qty: 5 | Size: Large<br />
+                    Sleeves: Black | Body: Red<br />
+                    Lettering: "Germany" (Yellow)
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {(carryingProduct || carryingBox) && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 80,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: carryingBox ? "rgba(76, 175, 80, 0.9)" : "rgba(255, 152, 0, 0.9)",
+            borderRadius: 12,
+            padding: "10px 24px",
+            color: "white",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 16,
+            fontWeight: 700,
+            zIndex: 50,
+            textAlign: "center",
+            border: "2px solid white",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          }}
+        >
+          {carryingProduct && `Carrying: ${carryingProduct.charAt(0).toUpperCase() + carryingProduct.slice(1)}`}
+          {carryingBox && `Carrying Box: ${carryingBox.charAt(0).toUpperCase() + carryingBox.slice(1)}`}
+        </div>
+      )}
+
+      <div
+        onClick={restart}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          background: "rgba(40, 30, 10, 0.8)",
           borderRadius: 8,
           padding: "8px 16px",
           color: "white",
@@ -634,6 +887,272 @@ function OceanPracticeQuizWrapper() {
   return <OceanPracticeQuizUI />;
 }
 
+function FactoryLessonUI() {
+  const factoryLessonPhase = useGame((s) => s.factoryLessonPhase);
+  const advanceFactoryLesson = useGame((s) => s.advanceFactoryLesson);
+  const unlockFactoryPractice = useGame((s) => s.unlockFactoryPractice);
+  const world3Dialogue = useGame((s) => s.world3Dialogue);
+
+  if (world3Dialogue) return null;
+  if (factoryLessonPhase < 1 || factoryLessonPhase > 2) return null;
+
+  if (factoryLessonPhase === 1) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "rgba(30, 20, 5, 0.97)",
+          borderRadius: 16,
+          padding: "28px 36px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          zIndex: 200,
+          border: "3px solid #ff9800",
+          boxShadow: "0 0 40px rgba(255, 152, 0, 0.4)",
+          maxWidth: 640,
+          maxHeight: "85vh",
+          overflowY: "auto",
+        }}
+      >
+        <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#ff9800" }}>
+          Functions in Programming
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          Great job fulfilling the Olympic Village order! You just used <strong style={{ color: "#ffeb3b" }}>three different machines</strong>,
+          each one taking specific inputs (quantity, size, colors, lettering) and producing a finished product as output.
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          This is exactly how <strong style={{ color: "#ff9800" }}>functions</strong> work in programming!
+          A function is a reusable block of code that takes <strong style={{ color: "#4fc3f7" }}>inputs (parameters)</strong>,
+          does some work, and produces an <strong style={{ color: "#69f0ae" }}>output (return value)</strong>.
+        </div>
+
+        <div
+          style={{
+            background: "rgba(0, 0, 0, 0.5)",
+            borderRadius: 8,
+            padding: "16px 20px",
+            fontFamily: "'Courier New', monospace",
+            fontSize: 13,
+            lineHeight: 1.8,
+            marginBottom: 16,
+            border: "1px solid rgba(255, 152, 0, 0.3)",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          <span style={{ color: "#546e7a" }}>{"// The Hat Maker machine as a function:\n"}</span>
+          <span style={{ color: "#c792ea" }}>function </span>
+          <span style={{ color: "#82aaff" }}>makeHat</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>quantity</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>size</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>topColor</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>brimColor</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#f78c6c" }}>lettering</span>
+          <span style={{ color: "#89ddff" }}>)</span>
+          <span style={{ color: "#c3e88d" }}>{" {\n"}</span>
+          <span style={{ color: "#546e7a" }}>{"  // The machine does all the work inside...\n"}</span>
+          <span style={{ color: "#c3e88d" }}>{"  "}</span>
+          <span style={{ color: "#c792ea" }}>return </span>
+          <span style={{ color: "#f78c6c" }}>finishedHats</span>
+          <span style={{ color: "#89ddff" }}>;</span>
+          <span style={{ color: "#c3e88d" }}>{"\n}\n\n"}</span>
+          <span style={{ color: "#546e7a" }}>{"// You called it with specific inputs:\n"}</span>
+          <span style={{ color: "#c792ea" }}>let </span>
+          <span style={{ color: "#f78c6c" }}>hats</span>
+          <span style={{ color: "#89ddff" }}> = </span>
+          <span style={{ color: "#82aaff" }}>makeHat</span>
+          <span style={{ color: "#89ddff" }}>(</span>
+          <span style={{ color: "#f78c6c" }}>2</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"large"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"white"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"green"'}</span>
+          <span style={{ color: "#89ddff" }}>, </span>
+          <span style={{ color: "#c3e88d" }}>{'"Italy"'}</span>
+          <span style={{ color: "#89ddff" }}>);</span>
+        </div>
+
+        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+          The <strong style={{ color: "#4fc3f7" }}>parameters</strong> (quantity, size, topColor, brimColor, lettering)
+          are like the settings on the machine — they tell the function what to do.
+          The <strong style={{ color: "#ffeb3b" }}>arguments</strong> (2, "large", "white", "green", "Italy")
+          are the actual values you supplied.
+          And the function <strong style={{ color: "#69f0ae" }}>returned</strong> the finished hats — your output!
+        </div>
+
+        <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+          Each machine is like a different function — same concept, different purpose!
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
+            onClick={advanceFactoryLesson}
+            style={{
+              padding: "12px 32px",
+              background: "#ff9800",
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Continue
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(30, 20, 5, 0.97)",
+        borderRadius: 16,
+        padding: "28px 36px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: "3px solid #69f0ae",
+        boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+        maxWidth: 640,
+        maxHeight: "85vh",
+        overflowY: "auto",
+      }}
+    >
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
+        Functions Group Tasks Together
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        Think about what each machine did internally — it took raw materials, cut them to size, applied colors,
+        stamped the lettering, and assembled the final product. That's <strong style={{ color: "#ffeb3b" }}>a lot of steps</strong>!
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        But you didn't have to do each step manually. You just called the function with your inputs,
+        and the machine handled all the complexity for you. That's the power of functions —
+        they <strong style={{ color: "#69f0ae" }}>cluster all the tasks needed</strong> to accomplish something,
+        so you can just call the function and get what you want.
+      </div>
+
+      <div
+        style={{
+          background: "rgba(0, 0, 0, 0.5)",
+          borderRadius: 8,
+          padding: "16px 20px",
+          fontFamily: "'Courier New', monospace",
+          fontSize: 13,
+          lineHeight: 1.8,
+          marginBottom: 16,
+          border: "1px solid rgba(105, 240, 174, 0.3)",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        <span style={{ color: "#546e7a" }}>{"// Your full order — 3 function calls:\n\n"}</span>
+        <span style={{ color: "#c792ea" }}>let </span>
+        <span style={{ color: "#f78c6c" }}>hats</span>
+        <span style={{ color: "#89ddff" }}>{" = "}</span>
+        <span style={{ color: "#82aaff" }}>makeHat</span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#f78c6c" }}>2</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"large"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"white"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"green"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"Italy"'}</span>
+        <span style={{ color: "#89ddff" }}>);</span>
+        {"\n"}
+        <span style={{ color: "#c792ea" }}>let </span>
+        <span style={{ color: "#f78c6c" }}>shirts</span>
+        <span style={{ color: "#89ddff" }}>{" = "}</span>
+        <span style={{ color: "#82aaff" }}>makeTshirt</span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#f78c6c" }}>3</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"medium"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"red"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"blue"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"USA"'}</span>
+        <span style={{ color: "#89ddff" }}>);</span>
+        {"\n"}
+        <span style={{ color: "#c792ea" }}>let </span>
+        <span style={{ color: "#f78c6c" }}>jackets</span>
+        <span style={{ color: "#89ddff" }}>{" = "}</span>
+        <span style={{ color: "#82aaff" }}>makeJacket</span>
+        <span style={{ color: "#89ddff" }}>(</span>
+        <span style={{ color: "#f78c6c" }}>5</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"large"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"black"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"red"'}</span>
+        <span style={{ color: "#89ddff" }}>, </span>
+        <span style={{ color: "#c3e88d" }}>{'"Germany"'}</span>
+        <span style={{ color: "#89ddff" }}>);</span>
+      </div>
+
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        Each function took <strong style={{ color: "#4fc3f7" }}>different inputs</strong> and
+        produced <strong style={{ color: "#69f0ae" }}>different outputs</strong>, but they all
+        followed the same pattern: <em>call the function, pass your inputs, get your result</em>.
+      </div>
+
+      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+        Now head to the Practice Station to test your knowledge of functions!
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          onClick={unlockFactoryPractice}
+          style={{
+            padding: "12px 32px",
+            background: "#69f0ae",
+            border: "none",
+            borderRadius: 8,
+            color: "#1a1a1a",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}
+        >
+          Continue Playing
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FactoryPracticeQuizWrapper() {
+  const factoryPracticeActive = useGame((s) => s.factoryPracticeActive);
+  if (!factoryPracticeActive) return null;
+  return <FactoryPracticeQuizUI />;
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
@@ -665,7 +1184,9 @@ function App() {
           }}
         >
           <Suspense fallback={null}>
-            {currentWorld === "town" ? <Game /> : <OceanWorld />}
+            {currentWorld === "town" && <Game />}
+            {currentWorld === "ocean" && <OceanWorld />}
+            {currentWorld === "factory" && <FactoryWorld />}
           </Suspense>
         </Canvas>
 
@@ -684,6 +1205,16 @@ function App() {
             <SurveyUI />
             <OceanLessonUI />
             <OceanPracticeQuizWrapper />
+          </>
+        )}
+
+        {phase === "playing" && currentWorld === "factory" && (
+          <>
+            <World3HUD />
+            <World3DialogueUI />
+            <MachineSettingsUI />
+            <FactoryLessonUI />
+            <FactoryPracticeQuizWrapper />
           </>
         )}
       </KeyboardControls>

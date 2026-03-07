@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef, useEffect } from "react";
+import { useGame } from "@/lib/stores/useGame";
 
 interface FollowCameraProps {
   playerPosition: THREE.Vector3;
@@ -12,10 +13,16 @@ export function FollowCamera({ playerPosition }: FollowCameraProps) {
   const target = useRef(new THREE.Vector3());
   const lookTarget = useRef(new THREE.Vector3());
   const initialized = useRef(false);
+  const currentWorld = useGame((s) => s.currentWorld);
 
   useEffect(() => {
     initialized.current = false;
-  }, []);
+    if (currentWorld === "factory") {
+      offset.current.set(0, 6, 10);
+    } else {
+      offset.current.set(0, 10, 12);
+    }
+  }, [currentWorld]);
 
   useFrame((_, delta) => {
     target.current.copy(playerPosition).add(offset.current);

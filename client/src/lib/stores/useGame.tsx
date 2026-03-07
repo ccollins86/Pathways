@@ -2,9 +2,18 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "ready" | "playing" | "ended";
-export type GameWorld = "town" | "ocean";
+export type GameWorld = "town" | "ocean" | "factory";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
+
+export interface MachineOrderSettings {
+  quantity: number;
+  size: string;
+  color1: string;
+  color2: string;
+  color3?: string;
+  lettering: string;
+}
 
 export interface EcosystemData {
   name: string;
@@ -135,6 +144,24 @@ interface GameState {
   oceanPracticeActive: boolean;
   oceanPracticeScore: number;
   oceanPracticeCompleted: boolean;
+  oceanPortalActive: boolean;
+
+  world3Dialogue: { speaker: string; text: string }[] | null;
+  world3DialogueIndex: number;
+  factoryQuestStarted: boolean;
+
+  activeMachine: "hat" | "tshirt" | "jacket" | null;
+  hatMachineState: "idle" | "produced" | "picked_up" | "boxed" | "loaded";
+  tshirtMachineState: "idle" | "produced" | "picked_up" | "boxed" | "loaded";
+  jacketMachineState: "idle" | "produced" | "picked_up" | "boxed" | "loaded";
+  carryingProduct: "hats" | "tshirts" | "jackets" | null;
+  carryingBox: "hats" | "tshirts" | "jackets" | null;
+  factoryOrderComplete: boolean;
+  factoryLessonPhase: number;
+  factoryPracticeUnlocked: boolean;
+  factoryPracticeActive: boolean;
+  factoryPracticeScore: number;
+  factoryPracticeCompleted: boolean;
 
   start: () => void;
   restart: () => void;
@@ -187,6 +214,27 @@ interface GameState {
   addOceanPracticeScore: (points: number) => void;
   resetOceanPracticeScore: () => void;
   completeOceanPractice: () => void;
+  enterFactoryPortal: () => void;
+
+  openWorld3Dialogue: (lines: { speaker: string; text: string }[]) => void;
+  advanceWorld3Dialogue: () => void;
+  closeWorld3Dialogue: () => void;
+  startFactoryQuest: () => void;
+
+  openMachineSettings: (machine: "hat" | "tshirt" | "jacket") => void;
+  closeMachineSettings: () => void;
+  submitMachineOrder: (machine: "hat" | "tshirt" | "jacket", settings: MachineOrderSettings) => string | null;
+  pickUpProduct: (product: "hats" | "tshirts" | "jackets") => void;
+  boxProduct: () => void;
+  loadBox: () => void;
+  checkFactoryComplete: () => void;
+  advanceFactoryLesson: () => void;
+  unlockFactoryPractice: () => void;
+  openFactoryPractice: () => void;
+  closeFactoryPractice: () => void;
+  addFactoryPracticeScore: (points: number) => void;
+  resetFactoryPracticeScore: () => void;
+  completeFactoryPractice: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -247,6 +295,24 @@ export const useGame = create<GameState>()(
     oceanPracticeActive: false,
     oceanPracticeScore: 0,
     oceanPracticeCompleted: false,
+    oceanPortalActive: false,
+
+    world3Dialogue: null,
+    world3DialogueIndex: 0,
+    factoryQuestStarted: false,
+
+    activeMachine: null,
+    hatMachineState: "idle",
+    tshirtMachineState: "idle",
+    jacketMachineState: "idle",
+    carryingProduct: null,
+    carryingBox: null,
+    factoryOrderComplete: false,
+    factoryLessonPhase: 0,
+    factoryPracticeUnlocked: false,
+    factoryPracticeActive: false,
+    factoryPracticeScore: 0,
+    factoryPracticeCompleted: false,
 
     start: () => {
       set((state) => {
@@ -310,6 +376,22 @@ export const useGame = create<GameState>()(
         oceanPracticeActive: false,
         oceanPracticeScore: 0,
         oceanPracticeCompleted: false,
+        oceanPortalActive: false,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+        factoryQuestStarted: false,
+        activeMachine: null,
+        hatMachineState: "idle",
+        tshirtMachineState: "idle",
+        jacketMachineState: "idle",
+        carryingProduct: null,
+        carryingBox: null,
+        factoryOrderComplete: false,
+        factoryLessonPhase: 0,
+        factoryPracticeUnlocked: false,
+        factoryPracticeActive: false,
+        factoryPracticeScore: 0,
+        factoryPracticeCompleted: false,
       }));
     },
 
@@ -479,7 +561,114 @@ export const useGame = create<GameState>()(
     closeOceanPractice: () => set({ oceanPracticeActive: false }),
     addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points })),
     resetOceanPracticeScore: () => set({ oceanPracticeScore: 0 }),
-    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false }),
+    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false, oceanPortalActive: true }),
+
+    enterFactoryPortal: () => {
+      set({
+        currentWorld: "factory" as GameWorld,
+        phase: "playing" as GamePhase,
+        world2Dialogue: null,
+        world2DialogueIndex: 0,
+        oceanPracticeActive: false,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+      });
+    },
+
+    openWorld3Dialogue: (lines) =>
+      set({ world3Dialogue: lines, world3DialogueIndex: 0 }),
+    advanceWorld3Dialogue: () => {
+      const { world3DialogueIndex, world3Dialogue } = get();
+      if (world3Dialogue && world3DialogueIndex < world3Dialogue.length - 1) {
+        set({ world3DialogueIndex: world3DialogueIndex + 1 });
+      } else {
+        set({ world3Dialogue: null, world3DialogueIndex: 0 });
+      }
+    },
+    closeWorld3Dialogue: () =>
+      set({ world3Dialogue: null, world3DialogueIndex: 0 }),
+    startFactoryQuest: () => set({ factoryQuestStarted: true }),
+
+    openMachineSettings: (machine) => set({ activeMachine: machine }),
+    closeMachineSettings: () => set({ activeMachine: null }),
+    submitMachineOrder: (machine, settings) => {
+      const normalize = (s: string) => s.trim().toLowerCase();
+      if (machine === "hat") {
+        if (settings.quantity !== 2) return "Quantity should be 2 hats!";
+        if (normalize(settings.size) !== "large") return "Size should be Large!";
+        if (normalize(settings.color1) !== "white") return "Top color should be White!";
+        if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Brim color should be Green!";
+        if (normalize(settings.lettering) !== "italy") return 'Lettering should be "Italy"!';
+        set({ hatMachineState: "produced", activeMachine: null });
+        return null;
+      } else if (machine === "tshirt") {
+        if (settings.quantity !== 3) return "Quantity should be 3 t-shirts!";
+        if (normalize(settings.size) !== "medium") return "Size should be Medium!";
+        if (normalize(settings.color1) !== "#e53935" && normalize(settings.color1) !== "red") return "Sleeve color should be Red!";
+        if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Body color should be Blue!";
+        if (normalize(settings.color3 || "") !== "white") return "Lettering color should be White!";
+        if (normalize(settings.lettering) !== "usa") return 'Lettering should be "USA"!';
+        set({ tshirtMachineState: "produced", activeMachine: null });
+        return null;
+      } else if (machine === "jacket") {
+        if (settings.quantity !== 5) return "Quantity should be 5 jackets!";
+        if (normalize(settings.size) !== "large") return "Size should be Large!";
+        if (normalize(settings.color1) !== "black") return "Sleeve color should be Black!";
+        if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Body color should be Red!";
+        if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Lettering color should be Yellow!";
+        if (normalize(settings.lettering) !== "germany") return 'Lettering should be "Germany"!';
+        set({ jacketMachineState: "produced", activeMachine: null });
+        return null;
+      }
+      return null;
+    },
+    pickUpProduct: (product) => {
+      if (product === "hats") set({ hatMachineState: "picked_up", carryingProduct: "hats" });
+      else if (product === "tshirts") set({ tshirtMachineState: "picked_up", carryingProduct: "tshirts" });
+      else if (product === "jackets") set({ jacketMachineState: "picked_up", carryingProduct: "jackets" });
+    },
+    boxProduct: () => {
+      const { carryingProduct } = get();
+      if (!carryingProduct) return;
+      if (carryingProduct === "hats") set({ hatMachineState: "boxed", carryingProduct: null, carryingBox: "hats" });
+      else if (carryingProduct === "tshirts") set({ tshirtMachineState: "boxed", carryingProduct: null, carryingBox: "tshirts" });
+      else if (carryingProduct === "jackets") set({ jacketMachineState: "boxed", carryingProduct: null, carryingBox: "jackets" });
+    },
+    loadBox: () => {
+      const { carryingBox } = get();
+      if (!carryingBox) return;
+      if (carryingBox === "hats") set({ hatMachineState: "loaded", carryingBox: null });
+      else if (carryingBox === "tshirts") set({ tshirtMachineState: "loaded", carryingBox: null });
+      else if (carryingBox === "jackets") set({ jacketMachineState: "loaded", carryingBox: null });
+      const state = get();
+      if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
+        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
+      }
+    },
+    checkFactoryComplete: () => {
+      const { hatMachineState, tshirtMachineState, jacketMachineState } = get();
+      if (hatMachineState === "loaded" && tshirtMachineState === "loaded" && jacketMachineState === "loaded") {
+        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
+      }
+    },
+    advanceFactoryLesson: () => {
+      const { factoryLessonPhase } = get();
+      if (factoryLessonPhase < 2) {
+        set({ factoryLessonPhase: factoryLessonPhase + 1 });
+      }
+    },
+    unlockFactoryPractice: () =>
+      set({ factoryPracticeUnlocked: true, factoryLessonPhase: 0 }),
+    openFactoryPractice: () =>
+      set({ factoryPracticeActive: true, factoryPracticeScore: 0 }),
+    closeFactoryPractice: () =>
+      set({ factoryPracticeActive: false }),
+    addFactoryPracticeScore: (points) =>
+      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points })),
+    resetFactoryPracticeScore: () =>
+      set({ factoryPracticeScore: 0 }),
+    completeFactoryPractice: () =>
+      set({ factoryPracticeCompleted: true, factoryPracticeActive: false }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
