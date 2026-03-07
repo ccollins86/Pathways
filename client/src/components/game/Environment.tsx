@@ -2,6 +2,12 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { HOUSE_POS } from "./House";
 
+const ROAD_MARGIN = 5;
+
+function isOnRoad(x: number, z: number): boolean {
+  return Math.abs(x) < ROAD_MARGIN || Math.abs(z) < ROAD_MARGIN;
+}
+
 function PineTree({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   const green = useMemo(() => {
     const greens = ["#1a6b1a", "#228B22", "#2d7a2d", "#1f7a1f"];
@@ -179,12 +185,16 @@ function Road() {
         <planeGeometry args={[0.8, 42]} />
         <meshStandardMaterial color="#b0a890" roughness={0.85} />
       </mesh>
-      {Array.from({ length: 9 }).map((_, i) => (
-        <mesh key={`dash-v-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -16 + i * 4]} receiveShadow>
-          <planeGeometry args={[0.12, 1.8]} />
-          <meshStandardMaterial color="#e0d8c0" />
-        </mesh>
-      ))}
+      {Array.from({ length: 9 }).map((_, i) => {
+        const z = -16 + i * 4;
+        if (Math.abs(z) < 3.5) return null;
+        return (
+          <mesh key={`dash-v-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, z]} receiveShadow>
+            <planeGeometry args={[0.12, 1.8]} />
+            <meshStandardMaterial color="#e0d8c0" />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
@@ -204,12 +214,16 @@ function CrossPath() {
         <planeGeometry args={[42, 0.8]} />
         <meshStandardMaterial color="#b0a890" roughness={0.85} />
       </mesh>
-      {Array.from({ length: 9 }).map((_, i) => (
-        <mesh key={`dash-h-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[-16 + i * 4, 0.02, 0]} receiveShadow>
-          <planeGeometry args={[1.8, 0.12]} />
-          <meshStandardMaterial color="#e0d8c0" />
-        </mesh>
-      ))}
+      {Array.from({ length: 9 }).map((_, i) => {
+        const x = -16 + i * 4;
+        if (Math.abs(x) < 4) return null;
+        return (
+          <mesh key={`dash-h-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.02, 0]} receiveShadow>
+            <planeGeometry args={[1.8, 0.12]} />
+            <meshStandardMaterial color="#e0d8c0" />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
@@ -261,7 +275,7 @@ export function Environment() {
       const x = Math.cos(angle) * radius + (((i * 7) % 5) - 2);
       const z = Math.sin(angle) * radius + (((i * 13) % 5) - 2);
       const distToHouse = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
-      if (distToHouse > 12) {
+      if (distToHouse > 12 && !isOnRoad(x, z)) {
         const type = i % 3 === 0 ? "round" as const : "pine" as const;
         const scale = 0.8 + (((i * 17) % 10) / 25);
         positions.push({ pos: [x, 0, z], type, scale });
@@ -276,7 +290,7 @@ export function Environment() {
       const x = ((i * 17 + 5) % 30) - 15;
       const z = ((i * 23 + 3) % 30) - 15;
       const distToHouse = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
-      if (Math.abs(x) > 3 && Math.abs(z) > 3 && distToHouse > 10) {
+      if (!isOnRoad(x, z) && distToHouse > 10) {
         const scale = 0.7 + (((i * 13) % 8) / 12);
         positions.push({ pos: [x, 0, z], scale });
       }
@@ -289,7 +303,7 @@ export function Environment() {
     for (let i = 0; i < 12; i++) {
       const x = ((i * 19 + 7) % 24) - 12;
       const z = ((i * 29 + 11) % 24) - 12;
-      if (Math.abs(x) > 3 && Math.abs(z) > 3) {
+      if (!isOnRoad(x, z)) {
         positions.push([x, 0, z]);
       }
     }
@@ -302,7 +316,7 @@ export function Environment() {
       const x = ((i * 23 + 9) % 32) - 16;
       const z = ((i * 31 + 5) % 32) - 16;
       const distToHouse = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
-      if (Math.abs(x) > 3.5 && Math.abs(z) > 2.5 && distToHouse > 8) {
+      if (!isOnRoad(x, z) && distToHouse > 8) {
         positions.push([x, 0.01, z]);
       }
     }
@@ -310,15 +324,14 @@ export function Environment() {
   }, []);
 
   const lampPositions: [number, number, number][] = useMemo(() => [
-    [3.5, 0, -8],
-    [3.5, 0, 0],
-    [3.5, 0, 8],
-    [-3.5, 0, -8],
-    [-3.5, 0, 8],
-    [8, 0, 2.8],
-    [-8, 0, 2.8],
-    [8, 0, -2.8],
-    [-8, 0, -2.8],
+    [3.8, 0, -10],
+    [3.8, 0, 10],
+    [-3.8, 0, -10],
+    [-3.8, 0, 10],
+    [10, 0, 3.2],
+    [-10, 0, 3.2],
+    [10, 0, -3.2],
+    [-10, 0, -3.2],
   ], []);
 
   return (

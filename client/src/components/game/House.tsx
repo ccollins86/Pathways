@@ -3,7 +3,7 @@ import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "@/lib/stores/useGame";
 
-export const HOUSE_POS: [number, number, number] = [-15, 0, 5];
+export const HOUSE_POS: [number, number, number] = [-15, 0, 15];
 
 export function House() {
   const woodTexture = useTexture("/textures/wood.jpg");
