@@ -25,6 +25,14 @@ export function FollowCamera({ playerPosition }: FollowCameraProps) {
   }, [currentWorld]);
 
   useFrame((_, delta) => {
+    if (currentWorld === "ocean") {
+      const z = playerPosition.z;
+      const t = Math.max(0, Math.min(1, -z / 60));
+      const camY = 10 - t * 4;
+      const camZ = 12 - t * 4;
+      offset.current.set(0, camY, camZ);
+    }
+
     target.current.copy(playerPosition).add(offset.current);
     const desiredLook = new THREE.Vector3(playerPosition.x, playerPosition.y + 1, playerPosition.z);
     if (!initialized.current) {
