@@ -11,6 +11,7 @@ import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
 import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
+import { AuthScreen } from "./components/AuthScreen";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -1157,6 +1158,45 @@ function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
   const currentWorld = useGame((s) => s.currentWorld);
+  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        if (data && data.id) setUser(data);
+        setAuthChecked(true);
+      })
+      .catch(() => setAuthChecked(true));
+  }, []);
+
+  if (!authChecked) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          background: "#0a1628",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#94a3b8",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 16,
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen onAuthenticated={setUser} />;
+  }
 
   return (
     <div

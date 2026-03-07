@@ -1,12 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { setupAuth } from "./auth";
 import path from "path";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  setupAuth(app);
+
   app.get("/api/download-template", (_req, res) => {
     const zipPath = path.resolve("client/public/game-template.zip");
     res.download(zipPath, "game-template.zip");
