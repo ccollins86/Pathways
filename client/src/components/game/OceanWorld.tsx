@@ -605,6 +605,19 @@ function ShorelineFoam() {
   );
 }
 
+const ECOSYSTEM_ZONES: [number, number][] = [
+  [-30, -30], [35, -25], [-35, -60], [-30, -75],
+];
+const ECO_EXCLUSION_RADIUS = 12;
+
+function isNearEcosystem(x: number, z: number): boolean {
+  return ECOSYSTEM_ZONES.some(([ex, ez]) => {
+    const dx = x - ex;
+    const dz = z - ez;
+    return dx * dx + dz * dz < ECO_EXCLUSION_RADIUS * ECO_EXCLUSION_RADIUS;
+  });
+}
+
 function UnderwaterDecor() {
   const ambientCorals = useMemo(() =>
     Array.from({ length: 25 }, (_, i) => ({
@@ -613,7 +626,7 @@ function UnderwaterDecor() {
       scale: 0.3 + Math.abs(Math.sin(i * 2.9)) * 0.7,
       color: ["#ff6b6b", "#ff8e53", "#ffd93d", "#6bff93", "#6bb5ff", "#c56bff", "#ff6bab"][i % 7],
       type: i % 3,
-    })), []);
+    })).filter(c => !isNearEcosystem(c.x, c.z)), []);
 
   const rockFormations = useMemo(() =>
     Array.from({ length: 12 }, (_, i) => ({
@@ -621,7 +634,7 @@ function UnderwaterDecor() {
       z: -20 - Math.abs(Math.sin(i * 3.7)) * 45,
       scale: 0.5 + Math.abs(Math.sin(i * 1.7)) * 1.5,
       rotation: Math.sin(i * 4.1) * Math.PI,
-    })), []);
+    })).filter(r => !isNearEcosystem(r.x, r.z)), []);
 
   const seaweedClusters = useMemo(() =>
     Array.from({ length: 18 }, (_, i) => ({
@@ -629,7 +642,7 @@ function UnderwaterDecor() {
       z: -22 - Math.abs(Math.sin(i * 3.1)) * 40,
       blades: 3 + (i % 4),
       height: 1 + Math.abs(Math.sin(i * 2.1)) * 2,
-    })), []);
+    })).filter(sw => !isNearEcosystem(sw.x, sw.z)), []);
 
   return (
     <group>
@@ -720,7 +733,7 @@ function BubbleColumns() {
     Array.from({ length: 8 }, (_, i) => ({
       x: -25 + Math.sin(i * 5.7) * 25,
       z: -25 - Math.abs(Math.sin(i * 3.3)) * 30,
-    })), []);
+    })).filter(c => !isNearEcosystem(c.x, c.z)), []);
 
   return (
     <group>
@@ -1134,7 +1147,7 @@ function ExtraUnderwaterDecor() {
       scale: 0.4 + Math.abs(Math.sin(i * 3.3)) * 0.8,
       color: ["#ef5350", "#ab47bc", "#42a5f5", "#66bb6a", "#ffa726", "#ec407a", "#26c6da"][i % 7],
       type: i % 4,
-    })), []);
+    })).filter(c => !isNearEcosystem(c.x, c.z)), []);
 
   const extraSeaweed = useMemo(() =>
     Array.from({ length: 15 }, (_, i) => ({
@@ -1142,14 +1155,14 @@ function ExtraUnderwaterDecor() {
       z: -28 - Math.abs(Math.sin(i * 4.7)) * 45,
       blades: 4 + (i % 3),
       height: 1.5 + Math.abs(Math.sin(i * 2.7)) * 2.5,
-    })), []);
+    })).filter(sw => !isNearEcosystem(sw.x, sw.z)), []);
 
   const sandDunes = useMemo(() =>
     Array.from({ length: 10 }, (_, i) => ({
       x: -40 + Math.sin(i * 5.9) * 40,
       z: -25 - Math.abs(Math.sin(i * 3.5)) * 40,
       scale: 2 + Math.abs(Math.sin(i * 2.1)) * 3,
-    })), []);
+    })).filter(sd => !isNearEcosystem(sd.x, sd.z)), []);
 
   return (
     <group>
