@@ -1,15 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
-
-interface Question {
-  id: number;
-  code: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  hint: string;
-}
+import { PracticeQuizBase, type Question, type QuizTheme } from "./PracticeQuizBase";
 
 const QUESTIONS: Question[] = [
   {
@@ -171,293 +161,32 @@ function makeHat(quantity, size, topColor, brimColor, lettering) {
   },
 ];
 
-interface ConfettiPiece {
-  id: number;
-  x: number;
-  y: number;
-  color: string;
-  size: number;
-  angle: number;
-  velocity: number;
-  spin: number;
-  delay: number;
-}
-
-const CONFETTI_COLORS = ["#ff9800", "#4caf50", "#f44336", "#2196f3", "#e040fb", "#ffeb3b", "#69f0ae", "#ff6b6b"];
-
-function createConfetti(): ConfettiPiece[] {
-  const pieces: ConfettiPiece[] = [];
-  for (let i = 0; i < 40; i++) {
-    pieces.push({
-      id: i,
-      x: 50 + (Math.random() - 0.5) * 20,
-      y: 50,
-      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-      size: 4 + Math.random() * 6,
-      angle: Math.random() * 360,
-      velocity: 80 + Math.random() * 120,
-      spin: (Math.random() - 0.5) * 720,
-      delay: Math.random() * 0.15,
-    });
-  }
-  return pieces;
-}
+const THEME: QuizTheme = {
+  title: "Functions Practice",
+  accentColor: "#ff9800",
+  hintColor: "#ff9800",
+  bgColor: "rgba(30, 20, 5, 0.97)",
+  borderColor: "#ff9800",
+  boxShadow: "0 0 40px rgba(255, 152, 0, 0.4)",
+  nextBtnTextColor: "white",
+  confettiColors: ["#ff9800", "#4caf50", "#f44336", "#2196f3", "#e040fb", "#ffeb3b", "#69f0ae", "#ff6b6b"],
+  confettiPrefix: "factory-confetti",
+};
 
 export function FactoryPracticeQuizUI() {
   const closeFactoryPractice = useGame((s) => s.closeFactoryPractice);
   const addFactoryPracticeScore = useGame((s) => s.addFactoryPracticeScore);
-  const completeFactoryPractice = useGame((s) => s.completeFactoryPractice);
   const factoryPracticeScore = useGame((s) => s.factoryPracticeScore);
-
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [answeredCorrectly, setAnsweredCorrectly] = useState(false);
-  const [wrongAttempt, setWrongAttempt] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
-  const [animating, setAnimating] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const question = QUESTIONS[currentQuestion];
-  const isLastQuestion = currentQuestion >= QUESTIONS.length - 1;
-
-  useEffect(() => {
-    try {
-      audioRef.current = new Audio("/sounds/success.mp3");
-      audioRef.current.volume = 0.3;
-    } catch {}
-  }, []);
-
-  const handleAnswer = useCallback(
-    (index: number) => {
-      if (answeredCorrectly || animating) return;
-      setSelectedAnswer(index);
-
-      if (index === question.correctIndex) {
-        setAnsweredCorrectly(true);
-        addFactoryPracticeScore(10);
-        setConfetti(createConfetti());
-        try {
-          audioRef.current?.play();
-        } catch {}
-        setAnimating(true);
-        setTimeout(() => {
-          setAnimating(false);
-          setConfetti([]);
-        }, 1500);
-      } else {
-        setWrongAttempt(true);
-        setTimeout(() => {
-          setSelectedAnswer(null);
-        }, 800);
-      }
-    },
-    [answeredCorrectly, animating, question.correctIndex, addFactoryPracticeScore]
-  );
-
-  const handleNext = useCallback(() => {
-    if (isLastQuestion) {
-      completeFactoryPractice();
-    } else {
-      setCurrentQuestion((prev) => prev + 1);
-      setSelectedAnswer(null);
-      setAnsweredCorrectly(false);
-      setWrongAttempt(false);
-      setShowHint(false);
-    }
-  }, [isLastQuestion, completeFactoryPractice]);
+  const completeFactoryPractice = useGame((s) => s.completeFactoryPractice);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        background: "rgba(30, 20, 5, 0.97)",
-        borderRadius: 16,
-        padding: "24px 32px",
-        color: "white",
-        fontFamily: "'Inter', sans-serif",
-        zIndex: 200,
-        border: "3px solid #ff9800",
-        boxShadow: "0 0 40px rgba(255, 152, 0, 0.4)",
-        maxWidth: 640,
-        width: "90vw",
-        maxHeight: "85vh",
-        overflowY: "auto",
-      }}
-    >
-      {confetti.map((piece) => (
-        <div
-          key={piece.id}
-          style={{
-            position: "absolute",
-            left: `${piece.x}%`,
-            top: `${piece.y}%`,
-            width: piece.size,
-            height: piece.size,
-            backgroundColor: piece.color,
-            borderRadius: piece.size > 7 ? "50%" : 2,
-            transform: `rotate(${piece.angle}deg)`,
-            animation: `confetti-fall 1.2s ease-out ${piece.delay}s forwards`,
-            opacity: 0.9,
-            pointerEvents: "none",
-          }}
-        />
-      ))}
-
-      <style>{`
-        @keyframes confetti-fall {
-          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(${200 + Math.random() * 100}px) rotate(${360 + Math.random() * 360}deg); opacity: 0; }
-        }
-      `}</style>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#ff9800" }}>
-          Functions Practice
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ fontSize: 13, color: "#b0bec5" }}>
-            Question {currentQuestion + 1}/{QUESTIONS.length}
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#ffeb3b" }}>
-            Score: {factoryPracticeScore}
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          background: "rgba(0, 0, 0, 0.5)",
-          borderRadius: 8,
-          padding: "14px 18px",
-          fontFamily: "'Courier New', monospace",
-          fontSize: 12,
-          lineHeight: 1.7,
-          marginBottom: 16,
-          border: "1px solid rgba(255, 152, 0, 0.3)",
-          whiteSpace: "pre-wrap",
-          color: "#e0e0e0",
-        }}
-      >
-        {question.code}
-      </div>
-
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>{question.question}</div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-        {question.options.map((option, i) => {
-          let bg = "rgba(255,255,255,0.05)";
-          let borderColor = "rgba(255,152,0,0.2)";
-          if (answeredCorrectly && i === question.correctIndex) {
-            bg = "rgba(76, 175, 80, 0.2)";
-            borderColor = "#4caf50";
-          } else if (selectedAnswer === i && !answeredCorrectly) {
-            bg = "rgba(244, 67, 54, 0.2)";
-            borderColor = "#f44336";
-          }
-
-          return (
-            <div
-              key={i}
-              onClick={() => handleAnswer(i)}
-              style={{
-                padding: "10px 16px",
-                background: bg,
-                border: `2px solid ${borderColor}`,
-                borderRadius: 8,
-                cursor: answeredCorrectly ? "default" : "pointer",
-                fontSize: 13,
-                fontFamily: "'Courier New', monospace",
-                transition: "all 0.2s",
-              }}
-            >
-              {option}
-            </div>
-          );
-        })}
-      </div>
-
-      {answeredCorrectly && (
-        <div
-          style={{
-            padding: "12px 16px",
-            background: "rgba(76,175,80,0.15)",
-            border: "1px solid #4caf50",
-            borderRadius: 8,
-            fontSize: 13,
-            lineHeight: 1.6,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 4, color: "#69f0ae" }}>
-            Correct! +10 points
-          </div>
-          {question.explanation}
-        </div>
-      )}
-
-      {!answeredCorrectly && wrongAttempt && (
-        <div
-          style={{
-            padding: "12px 16px",
-            background: "rgba(244,67,54,0.15)",
-            border: "1px solid #f44336",
-            borderRadius: 8,
-            fontSize: 13,
-            lineHeight: 1.6,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 4, color: "#ff8a80" }}>
-            Not quite! Try again.
-          </div>
-          <div
-            onClick={() => setShowHint(!showHint)}
-            style={{
-              fontSize: 13,
-              color: "#ff9800",
-              cursor: "pointer",
-              marginTop: 6,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <span style={{ fontSize: 10 }}>{showHint ? "\u25BC" : "\u25B6"}</span>
-            {showHint ? "Hide Hint" : "Show Hint"}
-          </div>
-          {showHint && (
-            <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(255, 152, 0, 0.4)" }}>
-              {question.hint}
-            </div>
-          )}
-        </div>
-      )}
-
-      {answeredCorrectly && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div
-            onClick={handleNext}
-            style={{
-              padding: "10px 28px",
-              background: "#ff9800",
-              border: "none",
-              borderRadius: 8,
-              color: "white",
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-            }}
-          >
-            {isLastQuestion ? "Finish" : "Next Question"}
-          </div>
-        </div>
-      )}
-    </div>
+    <PracticeQuizBase
+      questions={QUESTIONS}
+      theme={THEME}
+      score={factoryPracticeScore}
+      onClose={closeFactoryPractice}
+      onAddScore={addFactoryPracticeScore}
+      onComplete={completeFactoryPractice}
+    />
   );
 }
