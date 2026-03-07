@@ -888,24 +888,6 @@ function BeachVolleyballNet({ position }: { position: [number, number, number] }
   );
 }
 
-function Surfboard({ position, color, rotation = 0 }: { position: [number, number, number]; color: string; rotation?: number }) {
-  return (
-    <group position={position} rotation={[-Math.PI / 2 + 0.05, 0, rotation]}>
-      <mesh castShadow>
-        <boxGeometry args={[0.35, 0.04, 2]} />
-        <meshStandardMaterial color={color} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.005, -0.95]}>
-        <coneGeometry args={[0.17, 0.3, 6]} />
-        <meshStandardMaterial color={color} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.01, 0]}>
-        <boxGeometry args={[0.15, 0.01, 0.8]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.5} />
-      </mesh>
-    </group>
-  );
-}
 
 function Cooler({ position }: { position: [number, number, number] }) {
   return (
@@ -1065,9 +1047,6 @@ function BeachExtras() {
 
       <BeachVolleyballNet position={[-30, 0, 18]} />
 
-      <Surfboard position={[-18, 0.5, 10]} color="#00bcd4" rotation={0.3} />
-      <Surfboard position={[20, 0.5, 5]} color="#ff5722" rotation={-0.8} />
-      <Surfboard position={[40, 0.5, 12]} color="#ffc107" rotation={1.2} />
 
       <Cooler position={[-14, 0, 16]} />
       <Cooler position={[32, 0, 21]} />
