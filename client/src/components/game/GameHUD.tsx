@@ -26,6 +26,7 @@ export function GameHUD() {
   const failReason = useGame((s) => s.failReason);
   const dropItem = useGame((s) => s.dropItem);
   const restart = useGame((s) => s.restart);
+  const retryQuest = useGame((s) => s.retryQuest);
   const practiceUnlocked = useGame((s) => s.practiceUnlocked);
   const practiceActive = useGame((s) => s.practiceActive);
   const practiceScore = useGame((s) => s.practiceScore);
@@ -279,7 +280,7 @@ export function GameHUD() {
             Remember: match your preparations to the specific disaster that's coming!
           </div>
           <div
-            onClick={restart}
+            onClick={retryQuest}
             style={{
               marginTop: 20,
               padding: "10px 28px",
