@@ -1250,4 +1250,86 @@ describe("useGame store", () => {
       expect(getState().tasksActive).toBe(true);
     });
   });
+
+  describe("learning validation progression", () => {
+    it("gates progression through lessons, practice, and portals across all three worlds", () => {
+      getState().start();
+
+      expect(getState().practiceUnlocked).toBe(false);
+      expect(getState().portalActive).toBe(false);
+
+      getState().setKnownDisaster("wildfire");
+      getState().pickUpItem("flame_retardant", "f1");
+      getState().completeWildfireTask("houseSprayed");
+      getState().pickUpItem("rake", "r1");
+      getState().completeWildfireTask("vegetationCleared");
+      vi.runAllTimers();
+      expect(getState().questCompleted).toBe(true);
+
+      expect(getState().portalActive).toBe(false);
+      getState().unlockPractice();
+      expect(getState().practiceUnlocked).toBe(true);
+      getState().openPractice();
+      getState().addPracticeScore(10);
+      getState().addPracticeScore(10);
+      expect(getState().practiceScore).toBe(20);
+      getState().completePractice();
+      expect(getState().practiceCompleted).toBe(true);
+      expect(getState().portalActive).toBe(true);
+
+      getState().enterPortal();
+      expect(getState().currentWorld).toBe("ocean");
+
+      expect(getState().oceanPracticeUnlocked).toBe(false);
+      expect(getState().oceanPortalActive).toBe(false);
+
+      getState().completeCleanupQuest();
+      expect(getState().oceanLessonPhase).toBe(1);
+      expect(getState().oceanPracticeUnlocked).toBe(false);
+
+      getState().advanceOceanLesson();
+      expect(getState().oceanLessonPhase).toBe(2);
+      expect(getState().oceanPracticeUnlocked).toBe(false);
+
+      getState().advanceOceanLesson();
+      expect(getState().oceanLessonPhase).toBe(3);
+      expect(getState().oceanPracticeUnlocked).toBe(true);
+
+      expect(getState().oceanPortalActive).toBe(false);
+      getState().openOceanPractice();
+      getState().addOceanPracticeScore(10);
+      getState().completeOceanPractice();
+      expect(getState().oceanPracticeCompleted).toBe(true);
+      expect(getState().oceanPortalActive).toBe(true);
+
+      getState().enterFactoryPortal();
+      expect(getState().currentWorld).toBe("factory");
+
+      expect(getState().factoryPracticeUnlocked).toBe(false);
+
+      getState().pickUpProduct("hats");
+      getState().boxProduct();
+      getState().loadBox();
+      getState().pickUpProduct("tshirts");
+      getState().boxProduct();
+      getState().loadBox();
+      getState().pickUpProduct("jackets");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().factoryOrderComplete).toBe(true);
+      expect(getState().factoryLessonPhase).toBe(1);
+
+      getState().advanceFactoryLesson();
+      expect(getState().factoryLessonPhase).toBe(2);
+
+      getState().unlockFactoryPractice();
+      expect(getState().factoryPracticeUnlocked).toBe(true);
+
+      getState().openFactoryPractice();
+      getState().addFactoryPracticeScore(10);
+      getState().completeFactoryPractice();
+      expect(getState().factoryPracticeCompleted).toBe(true);
+      expect(getState().factoryPracticeActive).toBe(false);
+    });
+  });
 });
