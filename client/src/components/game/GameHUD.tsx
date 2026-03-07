@@ -352,7 +352,7 @@ export function GameHUD() {
                     cursor: "pointer",
                   }}
                 >
-                  Take Quiz
+                  Test Your Understanding
                 </div>
                 <div
                   onClick={() => { setShowLesson(false); setLessonQuizActive(false); setLessonQuizDone(false); restart(); }}
