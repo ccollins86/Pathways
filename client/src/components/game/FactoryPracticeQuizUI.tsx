@@ -8,6 +8,7 @@ interface Question {
   options: string[];
   correctIndex: number;
   explanation: string;
+  hint: string;
 }
 
 const QUESTIONS: Question[] = [
@@ -29,6 +30,7 @@ let myHat = makeHat("large", "white", "green", "Italy");`,
     correctIndex: 1,
     explanation:
       'Parameters are the variable names listed in the function definition (size, topColor, brimColor, lettering). The actual values like "large" and "white" are called arguments — those are the specific inputs you pass in when you call the function.',
+    hint: "Parameters are defined in the function declaration (the top line). Arguments are the actual values passed in when calling the function.",
   },
   {
     id: 2,
@@ -46,6 +48,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     correctIndex: 2,
     explanation:
       'The function creates a shirt for each iteration of the loop. Since quantity is 3, the loop runs 3 times, pushing 3 shirts into the array. The function returns exactly what you asked for — 3 medium shirts!',
+    hint: "Look at the first argument passed to makeTshirt. That controls how many times the loop runs.",
   },
   {
     id: 3,
@@ -65,6 +68,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     correctIndex: 3,
     explanation:
       'Since itemType is "jacket", pricePerItem is set to 50. Then the function returns 50 × 5 = 250. Functions can use if/else inside them too — combining the concepts you learned earlier!',
+    hint: "First figure out what pricePerItem is set to for a jacket, then multiply it by the quantity.",
   },
   {
     id: 4,
@@ -85,6 +89,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     correctIndex: 1,
     explanation:
       "The function creates a blank jacket, then applies customizations step by step (coloring sleeves, body, adding lettering), and returns the finished product. This is like how the jacket machine takes your inputs and outputs a completed jacket!",
+    hint: "Look at the return statement at the end. What variable is being returned, and what has been done to it?",
   },
   {
     id: 5,
@@ -101,6 +106,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     correctIndex: 2,
     explanation:
       "fulfillOrder calls 4 functions: makeHat(), makeTshirt(), makeJacket(), and packItems(). Functions can call other functions! This is like how the full order process involves using multiple machines and then packing everything together.",
+    hint: "Count every function name that appears with parentheses inside the function body.",
   },
   {
     id: 6,
@@ -116,6 +122,7 @@ let message3 = greet("Germany");`,
     correctIndex: 1,
     explanation:
       'When greet("USA") is called, the parameter name gets the value "USA". The function returns "Hello, " + "USA" + "!" which is "Hello, USA!". Same function, different input, different output — just like the same machine producing different products based on your settings!',
+    hint: "Look at what argument is passed when message2 is created. That value replaces the parameter in the function.",
   },
   {
     id: 7,
@@ -139,6 +146,7 @@ let message3 = greet("Germany");`,
     correctIndex: 2,
     explanation:
       'Since qty is 0, the condition (qty <= 0) is true, so the function returns "Invalid order!" immediately. The return statement exits the function right away — produce, pack, and ship never run. This is called an early return, and it\'s useful for input validation!',
+    hint: "When a return statement runs, the function exits immediately. Check the first if condition with qty = 0.",
   },
   {
     id: 8,
@@ -159,6 +167,7 @@ function makeHat(quantity, size, topColor, brimColor, lettering) {
     correctIndex: 0,
     explanation:
       "The order of arguments must match the order of parameters in the function definition: quantity first (2), then size (\"large\"), then topColor (\"white\"), brimColor (\"green\"), and lettering (\"Italy\"). Getting the order wrong is a common bug — just like entering the wrong settings on a machine!",
+    hint: "Match each argument to its parameter name in the function definition. The order must be exactly the same.",
   },
 ];
 
@@ -202,13 +211,14 @@ export function FactoryPracticeQuizUI() {
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showExplanation, setShowExplanation] = useState(false);
+  const [answeredCorrectly, setAnsweredCorrectly] = useState(false);
+  const [wrongAttempt, setWrongAttempt] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const [animating, setAnimating] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const question = QUESTIONS[currentQuestion];
-  const isCorrect = selectedAnswer === question.correctIndex;
   const isLastQuestion = currentQuestion >= QUESTIONS.length - 1;
 
   useEffect(() => {
@@ -220,11 +230,11 @@ export function FactoryPracticeQuizUI() {
 
   const handleAnswer = useCallback(
     (index: number) => {
-      if (selectedAnswer !== null || animating) return;
+      if (answeredCorrectly || animating) return;
       setSelectedAnswer(index);
-      setShowExplanation(true);
 
       if (index === question.correctIndex) {
+        setAnsweredCorrectly(true);
         addFactoryPracticeScore(10);
         setConfetti(createConfetti());
         try {
@@ -235,9 +245,14 @@ export function FactoryPracticeQuizUI() {
           setAnimating(false);
           setConfetti([]);
         }, 1500);
+      } else {
+        setWrongAttempt(true);
+        setTimeout(() => {
+          setSelectedAnswer(null);
+        }, 800);
       }
     },
-    [selectedAnswer, animating, question.correctIndex, addFactoryPracticeScore]
+    [answeredCorrectly, animating, question.correctIndex, addFactoryPracticeScore]
   );
 
   const handleNext = useCallback(() => {
@@ -246,7 +261,9 @@ export function FactoryPracticeQuizUI() {
     } else {
       setCurrentQuestion((prev) => prev + 1);
       setSelectedAnswer(null);
-      setShowExplanation(false);
+      setAnsweredCorrectly(false);
+      setWrongAttempt(false);
+      setShowHint(false);
     }
   }, [isLastQuestion, completeFactoryPractice]);
 
@@ -334,14 +351,12 @@ export function FactoryPracticeQuizUI() {
         {question.options.map((option, i) => {
           let bg = "rgba(255,255,255,0.05)";
           let borderColor = "rgba(255,152,0,0.2)";
-          if (selectedAnswer !== null) {
-            if (i === question.correctIndex) {
-              bg = "rgba(76, 175, 80, 0.2)";
-              borderColor = "#4caf50";
-            } else if (i === selectedAnswer && !isCorrect) {
-              bg = "rgba(244, 67, 54, 0.2)";
-              borderColor = "#f44336";
-            }
+          if (answeredCorrectly && i === question.correctIndex) {
+            bg = "rgba(76, 175, 80, 0.2)";
+            borderColor = "#4caf50";
+          } else if (selectedAnswer === i && !answeredCorrectly) {
+            bg = "rgba(244, 67, 54, 0.2)";
+            borderColor = "#f44336";
           }
 
           return (
@@ -353,7 +368,7 @@ export function FactoryPracticeQuizUI() {
                 background: bg,
                 border: `2px solid ${borderColor}`,
                 borderRadius: 8,
-                cursor: selectedAnswer === null ? "pointer" : "default",
+                cursor: answeredCorrectly ? "default" : "pointer",
                 fontSize: 13,
                 fontFamily: "'Courier New', monospace",
                 transition: "all 0.2s",
@@ -365,26 +380,64 @@ export function FactoryPracticeQuizUI() {
         })}
       </div>
 
-      {showExplanation && (
+      {answeredCorrectly && (
         <div
           style={{
             padding: "12px 16px",
-            background: isCorrect ? "rgba(76,175,80,0.15)" : "rgba(244,67,54,0.15)",
-            border: `1px solid ${isCorrect ? "#4caf50" : "#f44336"}`,
+            background: "rgba(76,175,80,0.15)",
+            border: "1px solid #4caf50",
             borderRadius: 8,
             fontSize: 13,
             lineHeight: 1.6,
             marginBottom: 16,
           }}
         >
-          <div style={{ fontWeight: 700, marginBottom: 4, color: isCorrect ? "#69f0ae" : "#ff8a80" }}>
-            {isCorrect ? "Correct! +10 points" : "Not quite!"}
+          <div style={{ fontWeight: 700, marginBottom: 4, color: "#69f0ae" }}>
+            Correct! +10 points
           </div>
           {question.explanation}
         </div>
       )}
 
-      {showExplanation && (
+      {!answeredCorrectly && wrongAttempt && (
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "rgba(244,67,54,0.15)",
+            border: "1px solid #f44336",
+            borderRadius: 8,
+            fontSize: 13,
+            lineHeight: 1.6,
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: 4, color: "#ff8a80" }}>
+            Not quite! Try again.
+          </div>
+          <div
+            onClick={() => setShowHint(!showHint)}
+            style={{
+              fontSize: 13,
+              color: "#ff9800",
+              cursor: "pointer",
+              marginTop: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span style={{ fontSize: 10 }}>{showHint ? "\u25BC" : "\u25B6"}</span>
+            {showHint ? "Hide Hint" : "Show Hint"}
+          </div>
+          {showHint && (
+            <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(255, 152, 0, 0.4)" }}>
+              {question.hint}
+            </div>
+          )}
+        </div>
+      )}
+
+      {answeredCorrectly && (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div
             onClick={handleNext}

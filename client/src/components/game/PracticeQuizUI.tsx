@@ -8,6 +8,7 @@ interface Question {
   options: string[];
   correctIndex: number;
   explanation: string;
+  hint: string;
 }
 
 const QUESTIONS: Question[] = [
@@ -26,6 +27,7 @@ if (weather === "sunny") {
     options: ["goToBeach()", "bringUmbrella()", "stayHome()", "All three"],
     correctIndex: 1,
     explanation: 'Since weather is "rainy", the else-if condition is true, so bringUmbrella() runs. The other branches are skipped.',
+    hint: "Look at the value of weather and check which condition matches it exactly.",
   },
   {
     id: 2,
@@ -42,6 +44,7 @@ if (temperature > 100) {
     options: ['"Extreme heat!"', '"It\'s hot!"', '"Nice weather!"', "No alert appears"],
     correctIndex: 1,
     explanation: "95 is not greater than 100, so the first condition is false. But 95 is greater than 80, so the else-if runs and shows \"It's hot!\"",
+    hint: "Check each condition from top to bottom. Is 95 greater than 100? If not, move to the next condition.",
   },
   {
     id: 3,
@@ -60,6 +63,7 @@ if (score >= 90) {
     options: ["A", "B", "C", "F"],
     correctIndex: 3,
     explanation: "Score is 45. It's not >= 90, not >= 70, and not >= 50. None of the if/else-if conditions are true, so the else block runs and grade becomes \"F\".",
+    hint: "Test whether 45 passes any of the three conditions. What happens when none of them are true?",
   },
   {
     id: 4,
@@ -76,6 +80,7 @@ if (animal === "dog") {
     options: ['"Woof!"', '"Meow!"', '"Tweet!"', '"Woof!" and "Meow!"'],
     correctIndex: 1,
     explanation: 'The variable animal is "cat", which matches the second condition. Only "Meow!" is assigned — the computer stops checking after finding the first true condition.',
+    hint: 'Remember: the computer checks conditions one at a time and stops at the first match. Which condition does "cat" match?',
   },
   {
     id: 5,
@@ -92,6 +97,7 @@ if (hour < 12) {
     options: ['"Good morning!"', '"Good afternoon!"', '"Good evening!"', "None of them"],
     correctIndex: 1,
     explanation: "Hour is 14. It's not less than 12, so the first condition is false. But 14 is less than 17, so the else-if runs and greeting becomes \"Good afternoon!\"",
+    hint: "Is 14 less than 12? If not, check the next condition: is 14 less than 17?",
   },
   {
     id: 6,
@@ -108,6 +114,7 @@ if (fruit === "banana") {
     options: ['"yellow"', '"red"', '"green"', '"red" and "green"'],
     correctIndex: 1,
     explanation: 'Even though both else-if conditions check for "apple", only the FIRST matching branch executes. Once "red" is assigned, the rest are skipped entirely.',
+    hint: "When multiple conditions could be true, think about which one the computer reaches first. Does it keep going after finding a match?",
   },
   {
     id: 7,
@@ -126,6 +133,7 @@ if (age < 13) {
     options: ['"child"', '"teenager"', '"adult"', '"senior"'],
     correctIndex: 2,
     explanation: "Age is 25. Not less than 13, not less than 20, but IS less than 65. So the third condition is the first true one, and category becomes \"adult\".",
+    hint: "Check each condition with the value 25. Which is the first one that evaluates to true?",
   },
   {
     id: 8,
@@ -142,6 +150,7 @@ if (day === "Monday") {
     options: ['"Work" (from the if)', '"Relax"', '"Work" (from the else)', "Nothing"],
     correctIndex: 1,
     explanation: '"Saturday" doesn\'t match "Monday", but the else-if checks if day is "Saturday" OR "Sunday". Since it\'s "Saturday", the condition is true and plan becomes "Relax".',
+    hint: 'Pay attention to the || (OR) operator. Does "Saturday" satisfy either side of that condition?',
   },
 ];
 
@@ -185,8 +194,9 @@ export function PracticeQuizUI() {
 
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showResult, setShowResult] = useState(false);
   const [answeredCorrectly, setAnsweredCorrectly] = useState(false);
+  const [wrongAttempt, setWrongAttempt] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -194,8 +204,9 @@ export function PracticeQuizUI() {
   useEffect(() => {
     setCurrentQ(0);
     setSelectedAnswer(null);
-    setShowResult(false);
     setAnsweredCorrectly(false);
+    setWrongAttempt(false);
+    setShowHint(false);
     useGame.getState().resetPracticeScore();
     successSoundRef.current = new Audio("/sounds/success.mp3");
     successSoundRef.current.volume = 0.5;
@@ -215,14 +226,18 @@ export function PracticeQuizUI() {
   const isLastQuestion = currentQ >= QUESTIONS.length - 1;
 
   const handleAnswer = (index: number) => {
-    if (showResult) return;
+    if (answeredCorrectly) return;
     setSelectedAnswer(index);
-    setShowResult(true);
     const correct = index === question.correctIndex;
-    setAnsweredCorrectly(correct);
     if (correct) {
+      setAnsweredCorrectly(true);
       addPracticeScore(10);
       triggerCelebration();
+    } else {
+      setWrongAttempt(true);
+      setTimeout(() => {
+        setSelectedAnswer(null);
+      }, 800);
     }
   };
 
@@ -234,8 +249,9 @@ export function PracticeQuizUI() {
     }
     setCurrentQ((q) => q + 1);
     setSelectedAnswer(null);
-    setShowResult(false);
     setAnsweredCorrectly(false);
+    setWrongAttempt(false);
+    setShowHint(false);
   };
 
   return (
@@ -333,19 +349,14 @@ export function PracticeQuizUI() {
           let border = "1px solid rgba(255,255,255,0.15)";
           let textColor = "white";
 
-          if (showResult) {
-            if (i === question.correctIndex) {
-              bg = "rgba(76, 175, 80, 0.3)";
-              border = "2px solid #66bb6a";
-              textColor = "#66bb6a";
-            } else if (i === selectedAnswer && i !== question.correctIndex) {
-              bg = "rgba(244, 67, 54, 0.3)";
-              border = "2px solid #ef5350";
-              textColor = "#ef5350";
-            }
-          } else if (selectedAnswer === i) {
-            bg = "rgba(79, 195, 247, 0.2)";
-            border = "2px solid #4fc3f7";
+          if (answeredCorrectly && i === question.correctIndex) {
+            bg = "rgba(76, 175, 80, 0.3)";
+            border = "2px solid #66bb6a";
+            textColor = "#66bb6a";
+          } else if (selectedAnswer === i && !answeredCorrectly) {
+            bg = "rgba(244, 67, 54, 0.3)";
+            border = "2px solid #ef5350";
+            textColor = "#ef5350";
           }
 
           return (
@@ -357,10 +368,10 @@ export function PracticeQuizUI() {
                 background: bg,
                 border,
                 borderRadius: 8,
-                cursor: showResult ? "default" : "pointer",
+                cursor: answeredCorrectly ? "default" : "pointer",
                 fontSize: 14,
                 color: textColor,
-                fontWeight: selectedAnswer === i ? 600 : 400,
+                fontWeight: (answeredCorrectly && i === question.correctIndex) || selectedAnswer === i ? 600 : 400,
                 transition: "all 0.15s",
               }}
             >
@@ -370,22 +381,58 @@ export function PracticeQuizUI() {
         })}
       </div>
 
-      {showResult && (
+      {answeredCorrectly && (
         <div
           style={{
             padding: "12px 16px",
-            background: answeredCorrectly ? "rgba(76, 175, 80, 0.15)" : "rgba(244, 67, 54, 0.15)",
-            border: `1px solid ${answeredCorrectly ? "#66bb6a" : "#ef5350"}`,
+            background: "rgba(76, 175, 80, 0.15)",
+            border: "1px solid #66bb6a",
             borderRadius: 8,
             marginBottom: 16,
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: answeredCorrectly ? "#66bb6a" : "#ef5350" }}>
-            {answeredCorrectly ? "Correct! +10 points" : "Not quite!"}
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#66bb6a" }}>
+            Correct! +10 points
           </div>
           <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
             {question.explanation}
           </div>
+        </div>
+      )}
+
+      {!answeredCorrectly && wrongAttempt && (
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "rgba(244, 67, 54, 0.15)",
+            border: "1px solid #ef5350",
+            borderRadius: 8,
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#ef5350" }}>
+            Not quite! Try again.
+          </div>
+          <div
+            onClick={() => setShowHint(!showHint)}
+            style={{
+              fontSize: 13,
+              color: "#4fc3f7",
+              cursor: "pointer",
+              marginTop: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span style={{ fontSize: 10 }}>{showHint ? "\u25BC" : "\u25B6"}</span>
+            {showHint ? "Hide Hint" : "Show Hint"}
+          </div>
+          {showHint && (
+            <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(79, 195, 247, 0.4)" }}>
+              {question.hint}
+            </div>
+          )}
         </div>
       )}
 
@@ -404,7 +451,7 @@ export function PracticeQuizUI() {
         >
           Exit
         </div>
-        {showResult && (
+        {answeredCorrectly && (
           <div
             onClick={handleNext}
             style={{

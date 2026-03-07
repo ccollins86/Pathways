@@ -8,6 +8,7 @@ interface Question {
   options: string[];
   correctIndex: number;
   explanation: string;
+  hint: string;
 }
 
 const QUESTIONS: Question[] = [
@@ -22,6 +23,7 @@ for (let fruit of fruits) {
     options: ["1 time", "2 times", "3 times", "It runs forever"],
     correctIndex: 2,
     explanation: "The for...of loop runs once for each item in the array. Since there are 3 fruits, console.log runs exactly 3 times — once for each fruit.",
+    hint: "Count how many items are in the array. The loop runs once for each item.",
   },
   {
     id: 2,
@@ -35,6 +37,7 @@ for (let eco of ecosystems) {
     options: ["0", "1", "3", "It depends on the ecosystem"],
     correctIndex: 2,
     explanation: "The loop runs once for each of the 3 ecosystems in the array. Each time, count increases by 1. So count goes from 0 → 1 → 2 → 3.",
+    hint: "Each time the loop runs, count goes up by 1. How many items does it loop over?",
   },
   {
     id: 3,
@@ -47,6 +50,7 @@ while (water > 3) {
     options: ["1", "2", "3", "0"],
     correctIndex: 1,
     explanation: "The loop runs while water > 3. It goes: 10→8→6→4→2. When water is 2, the condition (2 > 3) is false, so the loop stops. Water is 2.",
+    hint: "Trace the value of water step by step: 10, then subtract 2 each time. At what value does the condition become false?",
   },
   {
     id: 4,
@@ -60,6 +64,7 @@ while (sludgePatches > 0) {
     options: ["4 times", "5 times", "6 times", "It runs forever"],
     correctIndex: 1,
     explanation: "The loop starts with 5 patches and subtracts 1 each time. It runs for values 5, 4, 3, 2, 1 — that's 5 iterations. When patches reaches 0, the condition is false and the loop stops.",
+    hint: "The loop starts at 5 and goes down by 1. List out each value where the condition is still true.",
   },
   {
     id: 5,
@@ -73,6 +78,7 @@ for (let animal of animals) {
     options: ["0", "1", "4", "It never stops"],
     correctIndex: 2,
     explanation: "The for loop iterates over all 4 animals in the array. Each iteration adds 1 to total, so total ends up as 4 — one for each animal, just like counting animals at each ecosystem!",
+    hint: "The loop adds 1 to total for each animal in the array. How many animals are in the array?",
   },
   {
     id: 6,
@@ -89,6 +95,7 @@ while (dirty) {
     options: ["0 times", "2 times", "3 times", "It runs forever"],
     correctIndex: 2,
     explanation: "The loop runs while dirty is true. After 3 scrubs, dirty becomes false and the loop stops. It runs exactly 3 times — just like cleaning until a condition changes!",
+    hint: "The loop keeps running as long as dirty is true. When does dirty become false? Track the value of scrubs.",
   },
   {
     id: 7,
@@ -102,6 +109,7 @@ for (let zone of zones) {
     options: ["3 (one per zone)", "6 (two per zone)", "2 (survey and report)", "9"],
     correctIndex: 1,
     explanation: "The loop runs 3 times (once per zone). Each iteration calls 2 functions: survey() and report(). So 3 × 2 = 6 total function calls. This is like doing multiple tasks at each ecosystem!",
+    hint: "Each time the loop runs, how many functions are called? Multiply that by the number of zones.",
   },
   {
     id: 8,
@@ -126,6 +134,7 @@ while (roster.length > 0) {
     ],
     correctIndex: 0,
     explanation: "A for loop is ideal here because you have a known collection (the roster) and want to do something for each item. While loops are better when you're waiting for a condition to change, like cleaning sludge until none remains.",
+    hint: "Think about whether you know in advance how many times you need to loop. For loops are best for known collections.",
   },
 ];
 
@@ -169,8 +178,9 @@ export function OceanPracticeQuizUI() {
 
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showResult, setShowResult] = useState(false);
   const [answeredCorrectly, setAnsweredCorrectly] = useState(false);
+  const [wrongAttempt, setWrongAttempt] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -178,8 +188,9 @@ export function OceanPracticeQuizUI() {
   useEffect(() => {
     setCurrentQ(0);
     setSelectedAnswer(null);
-    setShowResult(false);
     setAnsweredCorrectly(false);
+    setWrongAttempt(false);
+    setShowHint(false);
     useGame.getState().resetOceanPracticeScore();
     successSoundRef.current = new Audio("/sounds/success.mp3");
     successSoundRef.current.volume = 0.5;
@@ -199,14 +210,18 @@ export function OceanPracticeQuizUI() {
   const isLastQuestion = currentQ >= QUESTIONS.length - 1;
 
   const handleAnswer = (index: number) => {
-    if (showResult) return;
+    if (answeredCorrectly) return;
     setSelectedAnswer(index);
-    setShowResult(true);
     const correct = index === question.correctIndex;
-    setAnsweredCorrectly(correct);
     if (correct) {
+      setAnsweredCorrectly(true);
       addOceanPracticeScore(10);
       triggerCelebration();
+    } else {
+      setWrongAttempt(true);
+      setTimeout(() => {
+        setSelectedAnswer(null);
+      }, 800);
     }
   };
 
@@ -217,8 +232,9 @@ export function OceanPracticeQuizUI() {
     }
     setCurrentQ((q) => q + 1);
     setSelectedAnswer(null);
-    setShowResult(false);
     setAnsweredCorrectly(false);
+    setWrongAttempt(false);
+    setShowHint(false);
   };
 
   return (
@@ -316,19 +332,14 @@ export function OceanPracticeQuizUI() {
           let border = "1px solid rgba(255,255,255,0.15)";
           let textColor = "white";
 
-          if (showResult) {
-            if (i === question.correctIndex) {
-              bg = "rgba(76, 175, 80, 0.3)";
-              border = "2px solid #66bb6a";
-              textColor = "#66bb6a";
-            } else if (i === selectedAnswer && i !== question.correctIndex) {
-              bg = "rgba(244, 67, 54, 0.3)";
-              border = "2px solid #ef5350";
-              textColor = "#ef5350";
-            }
-          } else if (selectedAnswer === i) {
-            bg = "rgba(105, 240, 174, 0.2)";
-            border = "2px solid #69f0ae";
+          if (answeredCorrectly && i === question.correctIndex) {
+            bg = "rgba(76, 175, 80, 0.3)";
+            border = "2px solid #66bb6a";
+            textColor = "#66bb6a";
+          } else if (selectedAnswer === i && !answeredCorrectly) {
+            bg = "rgba(244, 67, 54, 0.3)";
+            border = "2px solid #ef5350";
+            textColor = "#ef5350";
           }
 
           return (
@@ -340,10 +351,10 @@ export function OceanPracticeQuizUI() {
                 background: bg,
                 border,
                 borderRadius: 8,
-                cursor: showResult ? "default" : "pointer",
+                cursor: answeredCorrectly ? "default" : "pointer",
                 fontSize: 14,
                 color: textColor,
-                fontWeight: selectedAnswer === i ? 600 : 400,
+                fontWeight: (answeredCorrectly && i === question.correctIndex) || selectedAnswer === i ? 600 : 400,
                 transition: "all 0.15s",
               }}
             >
@@ -353,22 +364,58 @@ export function OceanPracticeQuizUI() {
         })}
       </div>
 
-      {showResult && (
+      {answeredCorrectly && (
         <div
           style={{
             padding: "12px 16px",
-            background: answeredCorrectly ? "rgba(76, 175, 80, 0.15)" : "rgba(244, 67, 54, 0.15)",
-            border: `1px solid ${answeredCorrectly ? "#66bb6a" : "#ef5350"}`,
+            background: "rgba(76, 175, 80, 0.15)",
+            border: "1px solid #66bb6a",
             borderRadius: 8,
             marginBottom: 16,
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: answeredCorrectly ? "#66bb6a" : "#ef5350" }}>
-            {answeredCorrectly ? "Correct! +10 points" : "Not quite!"}
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#66bb6a" }}>
+            Correct! +10 points
           </div>
           <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
             {question.explanation}
           </div>
+        </div>
+      )}
+
+      {!answeredCorrectly && wrongAttempt && (
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "rgba(244, 67, 54, 0.15)",
+            border: "1px solid #ef5350",
+            borderRadius: 8,
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#ef5350" }}>
+            Not quite! Try again.
+          </div>
+          <div
+            onClick={() => setShowHint(!showHint)}
+            style={{
+              fontSize: 13,
+              color: "#69f0ae",
+              cursor: "pointer",
+              marginTop: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span style={{ fontSize: 10 }}>{showHint ? "\u25BC" : "\u25B6"}</span>
+            {showHint ? "Hide Hint" : "Show Hint"}
+          </div>
+          {showHint && (
+            <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(105, 240, 174, 0.4)" }}>
+              {question.hint}
+            </div>
+          )}
         </div>
       )}
 
@@ -387,7 +434,7 @@ export function OceanPracticeQuizUI() {
         >
           Exit
         </div>
-        {showResult && (
+        {answeredCorrectly && (
           <div
             onClick={handleNext}
             style={{
