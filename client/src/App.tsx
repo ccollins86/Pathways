@@ -29,7 +29,7 @@ const keyMap = [
   { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
 ];
 
-function StartScreen() {
+function StartScreen({ username, onLogout }: { username: string; onLogout: () => void }) {
   const start = useGame((s) => s.start);
 
   return (
@@ -50,6 +50,35 @@ function StartScreen() {
         color: "white",
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 24,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 14, opacity: 0.8 }}>
+          Signed in as <strong>{username}</strong>
+        </span>
+        <button
+          onClick={onLogout}
+          style={{
+            padding: "6px 16px",
+            fontSize: 13,
+            fontWeight: 600,
+            background: "rgba(255,255,255,0.15)",
+            color: "white",
+            border: "1px solid rgba(255,255,255,0.3)",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Sign Out
+        </button>
+      </div>
       <h1
         style={{
           fontSize: 48,
@@ -1161,6 +1190,13 @@ function App() {
   const [user, setUser] = useState<{ id: number; username: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
+  const handleLogout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    setUser(null);
+  }, []);
+
   useEffect(() => {
     fetch("/api/auth/me")
       .then((res) => {
@@ -1207,7 +1243,7 @@ function App() {
         overflow: "hidden",
       }}
     >
-      {phase === "ready" && <StartScreen />}
+      {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
 
       <KeyboardControls map={keyMap}>
         <Canvas
