@@ -217,7 +217,7 @@ function BeachDecor() {
 
     const rockPositions = Array.from({ length: 8 }, (_, i) => ({
       x: (Math.sin(i * 5.1) * 35),
-      z: -5 + (Math.cos(i * 3.7) * 5),
+      z: Math.max(-2, -5 + (Math.cos(i * 3.7) * 5)),
       scale: 0.3 + (Math.abs(Math.sin(i * 1.9)) * 0.5),
     }));
 
@@ -238,7 +238,7 @@ function BeachDecor() {
       ))}
 
       {items.rockPositions.map((rock, i) => (
-        <mesh key={`rock-${i}`} position={[rock.x, rock.scale * 0.4, rock.z]}>
+        <mesh key={`rock-${i}`} position={[rock.x, rock.scale * 0.3, Math.max(rock.z, -2)]}>
           <dodecahedronGeometry args={[rock.scale, 0]} />
           <meshStandardMaterial color="#808080" roughness={0.9} />
         </mesh>
@@ -674,7 +674,7 @@ function UnderwaterDecor() {
       ))}
 
       {rockFormations.map((r, i) => (
-        <mesh key={`rock-${i}`} position={[r.x, -0.3, r.z]} rotation={[0.1, r.rotation, 0.05]}>
+        <mesh key={`rock-${i}`} position={[r.x, -0.8 + r.scale * 0.3, r.z]} rotation={[0.1, r.rotation, 0.05]}>
           <dodecahedronGeometry args={[r.scale, 0]} />
           <meshStandardMaterial color="#5a6a5e" roughness={0.95} />
         </mesh>
@@ -828,10 +828,10 @@ function UnderwaterLightShafts() {
 
 function Driftwood() {
   const pieces = useMemo(() => [
-    { x: -10, z: -3, rot: 0.8, scale: 1 },
-    { x: 15, z: -1, rot: -0.4, scale: 0.7 },
-    { x: -25, z: 1, rot: 1.5, scale: 1.2 },
-    { x: 32, z: -4, rot: 0.2, scale: 0.9 },
+    { x: -10, z: 1, rot: 0.8, scale: 1 },
+    { x: 15, z: 3, rot: -0.4, scale: 0.7 },
+    { x: -25, z: 2, rot: 1.5, scale: 1.2 },
+    { x: 32, z: 0.5, rot: 0.2, scale: 0.9 },
   ], []);
 
   return (
@@ -1069,11 +1069,11 @@ function BeachExtras() {
       <Jellyfish position={[-10, -2, -55]} />
       <Jellyfish position={[25, -5, -35]} />
 
-      <UnderwaterArch position={[-15, -0.5, -35]} rotation={0.3} />
-      <UnderwaterArch position={[20, -0.5, -50]} rotation={-0.5} />
+      <UnderwaterArch position={[-15, -1, -35]} rotation={0.3} />
+      <UnderwaterArch position={[20, -1, -50]} rotation={-0.5} />
 
-      <SunkenAnchor position={[-25, -0.3, -25]} />
-      <SunkenAnchor position={[30, -0.3, -40]} />
+      <SunkenAnchor position={[-25, -0.8, -25]} />
+      <SunkenAnchor position={[30, -0.8, -40]} />
 
       <SchoolOfFish position={[0, -2, -20]} count={12} color="#64b5f6" />
       <SchoolOfFish position={[-20, -3, -40]} count={8} color="#ffb74d" />
@@ -1114,7 +1114,7 @@ function ExtraBeachDecor() {
   const extraRocks = useMemo(() =>
     Array.from({ length: 15 }, (_, i) => ({
       x: -55 + Math.sin(i * 6.7) * 55,
-      z: -6 + Math.cos(i * 4.3) * 8,
+      z: Math.max(-2, -6 + Math.cos(i * 4.3) * 8),
       scale: 0.2 + Math.abs(Math.sin(i * 2.3)) * 0.6,
     })), []);
 
