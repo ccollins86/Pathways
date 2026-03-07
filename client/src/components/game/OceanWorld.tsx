@@ -619,114 +619,14 @@ function isNearEcosystem(x: number, z: number): boolean {
 }
 
 function UnderwaterDecor() {
-  const ambientCorals = useMemo(() =>
-    Array.from({ length: 25 }, (_, i) => ({
-      x: -35 + Math.sin(i * 7.1) * 35,
-      z: -25 - Math.abs(Math.sin(i * 4.3)) * 40,
-      scale: 0.3 + Math.abs(Math.sin(i * 2.9)) * 0.7,
-      color: ["#ff6b6b", "#ff8e53", "#ffd93d", "#6bff93", "#6bb5ff", "#c56bff", "#ff6bab"][i % 7],
-      type: i % 3,
-    })).filter(c => !isNearEcosystem(c.x, c.z)), []);
-
-  const rockFormations = useMemo(() =>
-    Array.from({ length: 12 }, (_, i) => ({
-      x: -30 + Math.sin(i * 5.3) * 30,
-      z: -20 - Math.abs(Math.sin(i * 3.7)) * 45,
-      scale: 0.5 + Math.abs(Math.sin(i * 1.7)) * 1.5,
-      rotation: Math.sin(i * 4.1) * Math.PI,
-    })).filter(r => !isNearEcosystem(r.x, r.z)), []);
-
-  const seaweedClusters = useMemo(() =>
-    Array.from({ length: 18 }, (_, i) => ({
-      x: -35 + Math.sin(i * 6.3) * 35,
-      z: -22 - Math.abs(Math.sin(i * 3.1)) * 40,
-      blades: 3 + (i % 4),
-      height: 1 + Math.abs(Math.sin(i * 2.1)) * 2,
-    })).filter(sw => !isNearEcosystem(sw.x, sw.z)), []);
-
   return (
     <group>
-      {ambientCorals.map((c, i) => (
-        <group key={`coral-${i}`} position={[c.x, -0.5, c.z]}>
-          {c.type === 0 && (
-            <mesh castShadow>
-              <sphereGeometry args={[c.scale * 0.6, 8, 6]} />
-              <meshStandardMaterial color={c.color} roughness={0.6} emissive={c.color} emissiveIntensity={0.15} />
-            </mesh>
-          )}
-          {c.type === 1 && (
-            <>
-              {[0, 0.3, -0.2, 0.15, -0.35].map((offset, j) => (
-                <mesh key={j} position={[offset * c.scale, c.scale * 0.4 * (j * 0.2 + 0.5), j * 0.08]}>
-                  <cylinderGeometry args={[c.scale * 0.06, c.scale * 0.08, c.scale * (0.5 + j * 0.15), 6]} />
-                  <meshStandardMaterial color={c.color} roughness={0.5} emissive={c.color} emissiveIntensity={0.1} />
-                </mesh>
-              ))}
-            </>
-          )}
-          {c.type === 2 && (
-            <mesh rotation={[0, i * 1.3, 0]}>
-              <torusGeometry args={[c.scale * 0.4, c.scale * 0.12, 6, 12]} />
-              <meshStandardMaterial color={c.color} roughness={0.5} emissive={c.color} emissiveIntensity={0.2} />
-            </mesh>
-          )}
-        </group>
-      ))}
-
-      {rockFormations.map((r, i) => (
-        <mesh key={`rock-${i}`} position={[r.x, -0.8 + r.scale * 0.3, r.z]} rotation={[0.1, r.rotation, 0.05]}>
-          <dodecahedronGeometry args={[r.scale, 0]} />
-          <meshStandardMaterial color="#5a6a5e" roughness={0.95} />
-        </mesh>
-      ))}
-
-      {seaweedClusters.map((sw, i) => (
-        <SeaweedCluster key={`sw-${i}`} position={[sw.x, -0.5, sw.z]} blades={sw.blades} height={sw.height} />
-      ))}
-
       <BubbleColumns />
-
       <UnderwaterLightShafts />
     </group>
   );
 }
 
-function SeaweedCluster({ position, blades, height }: { position: [number, number, number]; blades: number; height: number }) {
-  const refs = useRef<THREE.Mesh[]>([]);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    refs.current.forEach((mesh, i) => {
-      if (mesh) {
-        mesh.rotation.z = Math.sin(t * 0.5 + i * 0.8 + position[0]) * 0.15;
-        mesh.rotation.x = Math.sin(t * 0.4 + i * 1.1) * 0.1;
-      }
-    });
-  });
-
-  return (
-    <group position={position}>
-      {Array.from({ length: blades }, (_, i) => {
-        const offset = (i - blades / 2) * 0.15;
-        const h = height * (0.7 + (i % 3) * 0.15);
-        return (
-          <mesh
-            key={i}
-            ref={(el) => { if (el) refs.current[i] = el; }}
-            position={[offset, h * 0.5, i * 0.05]}
-          >
-            <boxGeometry args={[0.06, h, 0.03]} />
-            <meshStandardMaterial
-              color={i % 2 === 0 ? "#2d6b3e" : "#3a8a50"}
-              transparent
-              opacity={0.85}
-            />
-          </mesh>
-        );
-      })}
-    </group>
-  );
-}
 
 function BubbleColumns() {
   const columns = useMemo(() =>
@@ -950,53 +850,6 @@ function Jellyfish({ position }: { position: [number, number, number] }) {
   );
 }
 
-function UnderwaterArch({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]}>
-      {[-1.5, 1.5].map((x, i) => (
-        <mesh key={i} position={[x, 1.5, 0]}>
-          <boxGeometry args={[0.6, 3, 0.6]} />
-          <meshStandardMaterial color="#5d6b5e" roughness={0.95} />
-        </mesh>
-      ))}
-      <mesh position={[0, 3.2, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.3, 0.3, 3.6, 8, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color="#5d6b5e" roughness={0.95} side={THREE.DoubleSide} />
-      </mesh>
-      {Array.from({ length: 4 }, (_, i) => (
-        <mesh key={`moss-${i}`} position={[-1.2 + i * 0.8, 2.8, 0.3]}>
-          <sphereGeometry args={[0.15, 6, 4]} />
-          <meshStandardMaterial color="#4caf50" transparent opacity={0.7} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function SunkenAnchor({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position} rotation={[0.1, 0.5, 0.2]}>
-      <mesh position={[0, 0.4, 0]} castShadow>
-        <cylinderGeometry args={[0.04, 0.04, 0.8, 6]} />
-        <meshStandardMaterial color="#5d4037" roughness={0.8} metalness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.8, 0]} castShadow>
-        <torusGeometry args={[0.12, 0.03, 8, 16]} />
-        <meshStandardMaterial color="#5d4037" roughness={0.8} metalness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.05, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.6, 6]} />
-        <meshStandardMaterial color="#5d4037" roughness={0.8} metalness={0.3} />
-      </mesh>
-      {[-0.3, 0.3].map((x, i) => (
-        <mesh key={i} position={[x, -0.08, 0]} rotation={[0, 0, i === 0 ? 0.5 : -0.5]}>
-          <cylinderGeometry args={[0.03, 0.03, 0.2, 6]} />
-          <meshStandardMaterial color="#5d4037" roughness={0.8} metalness={0.3} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
 
 function SchoolOfFish({ position, count, color }: { position: [number, number, number]; count: number; color: string }) {
   const ref = useRef<THREE.Group>(null);
@@ -1069,18 +922,11 @@ function BeachExtras() {
       <Jellyfish position={[-10, -2, -55]} />
       <Jellyfish position={[25, -5, -35]} />
 
-      <UnderwaterArch position={[-15, -1, -35]} rotation={0.3} />
-      <UnderwaterArch position={[20, -1, -50]} rotation={-0.5} />
-
-      <SunkenAnchor position={[-25, -0.8, -25]} />
-      <SunkenAnchor position={[30, -0.8, -40]} />
-
       <SchoolOfFish position={[0, -2, -20]} count={12} color="#64b5f6" />
       <SchoolOfFish position={[-20, -3, -40]} count={8} color="#ffb74d" />
       <SchoolOfFish position={[25, -4, -55]} count={15} color="#81c784" />
 
       <ExtraBeachDecor />
-      <ExtraUnderwaterDecor />
     </group>
   );
 }
@@ -1139,83 +985,6 @@ function ExtraBeachDecor() {
   );
 }
 
-function ExtraUnderwaterDecor() {
-  const extraCorals = useMemo(() =>
-    Array.from({ length: 20 }, (_, i) => ({
-      x: -50 + Math.sin(i * 8.3) * 50,
-      z: -30 - Math.abs(Math.sin(i * 5.1)) * 50,
-      scale: 0.4 + Math.abs(Math.sin(i * 3.3)) * 0.8,
-      color: ["#ef5350", "#ab47bc", "#42a5f5", "#66bb6a", "#ffa726", "#ec407a", "#26c6da"][i % 7],
-      type: i % 4,
-    })).filter(c => !isNearEcosystem(c.x, c.z)), []);
-
-  const extraSeaweed = useMemo(() =>
-    Array.from({ length: 15 }, (_, i) => ({
-      x: -45 + Math.sin(i * 7.1) * 45,
-      z: -28 - Math.abs(Math.sin(i * 4.7)) * 45,
-      blades: 4 + (i % 3),
-      height: 1.5 + Math.abs(Math.sin(i * 2.7)) * 2.5,
-    })).filter(sw => !isNearEcosystem(sw.x, sw.z)), []);
-
-  const sandDunes = useMemo(() =>
-    Array.from({ length: 10 }, (_, i) => ({
-      x: -40 + Math.sin(i * 5.9) * 40,
-      z: -25 - Math.abs(Math.sin(i * 3.5)) * 40,
-      scale: 2 + Math.abs(Math.sin(i * 2.1)) * 3,
-    })).filter(sd => !isNearEcosystem(sd.x, sd.z)), []);
-
-  return (
-    <group>
-      {extraCorals.map((c, i) => (
-        <group key={`ec-${i}`} position={[c.x, -0.5, c.z]}>
-          {c.type === 0 && (
-            <mesh>
-              <sphereGeometry args={[c.scale * 0.5, 10, 8]} />
-              <meshStandardMaterial color={c.color} roughness={0.6} emissive={c.color} emissiveIntensity={0.1} />
-            </mesh>
-          )}
-          {c.type === 1 && (
-            <group>
-              {[0, 0.2, -0.15, 0.3, -0.25].map((offset, j) => (
-                <mesh key={j} position={[offset * c.scale, c.scale * 0.3 * (j * 0.15 + 0.4), j * 0.06]}>
-                  <cylinderGeometry args={[c.scale * 0.05, c.scale * 0.07, c.scale * (0.4 + j * 0.12), 6]} />
-                  <meshStandardMaterial color={c.color} roughness={0.5} emissive={c.color} emissiveIntensity={0.08} />
-                </mesh>
-              ))}
-            </group>
-          )}
-          {c.type === 2 && (
-            <mesh>
-              <coneGeometry args={[c.scale * 0.3, c.scale * 0.8, 8]} />
-              <meshStandardMaterial color={c.color} roughness={0.5} emissive={c.color} emissiveIntensity={0.1} />
-            </mesh>
-          )}
-          {c.type === 3 && (
-            <group rotation={[-0.2, i * 1.1, 0]}>
-              {[0, 1, 2].map((j) => (
-                <mesh key={j} position={[j * c.scale * 0.25 - c.scale * 0.25, j * 0.1, 0]} rotation={[0, j * 0.5, 0]}>
-                  <torusGeometry args={[c.scale * 0.2, c.scale * 0.05, 6, 12, Math.PI]} />
-                  <meshStandardMaterial color={c.color} roughness={0.5} emissive={c.color} emissiveIntensity={0.12} side={THREE.DoubleSide} />
-                </mesh>
-              ))}
-            </group>
-          )}
-        </group>
-      ))}
-
-      {extraSeaweed.map((sw, i) => (
-        <SeaweedCluster key={`esw-${i}`} position={[sw.x, -0.5, sw.z]} blades={sw.blades} height={sw.height} />
-      ))}
-
-      {sandDunes.map((sd, i) => (
-        <mesh key={`sd-${i}`} position={[sd.x, -0.6, sd.z]} rotation={[-Math.PI / 2, 0, i * 1.3]}>
-          <circleGeometry args={[sd.scale, 12]} />
-          <meshStandardMaterial color="#5a6352" roughness={0.98} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
 
 function OceanSky() {
   return (
