@@ -275,29 +275,29 @@ function BeachChair({ position, rotation = 0, fabricColor = "#1565c0" }: { posit
     <group position={position} rotation={[0, rotation, 0]}>
       {[-0.28, 0.28].map((x, i) => (
         <group key={`frame-${i}`}>
-          <mesh position={[x, 0.22, 0.15]} rotation={[-0.15, 0, 0]} castShadow>
+          <mesh position={[x, 0.22, -0.15]} rotation={[-0.15, 0, 0]} castShadow>
             <boxGeometry args={[0.04, 0.04, 1.5]} />
             <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
           </mesh>
-          <mesh position={[x, 0.22, -0.55]} castShadow>
+          <mesh position={[x, 0.22, 0.55]} castShadow>
             <cylinderGeometry args={[0.02, 0.02, 0.44, 6]} />
             <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
           </mesh>
-          <mesh position={[x, 0.22, 0.65]} castShadow>
+          <mesh position={[x, 0.22, -0.65]} castShadow>
             <cylinderGeometry args={[0.02, 0.02, 0.44, 6]} />
             <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
           </mesh>
-          <mesh position={[x, 0.55, -0.55]} rotation={[-1.0, 0, 0]} castShadow>
+          <mesh position={[x, 0.55, 0.55]} rotation={[-1.0, 0, 0]} castShadow>
             <boxGeometry args={[0.04, 0.04, 0.7]} />
             <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
           </mesh>
         </group>
       ))}
-      <mesh position={[0, 0.25, 0.15]} rotation={[-0.15, 0, 0]} castShadow>
+      <mesh position={[0, 0.25, -0.15]} rotation={[-0.15, 0, 0]} castShadow>
         <boxGeometry args={[0.52, 0.02, 1.4]} />
         <meshStandardMaterial color={fabricColor} roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0.6, -0.5]} rotation={[-1.0, 0, 0]} castShadow>
+      <mesh position={[0, 0.6, 0.5]} rotation={[-1.0, 0, 0]} castShadow>
         <boxGeometry args={[0.52, 0.02, 0.65]} />
         <meshStandardMaterial color={fabricColor} roughness={0.9} />
       </mesh>
@@ -890,7 +890,7 @@ function BeachVolleyballNet({ position }: { position: [number, number, number] }
 
 function Surfboard({ position, color, rotation = 0 }: { position: [number, number, number]; color: string; rotation?: number }) {
   return (
-    <group position={position} rotation={[0.1, rotation, 0.8]}>
+    <group position={position} rotation={[-Math.PI / 2 + 0.05, 0, rotation]}>
       <mesh castShadow>
         <boxGeometry args={[0.35, 0.04, 2]} />
         <meshStandardMaterial color={color} roughness={0.3} />
