@@ -58,7 +58,7 @@ export function Player({ onPositionUpdate }: PlayerProps) {
       groupRef.current.rotation.y = angle + Math.PI;
     }
 
-    const bounds = currentWorld === "ocean" ? 80 : 45;
+    const bounds = currentWorld === "ocean" ? 80 : currentWorld === "factory" ? 28 : 45;
     const minZ = currentWorld === "ocean" ? -75 : -bounds;
     groupRef.current.position.x = Math.max(-bounds, Math.min(bounds, groupRef.current.position.x));
     groupRef.current.position.z = Math.max(minZ, Math.min(bounds, groupRef.current.position.z));
