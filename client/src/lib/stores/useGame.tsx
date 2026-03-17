@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { secureRandom } from "@/lib/random";
 
 export interface Question {
   id: number;
@@ -8,6 +9,7 @@ export interface Question {
   options: string[];
   correctIndex: number;
   explanation: string;
+  hint: string;
 }
 
 export type GamePhase = "ready" | "playing" | "ended";
@@ -61,7 +63,7 @@ function generateEcosystems(): EcosystemData[] {
     { name: "Seagrass Meadow", position: [-30, -1, -75] as [number, number, number], baseAnimals: 4, plantCount: 5 },
   ];
   return baseEcosystems.map((eco) => {
-    const issue = ISSUE_TYPES[Math.floor(Math.random() * 3)];
+    const issue = ISSUE_TYPES[Math.floor(secureRandom() * 3)];
     const trappedFishCount = issue === "nets" ? 3 : 0;
     return {
       name: eco.name,
@@ -174,10 +176,13 @@ interface GameState {
 
   townQuestions: Question[] | null;
   oceanQuestions: Question[] | null;
+  factoryQuestions: Question[] | null;
   townQuestionsLoading: boolean;
   oceanQuestionsLoading: boolean;
+  factoryQuestionsLoading: boolean;
   preloadTownQuestions: () => void;
   preloadOceanQuestions: () => void;
+  preloadFactoryQuestions: () => void;
 
   start: () => void;
   restart: () => void;
@@ -198,6 +203,8 @@ interface GameState {
   completeWildfireTask: (task: keyof WildfireTasks) => void;
   completeEarthquakeTask: (task: keyof EarthquakeTasks) => void;
   failQuest: (reason: string) => void;
+  retryQuest: () => void;
+  respawnTrigger: number;
   activateTasks: () => void;
   checkQuestCompletion: () => void;
   unlockPractice: () => void;
@@ -258,7 +265,7 @@ const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
 export const useGame = create<GameState>()(
   subscribeWithSelector((set, get) => ({
     phase: "ready",
-    disaster: DISASTERS[Math.floor(Math.random() * DISASTERS.length)],
+    disaster: DISASTERS[Math.floor(secureRandom() * DISASTERS.length)],
     talkedToDan: false,
     talkedToBob: false,
     knownDisaster: null,
@@ -286,6 +293,7 @@ export const useGame = create<GameState>()(
     questCompleted: false,
     questFailed: false,
     failReason: null,
+    respawnTrigger: 0,
     tasksActive: false,
     practiceUnlocked: false,
     practiceActive: false,
@@ -332,8 +340,10 @@ export const useGame = create<GameState>()(
 
     townQuestions: null,
     oceanQuestions: null,
+    factoryQuestions: null,
     townQuestionsLoading: false,
     oceanQuestionsLoading: false,
+    factoryQuestionsLoading: false,
     preloadTownQuestions: () => {
       const state = get();
       if (state.townQuestions || state.townQuestionsLoading) return;
@@ -376,6 +386,27 @@ export const useGame = create<GameState>()(
           set({ oceanQuestionsLoading: false });
         });
     },
+    preloadFactoryQuestions: () => {
+      const state = get();
+      if (state.factoryQuestions || state.factoryQuestionsLoading) return;
+      set({ factoryQuestionsLoading: true });
+      fetch("/api/generate-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: "functions", count: 8 }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            set({ factoryQuestions: data.questions, factoryQuestionsLoading: false });
+          } else {
+            set({ factoryQuestionsLoading: false });
+          }
+        })
+        .catch(() => {
+          set({ factoryQuestionsLoading: false });
+        });
+    },
 
     start: () => {
       set((state) => {
@@ -389,7 +420,7 @@ export const useGame = create<GameState>()(
     restart: () => {
       set(() => ({
         phase: "ready",
-        disaster: DISASTERS[Math.floor(Math.random() * DISASTERS.length)],
+        disaster: DISASTERS[Math.floor(secureRandom() * DISASTERS.length)],
         talkedToDan: false,
         talkedToBob: false,
         knownDisaster: null,
@@ -441,8 +472,10 @@ export const useGame = create<GameState>()(
         oceanPracticeCompleted: false,
         townQuestions: null,
         oceanQuestions: null,
+        factoryQuestions: null,
         townQuestionsLoading: false,
         oceanQuestionsLoading: false,
+        factoryQuestionsLoading: false,
         oceanPortalActive: false,
         world3Dialogue: null,
         world3DialogueIndex: 0,
@@ -551,6 +584,30 @@ export const useGame = create<GameState>()(
         carriedItem: null,
         consumedItems: newConsumed,
       });
+    },
+
+    retryQuest: () => {
+      set((state) => ({
+        questFailed: false,
+        failReason: null,
+        carriedItem: null,
+        consumedItems: new Set<string>(),
+        hurricaneTasks: {
+          frontDoorSandbagged: false,
+          backDoorSandbagged: false,
+          window1Boarded: false,
+          window2Boarded: false,
+        },
+        wildfireTasks: {
+          houseSprayed: false,
+          vegetationCleared: false,
+        },
+        earthquakeTasks: {
+          furnitureStrapped: false,
+          gasShutOff: false,
+        },
+        respawnTrigger: state.respawnTrigger + 1,
+      }));
     },
 
     activateTasks: () => set({ tasksActive: true }),

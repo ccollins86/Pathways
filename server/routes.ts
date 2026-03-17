@@ -26,19 +26,27 @@ export async function registerRoutes(
     try {
       const { topic, count = 8 } = req.body;
 
-      if (!topic || !["if-else", "loops"].includes(topic)) {
-        return res.status(400).json({ error: "topic must be 'if-else' or 'loops'" });
+      if (!topic || !["if-else", "loops", "functions"].includes(topic)) {
+        return res.status(400).json({ error: "topic must be 'if-else', 'loops', or 'functions'" });
       }
 
-      const topicPrompt = topic === "if-else"
-        ? `Generate ${count} multiple-choice programming questions about JavaScript if/else and else-if statements. 
+      let topicPrompt: string;
+      if (topic === "if-else") {
+        topicPrompt = `Generate ${count} multiple-choice programming questions about JavaScript if/else and else-if statements. 
 Each question should show a short code snippet (3-8 lines) that uses if, else if, and/or else statements with simple variables (strings, numbers, booleans). 
 The student must trace through the code to determine which branch executes or what value a variable holds after the if/else block runs.
-Use relatable real-world scenarios like weather, grades, ages, animals, food, time of day, or sports.`
-        : `Generate ${count} multiple-choice programming questions about JavaScript for loops and while loops.
+Use relatable real-world scenarios like weather, grades, ages, animals, food, time of day, or sports.`;
+      } else if (topic === "loops") {
+        topicPrompt = `Generate ${count} multiple-choice programming questions about JavaScript for loops and while loops.
 Each question should show a short code snippet (3-8 lines) that uses for...of loops over arrays or while loops with a counter/condition.
 The student must trace through the code to determine how many times a loop runs, what a counter equals after the loop, or what output is produced.
 Use relatable real-world scenarios like counting animals, cleaning tasks, processing lists, or iterating through collections.`;
+      } else {
+        topicPrompt = `Generate ${count} multiple-choice programming questions about JavaScript functions.
+Each question should show a short code snippet (3-8 lines) that defines and/or calls functions with parameters, return values, and function composition.
+The student must trace through the code to determine what a function returns, identify parameters vs arguments, understand function calls and return values.
+Use relatable real-world scenarios like manufacturing, cooking recipes, ordering products, or assembling items — where functions act like machines that take inputs and produce outputs.`;
+      }
 
       const systemPrompt = `You are a programming teacher creating practice questions for beginners learning JavaScript.
 Your questions should be educational, clear, and at an introductory level.
@@ -52,7 +60,8 @@ You MUST respond with valid JSON matching this exact format:
       "question": "the question about the code",
       "options": ["option A", "option B", "option C", "option D"],
       "correctIndex": 0,
-      "explanation": "a clear explanation of why the answer is correct"
+      "explanation": "a clear explanation of why the answer is correct",
+      "hint": "a brief hint to nudge the student in the right direction without giving away the answer"
     }
   ]
 }
@@ -62,6 +71,7 @@ Rules:
 - correctIndex is 0-based (0 for first option, 1 for second, etc.)
 - Code snippets should be simple (3-8 lines), using let/const for variables
 - Explanations should walk through the logic step by step in a friendly way
+- Hints should give a gentle nudge without revealing the answer directly
 - Vary the correct answer positions across questions (don't always make it option B)
 - Make wrong answers plausible but clearly incorrect when you trace through the code
 - Do NOT use functions that need to be defined elsewhere unless the question is about which function gets called`;
@@ -103,6 +113,7 @@ Rules:
         options: q.options.map(String),
         correctIndex: q.correctIndex,
         explanation: String(q.explanation),
+        hint: String(q.hint || "Try tracing through the code step by step."),
       }));
 
       res.json({ questions: normalizedQuestions });

@@ -938,6 +938,10 @@ export function FactoryWorld() {
   const jacketMachineState = useGame((s) => s.jacketMachineState);
   const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
 
+  useEffect(() => {
+    useGame.getState().preloadFactoryQuestions();
+  }, []);
+
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos.clone());
   }, []);

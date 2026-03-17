@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "@/lib/stores/useGame";
+import { HOUSE_POS } from "./House";
 
 enum Controls {
   forward = "forward",
@@ -25,6 +26,14 @@ export function Player({ onPositionUpdate }: PlayerProps) {
   const currentWorld = useGame((s) => s.currentWorld);
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
   const inBoat = useGame((s) => s.inBoat);
+  const respawnTrigger = useGame((s) => s.respawnTrigger);
+
+  useEffect(() => {
+    if (respawnTrigger > 0 && groupRef.current) {
+      groupRef.current.position.set(HOUSE_POS[0] + 3, 0, HOUSE_POS[2] + 3);
+      onPositionUpdate(groupRef.current.position.clone());
+    }
+  }, [respawnTrigger]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
