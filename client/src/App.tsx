@@ -11,6 +11,7 @@ import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
 import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
+import { AuthScreen } from "./components/AuthScreen";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -28,7 +29,7 @@ const keyMap = [
   { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
 ];
 
-function StartScreen() {
+function StartScreen({ username, onLogout }: { username: string; onLogout: () => void }) {
   const start = useGame((s) => s.start);
 
   return (
@@ -49,6 +50,35 @@ function StartScreen() {
         color: "white",
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 24,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 14, opacity: 0.8 }}>
+          Signed in as <strong>{username}</strong>
+        </span>
+        <button
+          onClick={onLogout}
+          style={{
+            padding: "6px 16px",
+            fontSize: 13,
+            fontWeight: 600,
+            background: "rgba(255,255,255,0.15)",
+            color: "white",
+            border: "1px solid rgba(255,255,255,0.3)",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Sign Out
+        </button>
+      </div>
       <h1
         style={{
           fontSize: 48,
@@ -1157,6 +1187,52 @@ function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
   const currentWorld = useGame((s) => s.currentWorld);
+  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    setUser(null);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((data) => {
+        if (data && data.id) setUser(data);
+        setAuthChecked(true);
+      })
+      .catch(() => setAuthChecked(true));
+  }, []);
+
+  if (!authChecked) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          background: "#0a1628",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#94a3b8",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 16,
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen onAuthenticated={setUser} />;
+  }
 
   return (
     <div
@@ -1167,7 +1243,7 @@ function App() {
         overflow: "hidden",
       }}
     >
-      {phase === "ready" && <StartScreen />}
+      {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
 
       <KeyboardControls map={keyMap}>
         <Canvas
@@ -1217,8 +1293,6 @@ function App() {
             <FactoryPracticeQuizWrapper />
           </>
         )}
-
-        {phase === "playing" && <DevPanel />}
       </KeyboardControls>
     </div>
   );
