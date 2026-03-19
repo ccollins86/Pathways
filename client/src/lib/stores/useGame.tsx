@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "ready" | "playing" | "ended";
-export type GameWorld = "town" | "ocean" | "factory";
+export type GameWorld = "town" | "ocean" | "factory" | "psychic";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
 
@@ -162,6 +162,16 @@ interface GameState {
   factoryPracticeActive: boolean;
   factoryPracticeScore: number;
   factoryPracticeCompleted: boolean;
+  factoryPortalActive: boolean;
+
+  psychicBalance: number;
+  psychicCustomer: { name: string; color: string; favoriteNumber: number } | null;
+  psychicGuesses: { guess: number; result: "high" | "low" | "correct" }[];
+  psychicGuessesRemaining: number;
+  psychicGamePhase: "instructions" | "waiting" | "entering" | "guessing" | "won" | "lost";
+  psychicCustomersServed: number;
+  world4Dialogue: { speaker: string; text: string }[] | null;
+  world4DialogueIndex: number;
 
   start: () => void;
   restart: () => void;
@@ -235,6 +245,16 @@ interface GameState {
   addFactoryPracticeScore: (points: number) => void;
   resetFactoryPracticeScore: () => void;
   completeFactoryPractice: () => void;
+  enterPsychicPortal: () => void;
+
+  dismissPsychicInstructions: () => void;
+  summonPsychicCustomer: () => void;
+  seatPsychicCustomer: () => void;
+  submitPsychicGuess: (guess: number) => void;
+  psychicRoundEnd: () => void;
+  openWorld4Dialogue: (lines: { speaker: string; text: string }[]) => void;
+  advanceWorld4Dialogue: () => void;
+  closeWorld4Dialogue: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -313,6 +333,16 @@ export const useGame = create<GameState>()(
     factoryPracticeActive: false,
     factoryPracticeScore: 0,
     factoryPracticeCompleted: false,
+    factoryPortalActive: false,
+
+    psychicBalance: 500,
+    psychicCustomer: null,
+    psychicGuesses: [],
+    psychicGuessesRemaining: 10,
+    psychicGamePhase: "instructions",
+    psychicCustomersServed: 0,
+    world4Dialogue: null,
+    world4DialogueIndex: 0,
 
     start: () => {
       set((state) => {
@@ -392,6 +422,15 @@ export const useGame = create<GameState>()(
         factoryPracticeActive: false,
         factoryPracticeScore: 0,
         factoryPracticeCompleted: false,
+        factoryPortalActive: false,
+        psychicBalance: 500,
+        psychicCustomer: null,
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicGamePhase: "instructions",
+        psychicCustomersServed: 0,
+        world4Dialogue: null,
+        world4DialogueIndex: 0,
       }));
     },
 
@@ -668,7 +707,92 @@ export const useGame = create<GameState>()(
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
     completeFactoryPractice: () =>
-      set({ factoryPracticeCompleted: true, factoryPracticeActive: false }),
+      set({ factoryPracticeCompleted: true, factoryPracticeActive: false, factoryPortalActive: true }),
+
+    enterPsychicPortal: () => {
+      set({
+        currentWorld: "psychic" as GameWorld,
+        phase: "playing" as GamePhase,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+        factoryPracticeActive: false,
+        psychicGamePhase: "instructions",
+        psychicCustomer: null,
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        world4Dialogue: null,
+        world4DialogueIndex: 0,
+      });
+    },
+
+    dismissPsychicInstructions: () => set({ psychicGamePhase: "waiting" }),
+
+    summonPsychicCustomer: () => {
+      const names = ["Alex", "Jamie", "Morgan", "Casey", "Riley", "Jordan", "Taylor", "Quinn", "Avery", "Skyler", "Dakota", "Reese", "Parker", "Sage", "Finley", "Emery", "Rowan", "Phoenix", "Blair", "Drew"];
+      const colors = ["#e53935", "#1e88e5", "#43a047", "#8e24aa", "#f4511e", "#00897b", "#d81b60", "#5e35b1", "#fb8c00", "#3949ab"];
+      const name = names[Math.floor(Math.random() * names.length)];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const favoriteNumber = Math.floor(Math.random() * 100) + 1;
+      set({
+        psychicCustomer: { name, color, favoriteNumber },
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicGamePhase: "entering",
+      });
+    },
+
+    seatPsychicCustomer: () => set({ psychicGamePhase: "guessing" }),
+
+    submitPsychicGuess: (guess: number) => {
+      const { psychicCustomer, psychicGuesses, psychicGuessesRemaining, psychicGamePhase } = get();
+      if (!psychicCustomer || psychicGuessesRemaining <= 0 || psychicGamePhase !== "guessing") return;
+
+      const target = psychicCustomer.favoriteNumber;
+      let result: "high" | "low" | "correct";
+      if (guess === target) result = "correct";
+      else if (guess > target) result = "high";
+      else result = "low";
+
+      const newGuesses = [...psychicGuesses, { guess, result }];
+      const remaining = psychicGuessesRemaining - 1;
+
+      if (result === "correct") {
+        set((s) => ({
+          psychicGuesses: newGuesses,
+          psychicGuessesRemaining: remaining,
+          psychicGamePhase: "won",
+          psychicBalance: s.psychicBalance + 100,
+          psychicCustomersServed: s.psychicCustomersServed + 1,
+        }));
+      } else if (remaining <= 0) {
+        set((s) => ({
+          psychicGuesses: newGuesses,
+          psychicGuessesRemaining: 0,
+          psychicGamePhase: "lost",
+          psychicBalance: s.psychicBalance - 100,
+          psychicCustomersServed: s.psychicCustomersServed + 1,
+        }));
+      } else {
+        set({
+          psychicGuesses: newGuesses,
+          psychicGuessesRemaining: remaining,
+        });
+      }
+    },
+
+    psychicRoundEnd: () => set({ psychicGamePhase: "waiting", psychicCustomer: null, psychicGuesses: [], psychicGuessesRemaining: 10 }),
+
+    openWorld4Dialogue: (lines) => set({ world4Dialogue: lines, world4DialogueIndex: 0 }),
+    advanceWorld4Dialogue: () => {
+      const { world4Dialogue, world4DialogueIndex } = get();
+      if (!world4Dialogue) return;
+      if (world4DialogueIndex < world4Dialogue.length - 1) {
+        set({ world4DialogueIndex: world4DialogueIndex + 1 });
+      } else {
+        set({ world4Dialogue: null, world4DialogueIndex: 0 });
+      }
+    },
+    closeWorld4Dialogue: () => set({ world4Dialogue: null, world4DialogueIndex: 0 }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();

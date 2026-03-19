@@ -4,6 +4,7 @@
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
 ## Recent Changes
+- 2026-03-19: Added Psychic Shop (World 4) - psychic parlor number guessing game teaching binary search; portal appears in Factory World after practice quiz; PsychicWorld.tsx (3D shop room with table, crystal ball, tablet, chairs, door animation, NPC customers); customer NPCs enter through door, sit at table; player guesses favorite number 1-100 in 10 tries; win/lose $100; PsychicHUD (balance, customers served), PsychicInstructionsUI, PsychicGuessingUI (guess history with high/low indicators, range narrowing display); psychic store state (balance, customer, guesses, gamePhase); GameWorld extended to "psychic"
 - 2026-03-07: Added login/registration system - PostgreSQL-backed user accounts with bcrypt password hashing, express-session with connect-pg-simple for persistent sessions, AuthScreen component (login/register forms), /api/auth/* endpoints (register, login, logout, me), session auto-check on app load
 - 2026-03-05: Added Factory World functions lesson + practice quiz - FactoryLessonUI (2-page overlay: page 1 explains functions as machines with parameters/return values, page 2 shows full order as 3 function calls); FactoryPracticeBooth at [-15,0,20] (unlocks after lesson, glowing booth with E-key interaction); FactoryPracticeQuizUI (8 questions on functions); World3HUD hides during lesson/quiz; factoryLessonPhase state (0=none, 1=intro, 2=grouping)
 - 2026-03-05: Added Olympic Village order fulfillment to Factory World - George assigns order (2 large hats, 3 medium t-shirts, 5 large jackets) with specific colors/lettering; MachineSettingsUI popup (quantity stepper, size dropdown, color dropdowns, lettering text input); machines produce output boxes (bobbing/highlighted); player picks up products, boxes at PackingTable, loads onto ShippingTruck (UPS-style with open back); per-machine state tracking (idle→produced→picked_up→boxed→loaded); World3HUD shows detailed order progress; carrying indicator overlay
@@ -106,6 +107,23 @@ A 3D educational game built with React Three Fiber where players learn about nat
 ### Key Files (World 3)
 - `client/src/components/game/FactoryWorld.tsx` - Factory World with walls, ceiling, machines, George NPC, product pickup, packing table, shipping truck, factory decor
 - `client/src/components/game/MachineSettingsUI.tsx` - Machine configuration popup (quantity stepper, size dropdown, color dropdowns, lettering text input)
+
+### Psychic Shop (World 4) Flow
+1. After completing factory practice quiz, a portal appears in Factory World at [0, 0, -25]
+2. Walking into the portal transitions to Psychic Shop
+3. Instructions overlay explains the game (guess number 1-100, 10 tries, win/lose $100)
+4. Click "Open for Business" to dismiss instructions
+5. Customers auto-enter after 1.5-3.5s delay, walk from door to chair
+6. Player guesses via number input UI at bottom
+7. Guess history shows each guess with high/low/correct indicator
+8. Range narrowing display shows current possible range
+9. Correct guess = +$100, 10 wrong guesses = -$100
+10. "Next Customer" button resets for next round
+11. Starting balance: $500
+
+### Key Files (World 4)
+- `client/src/components/game/PsychicWorld.tsx` - Psychic shop 3D scene (room, table, crystal ball, chairs, customer NPCs, door animation, static camera)
+- `client/src/App.tsx` - PsychicInstructionsUI, PsychicGuessingUI, PsychicHUD components
 
 ### NPCs
 - **Dan** (USC stand) - Quest giver, disaster prep instructions

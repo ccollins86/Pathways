@@ -12,6 +12,7 @@ import { SurveyUI } from "./components/game/SurveyUI";
 import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
 import { AuthScreen } from "./components/AuthScreen";
+import { PsychicWorld } from "./components/game/PsychicWorld";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -1183,6 +1184,340 @@ function FactoryPracticeQuizWrapper() {
   return <FactoryPracticeQuizUI />;
 }
 
+function PsychicInstructionsUI() {
+  const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const dismissPsychicInstructions = useGame((s) => s.dismissPsychicInstructions);
+
+  if (psychicGamePhase !== "instructions") return null;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(26, 10, 46, 0.97)",
+        borderRadius: 16,
+        padding: "32px 40px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: "3px solid #9b59b6",
+        boxShadow: "0 0 60px rgba(155, 89, 182, 0.5)",
+        maxWidth: 560,
+        width: "90%",
+      }}
+    >
+      <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 6, color: "#e0b0ff", textAlign: "center" }}>
+        Welcome to Mystic Visions
+      </div>
+      <div style={{ fontSize: 14, color: "#9b59b6", textAlign: "center", marginBottom: 20, fontWeight: 600, textTransform: "uppercase", letterSpacing: 2 }}>
+        Psychic Number Guessing Parlor
+      </div>
+
+      <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
+        You are the <strong style={{ color: "#ffd700" }}>resident psychic</strong>. Customers will enter through the door
+        and sit across from you. Each customer has a <strong style={{ color: "#e0b0ff" }}>favorite number between 1 and 100</strong> written
+        on their tablet (hidden from you).
+      </div>
+
+      <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
+        Your job: <strong style={{ color: "#69f0ae" }}>guess their number in 10 tries or fewer</strong>. After each guess,
+        you'll learn if the number is <strong style={{ color: "#ff6b6b" }}>higher</strong> or <strong style={{ color: "#4fc3f7" }}>lower</strong>.
+      </div>
+
+      <div style={{
+        background: "rgba(0, 0, 0, 0.4)",
+        borderRadius: 8,
+        padding: "14px 18px",
+        marginBottom: 20,
+        border: "1px solid rgba(155, 89, 182, 0.3)",
+      }}>
+        <div style={{ fontSize: 14, marginBottom: 6 }}>
+          <span style={{ color: "#69f0ae", fontWeight: 700 }}>Correct guess:</span> You earn <strong style={{ color: "#ffd700" }}>$100</strong>
+        </div>
+        <div style={{ fontSize: 14 }}>
+          <span style={{ color: "#ff6b6b", fontWeight: 700 }}>Failed (10 wrong guesses):</span> You lose <strong style={{ color: "#ff6b6b" }}>$100</strong>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 20, textAlign: "center", fontStyle: "italic" }}>
+        Hint: Think about the most efficient strategy. What if you always guess the middle of the remaining range?
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          onClick={dismissPsychicInstructions}
+          style={{
+            padding: "14px 36px",
+            background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+            border: "none",
+            borderRadius: 10,
+            color: "white",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            boxShadow: "0 4px 20px rgba(155, 89, 182, 0.4)",
+          }}
+        >
+          Open for Business
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PsychicGuessingUI() {
+  const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const psychicCustomer = useGame((s) => s.psychicCustomer);
+  const psychicGuesses = useGame((s) => s.psychicGuesses);
+  const psychicGuessesRemaining = useGame((s) => s.psychicGuessesRemaining);
+  const submitPsychicGuess = useGame((s) => s.submitPsychicGuess);
+  const psychicRoundEnd = useGame((s) => s.psychicRoundEnd);
+  const [inputValue, setInputValue] = useState("");
+
+  const handleSubmit = useCallback(() => {
+    const num = parseInt(inputValue, 10);
+    if (isNaN(num) || num < 1 || num > 100) return;
+    submitPsychicGuess(num);
+    setInputValue("");
+  }, [inputValue, submitPsychicGuess]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+    e.stopPropagation();
+  }, [handleSubmit]);
+
+  if (psychicGamePhase !== "guessing" && psychicGamePhase !== "won" && psychicGamePhase !== "lost") return null;
+  if (!psychicCustomer) return null;
+
+  const isGameOver = psychicGamePhase === "won" || psychicGamePhase === "lost";
+
+  let low = 1;
+  let high = 100;
+  for (const g of psychicGuesses) {
+    if (g.result === "low") low = Math.max(low, g.guess + 1);
+    if (g.result === "high") high = Math.min(high, g.guess - 1);
+  }
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 20,
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(26, 10, 46, 0.95)",
+        borderRadius: 14,
+        padding: "20px 28px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 100,
+        maxWidth: 480,
+        width: "92%",
+        border: `2px solid ${isGameOver ? (psychicGamePhase === "won" ? "#69f0ae" : "#ff6b6b") : "#9b59b6"}`,
+        boxShadow: `0 4px 30px ${isGameOver ? (psychicGamePhase === "won" ? "rgba(105,240,174,0.3)" : "rgba(255,107,107,0.3)") : "rgba(155,89,182,0.3)"}`,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#e0b0ff" }}>
+          Customer: <span style={{ color: psychicCustomer.color }}>{psychicCustomer.name}</span>
+        </div>
+        <div style={{ fontSize: 13, color: psychicGuessesRemaining <= 3 ? "#ff6b6b" : "#9b59b6", fontWeight: 700 }}>
+          {psychicGuessesRemaining} guesses left
+        </div>
+      </div>
+
+      {psychicGuesses.length > 0 && (
+        <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 6,
+          marginBottom: 12,
+          maxHeight: 80,
+          overflowY: "auto",
+        }}>
+          {psychicGuesses.map((g, i) => (
+            <div key={i} style={{
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              background: g.result === "correct"
+                ? "rgba(105, 240, 174, 0.2)"
+                : g.result === "high"
+                ? "rgba(255, 107, 107, 0.15)"
+                : "rgba(79, 195, 247, 0.15)",
+              color: g.result === "correct"
+                ? "#69f0ae"
+                : g.result === "high"
+                ? "#ff6b6b"
+                : "#4fc3f7",
+              border: `1px solid ${g.result === "correct" ? "#69f0ae" : g.result === "high" ? "#ff6b6b" : "#4fc3f7"}`,
+            }}>
+              {g.guess} {g.result === "correct" ? "=" : g.result === "high" ? ">" : "<"}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isGameOver && (
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8, textAlign: "center" }}>
+          The number is between <strong style={{ color: "#4fc3f7" }}>{low}</strong> and <strong style={{ color: "#ff6b6b" }}>{high}</strong>
+        </div>
+      )}
+
+      {isGameOver ? (
+        <div style={{ textAlign: "center" }}>
+          <div style={{
+            fontSize: 22,
+            fontWeight: 800,
+            marginBottom: 8,
+            color: psychicGamePhase === "won" ? "#69f0ae" : "#ff6b6b",
+          }}>
+            {psychicGamePhase === "won"
+              ? `You got it! The number was ${psychicCustomer.favoriteNumber}!`
+              : `Out of guesses! It was ${psychicCustomer.favoriteNumber}.`}
+          </div>
+          <div style={{ fontSize: 16, marginBottom: 16, color: psychicGamePhase === "won" ? "#ffd700" : "#ff6b6b" }}>
+            {psychicGamePhase === "won" ? "+$100" : "-$100"}
+          </div>
+          <div
+            onClick={psychicRoundEnd}
+            style={{
+              display: "inline-block",
+              padding: "10px 28px",
+              background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Next Customer
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="1-100"
+            autoFocus
+            style={{
+              flex: 1,
+              padding: "10px 14px",
+              borderRadius: 8,
+              border: "2px solid #9b59b6",
+              background: "rgba(0,0,0,0.4)",
+              color: "white",
+              fontSize: 18,
+              fontWeight: 700,
+              textAlign: "center",
+              fontFamily: "'Inter', sans-serif",
+              outline: "none",
+            }}
+          />
+          <div
+            onClick={handleSubmit}
+            style={{
+              padding: "10px 24px",
+              background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Guess
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PsychicHUD() {
+  const psychicBalance = useGame((s) => s.psychicBalance);
+  const psychicCustomersServed = useGame((s) => s.psychicCustomersServed);
+  const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const restart = useGame((s) => s.restart);
+
+  if (psychicGamePhase === "instructions") return null;
+
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          zIndex: 50,
+          background: "rgba(26, 10, 46, 0.9)",
+          borderRadius: 10,
+          padding: "12px 20px",
+          fontFamily: "'Inter', sans-serif",
+          border: "1px solid rgba(155, 89, 182, 0.4)",
+          minWidth: 180,
+        }}
+      >
+        <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+          Psychic Parlor
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: "#ffd700", marginBottom: 4 }}>
+          ${psychicBalance}
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+          Customers served: {psychicCustomersServed}
+        </div>
+        {psychicGamePhase === "waiting" && (
+          <div style={{ fontSize: 11, color: "#e0b0ff", marginTop: 6, fontStyle: "italic" }}>
+            Waiting for next customer...
+          </div>
+        )}
+      </div>
+
+      <div
+        onClick={restart}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          background: "rgba(26, 10, 46, 0.8)",
+          borderRadius: 8,
+          padding: "8px 16px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: "pointer",
+          zIndex: 50,
+          border: "1px solid rgba(155, 89, 182, 0.3)",
+        }}
+      >
+        Back to Town
+      </div>
+    </>
+  );
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
@@ -1263,6 +1598,7 @@ function App() {
             {currentWorld === "town" && <Game />}
             {currentWorld === "ocean" && <OceanWorld />}
             {currentWorld === "factory" && <FactoryWorld />}
+            {currentWorld === "psychic" && <PsychicWorld />}
           </Suspense>
         </Canvas>
 
@@ -1291,6 +1627,14 @@ function App() {
             <MachineSettingsUI />
             <FactoryLessonUI />
             <FactoryPracticeQuizWrapper />
+          </>
+        )}
+
+        {phase === "playing" && currentWorld === "psychic" && (
+          <>
+            <PsychicHUD />
+            <PsychicInstructionsUI />
+            <PsychicGuessingUI />
           </>
         )}
       </KeyboardControls>
