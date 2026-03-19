@@ -11,6 +11,7 @@ import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
 import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
+import { PsychicPracticeQuizUI } from "./components/game/PsychicPracticeQuizUI";
 import { AuthScreen } from "./components/AuthScreen";
 import { PsychicWorld } from "./components/game/PsychicWorld";
 import { useGame } from "./lib/stores/useGame";
@@ -1193,6 +1194,12 @@ function FactoryPracticeQuizWrapper() {
   return <FactoryPracticeQuizUI />;
 }
 
+function PsychicPracticeQuizWrapper() {
+  const psychicPracticeActive = useGame((s) => s.psychicPracticeActive);
+  if (!psychicPracticeActive) return null;
+  return <PsychicPracticeQuizUI />;
+}
+
 function PsychicInstructionsUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const dismissPsychicInstructions = useGame((s) => s.dismissPsychicInstructions);
@@ -1492,6 +1499,8 @@ function PsychicRoundResultUI() {
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const restart = useGame((s) => s.restart);
+  const openPsychicPractice = useGame((s) => s.openPsychicPractice);
+  const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
 
   if (psychicGamePhase !== "lesson") return null;
 
@@ -1609,7 +1618,26 @@ function PsychicLessonUI() {
         Random search: ~100 guesses worst case | Linear search: ~100 guesses worst case | Binary search: ~7 guesses worst case
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+        {!psychicPracticeCompleted && (
+          <div
+            onClick={openPsychicPractice}
+            style={{
+              padding: "12px 32px",
+              background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+              border: "none",
+              borderRadius: 8,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Practice
+          </div>
+        )}
         <div
           onClick={restart}
           style={{
@@ -2048,6 +2076,7 @@ function App() {
             <PsychicRoundResultUI />
             <PsychicLessonUI />
             <PsychicGuessingUI />
+            <PsychicPracticeQuizWrapper />
           </>
         )}
       </KeyboardControls>

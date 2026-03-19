@@ -29,7 +29,7 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 1. **Disaster Prep (World 1 - Town):** Learn about disaster types, gather correct items, and perform prep tasks. Concludes with a lesson and quiz on if/else statements.
 2. **Marine Ecosystem Survey & Cleanup (World 2 - Ocean):** Survey marine life, identify environmental issues, and clean up chemical spills. Integrates lessons and quizzes on for/while loops.
 3. **Factory Order Fulfillment (World 3 - Factory):** Operate machines to fulfill a manufacturing order, learning about functions. Followed by a functions practice quiz.
-4. **Search Algorithm Game (World 4 - Psychic Shop):** Engage in a guessing game across three rounds (random, linear, binary search) to learn about algorithm efficiency.
+4. **Search Algorithm Game (World 4 - Psychic Shop):** Engage in a guessing game across three rounds (random, linear, binary search) to learn about algorithm efficiency. Concludes with a lesson and 8-question practice quiz on binary search (PsychicPracticeQuizUI).
 
 ## External Dependencies
 - **React:** Frontend library.

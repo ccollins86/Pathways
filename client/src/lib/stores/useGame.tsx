@@ -176,6 +176,9 @@ interface GameState {
   psychicBinaryMin: number;
   psychicBinaryMax: number;
   psychicGuessHint: string | null;
+  psychicPracticeActive: boolean;
+  psychicPracticeScore: number;
+  psychicPracticeCompleted: boolean;
 
   start: () => void;
   restart: () => void;
@@ -259,6 +262,9 @@ interface GameState {
   psychicAdvanceRound: () => void;
   psychicRetryRound: () => void;
   psychicStartLesson: () => void;
+  openPsychicPractice: () => void;
+  addPsychicPracticeScore: (points: number) => void;
+  completePsychicPractice: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -351,6 +357,9 @@ export const useGame = create<GameState>()(
     psychicBinaryMin: 1,
     psychicBinaryMax: 100,
     psychicGuessHint: null,
+    psychicPracticeActive: false,
+    psychicPracticeScore: 0,
+    psychicPracticeCompleted: false,
 
     start: () => {
       set((state) => {
@@ -443,6 +452,9 @@ export const useGame = create<GameState>()(
         psychicBinaryMin: 1,
         psychicBinaryMax: 100,
         psychicGuessHint: null,
+        psychicPracticeActive: false,
+        psychicPracticeScore: 0,
+        psychicPracticeCompleted: false,
       }));
     },
 
@@ -898,6 +910,13 @@ export const useGame = create<GameState>()(
     },
 
     psychicStartLesson: () => set({ psychicGamePhase: "lesson" }),
+
+    openPsychicPractice: () =>
+      set({ psychicPracticeActive: true, psychicPracticeScore: 0 }),
+    addPsychicPracticeScore: (points) =>
+      set((s) => ({ psychicPracticeScore: s.psychicPracticeScore + points })),
+    completePsychicPractice: () =>
+      set({ psychicPracticeCompleted: true, psychicPracticeActive: false }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
