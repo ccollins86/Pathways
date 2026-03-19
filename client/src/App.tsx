@@ -490,6 +490,9 @@ function World3HUD() {
   const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
   const factoryLessonPhase = useGame((s) => s.factoryLessonPhase);
   const factoryPracticeActive = useGame((s) => s.factoryPracticeActive);
+  const factoryPracticeUnlocked = useGame((s) => s.factoryPracticeUnlocked);
+  const factoryPracticeCompleted = useGame((s) => s.factoryPracticeCompleted);
+  const factoryPortalActive = useGame((s) => s.factoryPortalActive);
 
   if (world3Dialogue || activeMachine || factoryLessonPhase > 0 || factoryPracticeActive) return null;
 
@@ -507,10 +510,6 @@ function World3HUD() {
     if (state === "idle") return "#999";
     return "#ffeb3b";
   };
-
-  const factoryPracticeUnlocked = useGame((s) => s.factoryPracticeUnlocked);
-  const factoryPracticeCompleted = useGame((s) => s.factoryPracticeCompleted);
-  const factoryPortalActive = useGame((s) => s.factoryPortalActive);
 
   let objectiveText = "Talk to George, the floor manager, to get started!";
   if (factoryPortalActive) {
