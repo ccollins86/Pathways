@@ -1232,8 +1232,8 @@ function PsychicInstructionsUI() {
       </div>
 
       <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-        Your job: <strong style={{ color: "#69f0ae" }}>guess their number in 10 tries or fewer</strong>. After each guess,
-        the customer will tell you if the number is <strong style={{ color: "#ff6b6b" }}>higher</strong> or <strong style={{ color: "#4fc3f7" }}>lower</strong>.
+        Your job: <strong style={{ color: "#69f0ae" }}>guess their number in 10 tries or fewer</strong>. If you guess wrong,
+        the customer will simply say <strong style={{ color: "#e0b0ff" }}>"Try again!"</strong>
       </div>
 
       <div style={{
