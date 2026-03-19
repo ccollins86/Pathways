@@ -365,8 +365,11 @@ export function PsychicWorld() {
 
   return (
     <>
-      <ambientLight intensity={0.15} color="#9b59b6" />
-      <directionalLight position={[5, 8, 3]} intensity={0.3} color="#e0b0ff" />
+      <ambientLight intensity={0.5} color="#d4a5f5" />
+      <directionalLight position={[5, 8, 3]} intensity={0.8} color="#f0d0ff" />
+      <pointLight position={[0, 4, 0]} intensity={0.6} color="#e0b0ff" distance={12} />
+      <pointLight position={[-3, 3, -3]} intensity={0.3} color="#9b59b6" distance={8} />
+      <pointLight position={[3, 3, -3]} intensity={0.3} color="#9b59b6" distance={8} />
 
       <StaticCamera />
 
@@ -382,7 +385,7 @@ export function PsychicWorld() {
         <CustomerNPC color={psychicCustomer.color} phase={psychicGamePhase} />
       )}
 
-      <fog attach="fog" args={["#0a0015", 8, 20]} />
+      <fog attach="fog" args={["#1a0a30", 12, 25]} />
     </>
   );
 }

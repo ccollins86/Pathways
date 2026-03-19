@@ -508,8 +508,18 @@ function World3HUD() {
     return "#ffeb3b";
   };
 
+  const factoryPracticeUnlocked = useGame((s) => s.factoryPracticeUnlocked);
+  const factoryPracticeCompleted = useGame((s) => s.factoryPracticeCompleted);
+  const factoryPortalActive = useGame((s) => s.factoryPortalActive);
+
   let objectiveText = "Talk to George, the floor manager, to get started!";
-  if (factoryOrderComplete) {
+  if (factoryPortalActive) {
+    objectiveText = "A portal has appeared! Walk through it to enter the Psychic Shop!";
+  } else if (factoryPracticeCompleted) {
+    objectiveText = "Practice quiz complete! Talk to George.";
+  } else if (factoryPracticeUnlocked) {
+    objectiveText = "Visit the Practice Station to test your knowledge of functions!";
+  } else if (factoryOrderComplete) {
     objectiveText = "Order complete! Talk to George.";
   } else if (carryingBox) {
     objectiveText = `Carrying a box of ${carryingBox} — load it on the shipping truck!`;
@@ -1283,12 +1293,12 @@ function PsychicTransitionUI() {
   const roundDescriptions: Record<number, { title: string; body: string; detail: string }> = {
     2: {
       title: "Round 2: Sequential Guessing",
-      body: "You won, but there has to be a better way to do this. This time, pick a random starting number and then guess sequentially from there.",
+      body: "There has to be a better way to do this! Randomly guessing is too unpredictable. This time, pick a starting number and then guess sequentially from there.",
       detail: "For example, if you start with 20, your next guesses must be 21, 22, 23, 24, and so on. Let's see if a systematic approach works better!",
     },
     3: {
       title: "Round 3: A Smarter Strategy",
-      body: "You won, but there has to be a better way to do this. This time, we're going to try a completely different approach.",
+      body: "There has to be a better way to do this! Sequential guessing still takes too long. This time, we're going to try a completely different approach.",
       detail: "Always start by guessing 50 (the middle of 1-100). Then based on whether the answer is higher or lower, guess the middle of the remaining range. The formula is: guess = (min + max) / 2, rounded down to the nearest whole number. Let's see how powerful this strategy is!",
     },
   };
@@ -1385,7 +1395,6 @@ function PsychicRoundResultUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const psychicRound = useGame((s) => s.psychicRound);
   const psychicAdvanceRound = useGame((s) => s.psychicAdvanceRound);
-  const psychicRetryRound = useGame((s) => s.psychicRetryRound);
   const psychicStartLesson = useGame((s) => s.psychicStartLesson);
 
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -1444,22 +1453,29 @@ function PsychicRoundResultUI() {
         </div>
       )}
 
-      {!isWin && (
+      {!isWin && psychicRound < 3 && (
         <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 20, opacity: 0.9 }}>
-          Please try again! You need to reach the target balance to move on.
+          That was tough! Let's try a different strategy in the next round.
+        </div>
+      )}
+
+      {!isWin && psychicRound === 3 && (
+        <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 20, opacity: 0.9 }}>
+          Don't worry! Let's review what we learned about search algorithms.
         </div>
       )}
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-        {isWin ? (
           <div
             onClick={psychicRound === 3 ? psychicStartLesson : psychicAdvanceRound}
             style={{
               padding: "14px 36px",
-              background: "linear-gradient(135deg, #69f0ae, #00c853)",
+              background: isWin
+                ? "linear-gradient(135deg, #69f0ae, #00c853)"
+                : "linear-gradient(135deg, #ff6b6b, #e53935)",
               border: "none",
               borderRadius: 10,
-              color: "#1a1a1a",
+              color: isWin ? "#1a1a1a" : "white",
               fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
@@ -1469,25 +1485,6 @@ function PsychicRoundResultUI() {
           >
             {psychicRound === 3 ? "Continue to Lesson" : "Next Round"}
           </div>
-        ) : (
-          <div
-            onClick={psychicRetryRound}
-            style={{
-              padding: "14px 36px",
-              background: "linear-gradient(135deg, #ff6b6b, #e53935)",
-              border: "none",
-              borderRadius: 10,
-              color: "white",
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-            }}
-          >
-            Try Again
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1736,6 +1733,8 @@ function PsychicGuessingUI() {
               }}>
                 {g.result === "correct"
                   ? `Aw man! You got it! It's ${g.guess}!`
+                  : psychicRound === 1
+                  ? "Try again!"
                   : g.result === "high"
                   ? `Less than ${g.guess}`
                   : `Greater than ${g.guess}`}

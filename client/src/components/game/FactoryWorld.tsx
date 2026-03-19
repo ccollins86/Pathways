@@ -966,6 +966,7 @@ export function FactoryWorld() {
         { speaker: "George", text: "Outstanding work! All three shipments are loaded and ready to go!" },
         { speaker: "George", text: "The Olympic Village in Italy is going to be thrilled with their hats, t-shirts, and jackets." },
         { speaker: "George", text: "You're a natural at this. Great job fulfilling the order!" },
+        { speaker: "George", text: "Now head over to the Practice Station to test what you've learned about functions!" },
       ]);
     } else {
       openWorld3Dialogue([
