@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState, useCallback, useEffect } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
@@ -1224,7 +1224,7 @@ function PsychicInstructionsUI() {
 
       <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
         Your job: <strong style={{ color: "#69f0ae" }}>guess their number in 10 tries or fewer</strong>. After each guess,
-        you'll learn if the number is <strong style={{ color: "#ff6b6b" }}>higher</strong> or <strong style={{ color: "#4fc3f7" }}>lower</strong>.
+        the customer will tell you if the number is <strong style={{ color: "#ff6b6b" }}>higher</strong> or <strong style={{ color: "#4fc3f7" }}>lower</strong>.
       </div>
 
       <div style={{
@@ -1237,13 +1237,16 @@ function PsychicInstructionsUI() {
         <div style={{ fontSize: 14, marginBottom: 6 }}>
           <span style={{ color: "#69f0ae", fontWeight: 700 }}>Correct guess:</span> You earn <strong style={{ color: "#ffd700" }}>$100</strong>
         </div>
+        <div style={{ fontSize: 14, marginBottom: 6 }}>
+          <span style={{ color: "#ff6b6b", fontWeight: 700 }}>10 wrong guesses:</span> You lose <strong style={{ color: "#ff6b6b" }}>$100</strong>
+        </div>
         <div style={{ fontSize: 14 }}>
-          <span style={{ color: "#ff6b6b", fontWeight: 700 }}>Failed (10 wrong guesses):</span> You lose <strong style={{ color: "#ff6b6b" }}>$100</strong>
+          <span style={{ color: "#ffd700", fontWeight: 700 }}>Goal:</span> Reach a balance of <strong style={{ color: "#ffd700" }}>+$200</strong> to win the round!
         </div>
       </div>
 
-      <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 20, textAlign: "center", fontStyle: "italic" }}>
-        Hint: Think about the most efficient strategy. What if you always guess the middle of the remaining range?
+      <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 20, textAlign: "center" }}>
+        For this first round, just <strong>guess randomly</strong> — pick any number you think it might be!
       </div>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -1270,14 +1273,390 @@ function PsychicInstructionsUI() {
   );
 }
 
+function PsychicTransitionUI() {
+  const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const psychicRound = useGame((s) => s.psychicRound);
+  const dismissPsychicInstructions = useGame((s) => s.dismissPsychicInstructions);
+
+  if (psychicGamePhase !== "transition") return null;
+
+  const roundDescriptions: Record<number, { title: string; body: string; detail: string }> = {
+    2: {
+      title: "Round 2: Sequential Guessing",
+      body: "You won, but there has to be a better way to do this. This time, pick a random starting number and then guess sequentially from there.",
+      detail: "For example, if you start with 20, your next guesses must be 21, 22, 23, 24, and so on. Let's see if a systematic approach works better!",
+    },
+    3: {
+      title: "Round 3: A Smarter Strategy",
+      body: "You won, but there has to be a better way to do this. This time, we're going to try a completely different approach.",
+      detail: "Always start by guessing 50 (the middle of 1-100). Then based on whether the answer is higher or lower, guess the middle of the remaining range. The formula is: guess = (min + max) / 2, rounded down to the nearest whole number. Let's see how powerful this strategy is!",
+    },
+  };
+
+  const desc = roundDescriptions[psychicRound];
+  if (!desc) return null;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(26, 10, 46, 0.97)",
+        borderRadius: 16,
+        padding: "32px 40px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: "3px solid #9b59b6",
+        boxShadow: "0 0 60px rgba(155, 89, 182, 0.5)",
+        maxWidth: 560,
+        width: "90%",
+      }}
+    >
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 12, color: "#e0b0ff", textAlign: "center" }}>
+        {desc.title}
+      </div>
+
+      <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
+        {desc.body}
+      </div>
+
+      <div style={{
+        background: "rgba(0, 0, 0, 0.4)",
+        borderRadius: 8,
+        padding: "14px 18px",
+        marginBottom: 20,
+        border: "1px solid rgba(155, 89, 182, 0.3)",
+        fontSize: 14,
+        lineHeight: 1.7,
+      }}>
+        {desc.detail}
+      </div>
+
+      {psychicRound === 3 && (
+        <div style={{
+          background: "rgba(0, 0, 0, 0.4)",
+          borderRadius: 8,
+          padding: "12px 18px",
+          marginBottom: 20,
+          border: "1px solid rgba(105, 240, 174, 0.3)",
+          fontFamily: "'Courier New', monospace",
+          fontSize: 14,
+          color: "#69f0ae",
+          textAlign: "center",
+        }}>
+          guess = (min + max) / 2
+        </div>
+      )}
+
+      <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 16, textAlign: "center" }}>
+        {psychicRound === 3
+          ? "Reach +$300 to win this round! (You should find this much easier...)"
+          : "Reach +$200 to win, or -$200 to lose. Good luck!"}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          onClick={dismissPsychicInstructions}
+          style={{
+            padding: "14px 36px",
+            background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+            border: "none",
+            borderRadius: 10,
+            color: "white",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            boxShadow: "0 4px 20px rgba(155, 89, 182, 0.4)",
+          }}
+        >
+          Let's Go!
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PsychicRoundResultUI() {
+  const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const psychicRound = useGame((s) => s.psychicRound);
+  const psychicAdvanceRound = useGame((s) => s.psychicAdvanceRound);
+  const psychicRetryRound = useGame((s) => s.psychicRetryRound);
+  const psychicStartLesson = useGame((s) => s.psychicStartLesson);
+
+  const successSoundRef = useRef<HTMLAudioElement | null>(null);
+  const failSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    successSoundRef.current = new Audio("/sounds/success.mp3");
+    failSoundRef.current = new Audio("/sounds/hit.mp3");
+  }, []);
+
+  useEffect(() => {
+    if (psychicGamePhase === "round_win") {
+      successSoundRef.current?.play().catch(() => {});
+    } else if (psychicGamePhase === "round_lose") {
+      failSoundRef.current?.play().catch(() => {});
+    }
+  }, [psychicGamePhase]);
+
+  if (psychicGamePhase !== "round_win" && psychicGamePhase !== "round_lose") return null;
+
+  const isWin = psychicGamePhase === "round_win";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(26, 10, 46, 0.97)",
+        borderRadius: 16,
+        padding: "32px 40px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: `3px solid ${isWin ? "#69f0ae" : "#ff6b6b"}`,
+        boxShadow: `0 0 60px ${isWin ? "rgba(105,240,174,0.5)" : "rgba(255,107,107,0.5)"}`,
+        maxWidth: 480,
+        width: "90%",
+        textAlign: "center",
+      }}
+    >
+      <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12, color: isWin ? "#69f0ae" : "#ff6b6b" }}>
+        {isWin ? "Congrats, you won!" : "Unfortunately, you lost!"}
+      </div>
+
+      {isWin && psychicRound < 3 && (
+        <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 20, opacity: 0.9 }}>
+          You won, but there has to be a better way to do this.
+        </div>
+      )}
+
+      {isWin && psychicRound === 3 && (
+        <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 20, opacity: 0.9 }}>
+          Amazing! Binary search made this almost effortless, didn't it?
+        </div>
+      )}
+
+      {!isWin && (
+        <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 20, opacity: 0.9 }}>
+          Please try again! You need to reach the target balance to move on.
+        </div>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+        {isWin ? (
+          <div
+            onClick={psychicRound === 3 ? psychicStartLesson : psychicAdvanceRound}
+            style={{
+              padding: "14px 36px",
+              background: "linear-gradient(135deg, #69f0ae, #00c853)",
+              border: "none",
+              borderRadius: 10,
+              color: "#1a1a1a",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            {psychicRound === 3 ? "Continue to Lesson" : "Next Round"}
+          </div>
+        ) : (
+          <div
+            onClick={psychicRetryRound}
+            style={{
+              padding: "14px 36px",
+              background: "linear-gradient(135deg, #ff6b6b, #e53935)",
+              border: "none",
+              borderRadius: 10,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Try Again
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PsychicLessonUI() {
+  const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const restart = useGame((s) => s.restart);
+
+  if (psychicGamePhase !== "lesson") return null;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(26, 10, 46, 0.97)",
+        borderRadius: 16,
+        padding: "28px 36px",
+        color: "white",
+        fontFamily: "'Inter', sans-serif",
+        zIndex: 200,
+        border: "3px solid #69f0ae",
+        boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+        maxWidth: 640,
+        maxHeight: "85vh",
+        overflowY: "auto",
+        width: "92%",
+      }}
+    >
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 16, color: "#69f0ae", textAlign: "center" }}>
+        Search Algorithms: What You Just Learned
+      </div>
+
+      <div style={{
+        background: "rgba(255, 107, 107, 0.1)",
+        borderRadius: 8,
+        padding: "14px 18px",
+        marginBottom: 14,
+        border: "1px solid rgba(255, 107, 107, 0.3)",
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#ff6b6b", marginBottom: 6 }}>
+          Round 1: Random Search
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
+          You picked numbers at random — sometimes lucky, usually not. With 100 possible numbers and only 10 guesses,
+          your odds of finding the right one were slim. This is like looking for a word in a dictionary by flipping to random pages.
+        </div>
+      </div>
+
+      <div style={{
+        background: "rgba(255, 193, 7, 0.1)",
+        borderRadius: 8,
+        padding: "14px 18px",
+        marginBottom: 14,
+        border: "1px solid rgba(255, 193, 7, 0.3)",
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#ffc107", marginBottom: 6 }}>
+          Round 2: Linear Search (Sequential)
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
+          You started at a number and checked one by one: 20, 21, 22, 23... This is <strong>linear search</strong> —
+          you check every single element in order. In the worst case, you'd need up to 100 guesses!
+          With only 10, you could only cover 10 numbers. Still very hard to win.
+        </div>
+      </div>
+
+      <div style={{
+        background: "rgba(105, 240, 174, 0.1)",
+        borderRadius: 8,
+        padding: "14px 18px",
+        marginBottom: 14,
+        border: "1px solid rgba(105, 240, 174, 0.3)",
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#69f0ae", marginBottom: 6 }}>
+          Round 3: Binary Search
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
+          You always guessed the <strong>middle</strong> of the remaining range. Each guess cut the possibilities
+          <strong> in half</strong>! Starting with 100 numbers: after 1 guess you had 50 left, then 25, then 12, then 6, then 3, then 1.
+          That's why you could <strong>always find any number in 7 guesses or fewer</strong> — making it nearly impossible to lose!
+        </div>
+      </div>
+
+      <div style={{
+        background: "rgba(0, 0, 0, 0.4)",
+        borderRadius: 8,
+        padding: "16px 20px",
+        fontFamily: "'Courier New', monospace",
+        fontSize: 13,
+        lineHeight: 1.8,
+        marginBottom: 16,
+        border: "1px solid rgba(105, 240, 174, 0.3)",
+        whiteSpace: "pre-wrap",
+      }}>
+        <span style={{ color: "#546e7a" }}>{"// Binary search divides the space in half each time:\n\n"}</span>
+        <span style={{ color: "#c792ea" }}>{"function "}</span>
+        <span style={{ color: "#82aaff" }}>{"binarySearch"}</span>
+        <span style={{ color: "#89ddff" }}>{"(target, min, max) {\n"}</span>
+        <span style={{ color: "#89ddff" }}>{"  while "}</span>
+        <span style={{ color: "#89ddff" }}>{"(min <= max) {\n"}</span>
+        <span style={{ color: "#c792ea" }}>{"    let "}</span>
+        <span style={{ color: "#f78c6c" }}>{"guess"}</span>
+        <span style={{ color: "#89ddff" }}>{" = Math.floor((min + max) / 2);\n"}</span>
+        <span style={{ color: "#89ddff" }}>{"    if (guess === target) return "}</span>
+        <span style={{ color: "#c3e88d" }}>{'"Found it!"'}</span>
+        <span style={{ color: "#89ddff" }}>{";\n"}</span>
+        <span style={{ color: "#89ddff" }}>{"    if (guess < target) min = guess + 1;\n"}</span>
+        <span style={{ color: "#89ddff" }}>{"    else max = guess - 1;\n"}</span>
+        <span style={{ color: "#89ddff" }}>{"  }\n"}</span>
+        <span style={{ color: "#89ddff" }}>{"}"}</span>
+      </div>
+
+      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        Binary search is one of the most powerful algorithms in computer science. By <strong style={{ color: "#69f0ae" }}>dividing
+        the search space in half</strong> with each step, it finds answers in <strong style={{ color: "#ffd700" }}>logarithmic time</strong> —
+        dramatically faster than checking every possibility one by one.
+      </div>
+
+      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+        Random search: ~100 guesses worst case | Linear search: ~100 guesses worst case | Binary search: ~7 guesses worst case
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          onClick={restart}
+          style={{
+            padding: "12px 32px",
+            background: "#69f0ae",
+            border: "none",
+            borderRadius: 8,
+            color: "#1a1a1a",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}
+        >
+          Back to Town
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PsychicGuessingUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const psychicCustomer = useGame((s) => s.psychicCustomer);
   const psychicGuesses = useGame((s) => s.psychicGuesses);
   const psychicGuessesRemaining = useGame((s) => s.psychicGuessesRemaining);
+  const psychicRound = useGame((s) => s.psychicRound);
+  const psychicGuessHint = useGame((s) => s.psychicGuessHint);
   const submitPsychicGuess = useGame((s) => s.submitPsychicGuess);
-  const psychicRoundEnd = useGame((s) => s.psychicRoundEnd);
+  const psychicCustomerEnd = useGame((s) => s.psychicCustomerEnd);
   const [inputValue, setInputValue] = useState("");
+
+  const chachingSoundRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    chachingSoundRef.current = new Audio("/sounds/success.mp3");
+  }, []);
+
+  useEffect(() => {
+    if (psychicGamePhase === "won") {
+      chachingSoundRef.current?.play().catch(() => {});
+    }
+  }, [psychicGamePhase]);
 
   const handleSubmit = useCallback(() => {
     const num = parseInt(inputValue, 10);
@@ -1298,12 +1677,7 @@ function PsychicGuessingUI() {
 
   const isGameOver = psychicGamePhase === "won" || psychicGamePhase === "lost";
 
-  let low = 1;
-  let high = 100;
-  for (const g of psychicGuesses) {
-    if (g.result === "low") low = Math.max(low, g.guess + 1);
-    if (g.result === "high") high = Math.min(high, g.guess - 1);
-  }
+  const roundLabel = psychicRound === 1 ? "Random Guessing" : psychicRound === 2 ? "Sequential Guessing" : "Binary Search";
 
   return (
     <div
@@ -1318,77 +1692,91 @@ function PsychicGuessingUI() {
         color: "white",
         fontFamily: "'Inter', sans-serif",
         zIndex: 100,
-        maxWidth: 480,
+        maxWidth: 520,
         width: "92%",
         border: `2px solid ${isGameOver ? (psychicGamePhase === "won" ? "#69f0ae" : "#ff6b6b") : "#9b59b6"}`,
         boxShadow: `0 4px 30px ${isGameOver ? (psychicGamePhase === "won" ? "rgba(105,240,174,0.3)" : "rgba(255,107,107,0.3)") : "rgba(155,89,182,0.3)"}`,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#e0b0ff" }}>
           Customer: <span style={{ color: psychicCustomer.color }}>{psychicCustomer.name}</span>
         </div>
-        <div style={{ fontSize: 13, color: psychicGuessesRemaining <= 3 ? "#ff6b6b" : "#9b59b6", fontWeight: 700 }}>
-          {psychicGuessesRemaining} guesses left
+        <div style={{ fontSize: 12, color: "#9b59b6", fontWeight: 600 }}>
+          {roundLabel}
         </div>
       </div>
 
+      <div style={{ fontSize: 12, color: psychicGuessesRemaining <= 3 ? "#ff6b6b" : "rgba(255,255,255,0.5)", fontWeight: 700, marginBottom: 10 }}>
+        {psychicGuessesRemaining} guesses left
+      </div>
+
       {psychicGuesses.length > 0 && (
-        <div style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 6,
-          marginBottom: 12,
-          maxHeight: 80,
-          overflowY: "auto",
-        }}>
+        <div style={{ marginBottom: 10 }}>
           {psychicGuesses.map((g, i) => (
             <div key={i} style={{
-              padding: "4px 10px",
+              padding: "6px 12px",
+              marginBottom: 4,
               borderRadius: 6,
               fontSize: 13,
-              fontWeight: 600,
               background: g.result === "correct"
-                ? "rgba(105, 240, 174, 0.2)"
-                : g.result === "high"
-                ? "rgba(255, 107, 107, 0.15)"
-                : "rgba(79, 195, 247, 0.15)",
-              color: g.result === "correct"
-                ? "#69f0ae"
-                : g.result === "high"
-                ? "#ff6b6b"
-                : "#4fc3f7",
-              border: `1px solid ${g.result === "correct" ? "#69f0ae" : g.result === "high" ? "#ff6b6b" : "#4fc3f7"}`,
+                ? "rgba(105, 240, 174, 0.15)"
+                : "rgba(155, 89, 182, 0.1)",
+              border: `1px solid ${g.result === "correct" ? "#69f0ae" : "rgba(155,89,182,0.2)"}`,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}>
-              {g.guess} {g.result === "correct" ? "=" : g.result === "high" ? ">" : "<"}
+              <span style={{ fontWeight: 600 }}>
+                Is it <strong>{g.guess}</strong>?
+              </span>
+              <span style={{
+                color: g.result === "correct" ? "#69f0ae" : g.result === "high" ? "#ff6b6b" : "#4fc3f7",
+                fontWeight: 700,
+              }}>
+                {g.result === "correct"
+                  ? `Aw man! You got it! It's ${g.guess}!`
+                  : g.result === "high"
+                  ? `Less than ${g.guess}`
+                  : `Greater than ${g.guess}`}
+              </span>
             </div>
           ))}
         </div>
       )}
 
-      {!isGameOver && (
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8, textAlign: "center" }}>
-          The number is between <strong style={{ color: "#4fc3f7" }}>{low}</strong> and <strong style={{ color: "#ff6b6b" }}>{high}</strong>
+      {psychicGuessHint && (
+        <div style={{
+          padding: "8px 12px",
+          marginBottom: 10,
+          borderRadius: 6,
+          background: "rgba(255, 193, 7, 0.15)",
+          border: "1px solid rgba(255, 193, 7, 0.4)",
+          fontSize: 13,
+          color: "#ffc107",
+          fontWeight: 600,
+        }}>
+          {psychicGuessHint}
         </div>
       )}
 
       {isGameOver ? (
         <div style={{ textAlign: "center" }}>
           <div style={{
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: 800,
             marginBottom: 8,
             color: psychicGamePhase === "won" ? "#69f0ae" : "#ff6b6b",
           }}>
             {psychicGamePhase === "won"
-              ? `You got it! The number was ${psychicCustomer.favoriteNumber}!`
+              ? `${psychicCustomer.name}: "Aw man! You won, here's the $100!"`
               : `Out of guesses! It was ${psychicCustomer.favoriteNumber}.`}
           </div>
-          <div style={{ fontSize: 16, marginBottom: 16, color: psychicGamePhase === "won" ? "#ffd700" : "#ff6b6b" }}>
+          <div style={{ fontSize: 16, marginBottom: 14, color: psychicGamePhase === "won" ? "#ffd700" : "#ff6b6b" }}>
             {psychicGamePhase === "won" ? "+$100" : "-$100"}
           </div>
           <div
-            onClick={psychicRoundEnd}
+            onClick={psychicCustomerEnd}
             style={{
               display: "inline-block",
               padding: "10px 28px",
@@ -1458,9 +1846,13 @@ function PsychicHUD() {
   const psychicBalance = useGame((s) => s.psychicBalance);
   const psychicCustomersServed = useGame((s) => s.psychicCustomersServed);
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
+  const psychicRound = useGame((s) => s.psychicRound);
   const restart = useGame((s) => s.restart);
 
-  if (psychicGamePhase === "instructions") return null;
+  if (psychicGamePhase === "instructions" || psychicGamePhase === "transition" || psychicGamePhase === "round_win" || psychicGamePhase === "round_lose" || psychicGamePhase === "lesson") return null;
+
+  const roundLabel = psychicRound === 1 ? "Round 1: Random" : psychicRound === 2 ? "Round 2: Sequential" : "Round 3: Binary Search";
+  const winTarget = psychicRound === 3 ? 300 : 200;
 
   return (
     <>
@@ -1475,20 +1867,40 @@ function PsychicHUD() {
           padding: "12px 20px",
           fontFamily: "'Inter', sans-serif",
           border: "1px solid rgba(155, 89, 182, 0.4)",
-          minWidth: 180,
+          minWidth: 200,
         }}
       >
-        <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
-          Psychic Parlor
+        <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+          {roundLabel}
         </div>
-        <div style={{ fontSize: 24, fontWeight: 800, color: "#ffd700", marginBottom: 4 }}>
+        <div style={{ fontSize: 24, fontWeight: 800, color: psychicBalance >= 0 ? "#ffd700" : "#ff6b6b", marginBottom: 4 }}>
           ${psychicBalance}
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+        <div style={{
+          fontSize: 11,
+          color: "rgba(255,255,255,0.5)",
+          marginBottom: 4,
+        }}>
+          Goal: ${winTarget} to win | -$200 = lose
+        </div>
+        <div style={{
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: 4,
+          height: 6,
+          overflow: "hidden",
+        }}>
+          <div style={{
+            width: `${Math.max(0, Math.min(100, ((psychicBalance + 200) / (winTarget + 200)) * 100))}%`,
+            height: "100%",
+            background: psychicBalance >= 0 ? "#69f0ae" : "#ff6b6b",
+            transition: "width 0.3s ease",
+          }} />
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 6 }}>
           Customers served: {psychicCustomersServed}
         </div>
         {psychicGamePhase === "waiting" && (
-          <div style={{ fontSize: 11, color: "#e0b0ff", marginTop: 6, fontStyle: "italic" }}>
+          <div style={{ fontSize: 11, color: "#e0b0ff", marginTop: 4, fontStyle: "italic" }}>
             Waiting for next customer...
           </div>
         )}
@@ -1634,6 +2046,9 @@ function App() {
           <>
             <PsychicHUD />
             <PsychicInstructionsUI />
+            <PsychicTransitionUI />
+            <PsychicRoundResultUI />
+            <PsychicLessonUI />
             <PsychicGuessingUI />
           </>
         )}
