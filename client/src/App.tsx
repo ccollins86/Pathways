@@ -1727,7 +1727,7 @@ function PsychicGuessingUI() {
                 Is it <strong>{g.guess}</strong>?
               </span>
               <span style={{
-                color: g.result === "correct" ? "#69f0ae" : g.result === "high" ? "#ff6b6b" : "#4fc3f7",
+                color: g.result === "correct" ? "#69f0ae" : psychicRound === 1 ? "#e0b0ff" : g.result === "high" ? "#ff6b6b" : "#4fc3f7",
                 fontWeight: 700,
               }}>
                 {g.result === "correct"
