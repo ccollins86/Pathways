@@ -182,6 +182,8 @@ interface GameState {
   completeWildfireTask: (task: keyof WildfireTasks) => void;
   completeEarthquakeTask: (task: keyof EarthquakeTasks) => void;
   failQuest: (reason: string) => void;
+  retryQuest: () => void;
+  respawnTrigger: number;
   activateTasks: () => void;
   checkQuestCompletion: () => void;
   unlockPractice: () => void;
@@ -270,6 +272,7 @@ export const useGame = create<GameState>()(
     questCompleted: false,
     questFailed: false,
     failReason: null,
+    respawnTrigger: 0,
     tasksActive: false,
     practiceUnlocked: false,
     practiceActive: false,
@@ -484,6 +487,30 @@ export const useGame = create<GameState>()(
         carriedItem: null,
         consumedItems: newConsumed,
       });
+    },
+
+    retryQuest: () => {
+      set((state) => ({
+        questFailed: false,
+        failReason: null,
+        carriedItem: null,
+        consumedItems: new Set<string>(),
+        hurricaneTasks: {
+          frontDoorSandbagged: false,
+          backDoorSandbagged: false,
+          window1Boarded: false,
+          window2Boarded: false,
+        },
+        wildfireTasks: {
+          houseSprayed: false,
+          vegetationCleared: false,
+        },
+        earthquakeTasks: {
+          furnitureStrapped: false,
+          gasShutOff: false,
+        },
+        respawnTrigger: state.respawnTrigger + 1,
+      }));
     },
 
     activateTasks: () => set({ tasksActive: true }),

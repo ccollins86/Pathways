@@ -3,6 +3,13 @@
 ## Overview
 A 3D educational game built with React Three Fiber where players learn about natural disaster preparedness. Players navigate a town, talk to NPCs, and learn how to prepare for hurricanes, wildfires, and earthquakes.
 
+## Testing
+- **Framework**: Vitest (configured in `vitest.config.ts`)
+- **Run tests**: `npx vitest run`
+- **Watch mode**: `npx vitest`
+- **Test files**: `client/src/lib/stores/useGame.test.ts` (125 tests covering game store logic)
+- **Coverage**: Phase transitions, disaster selection, NPC interactions, dialogue system, inventory, quest completion (all 3 disaster types), quest failure, practice quizzes, world transitions, ocean/cleanup quests, factory order validation, product workflow, lesson phases, and full restart reset
+
 ## Recent Changes
 - 2026-03-07: Added login/registration system - PostgreSQL-backed user accounts with bcrypt password hashing, express-session with connect-pg-simple for persistent sessions, AuthScreen component (login/register forms), /api/auth/* endpoints (register, login, logout, me), session auto-check on app load
 - 2026-03-05: Added Factory World functions lesson + practice quiz - FactoryLessonUI (2-page overlay: page 1 explains functions as machines with parameters/return values, page 2 shows full order as 3 function calls); FactoryPracticeBooth at [-15,0,20] (unlocks after lesson, glowing booth with E-key interaction); FactoryPracticeQuizUI (8 questions on functions); World3HUD hides during lesson/quiz; factoryLessonPhase state (0=none, 1=intro, 2=grouping)
