@@ -11,6 +11,7 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - **Coverage**: Phase transitions, disaster selection, NPC interactions, dialogue system, inventory, quest completion (all 3 disaster types), quest failure, practice quizzes, world transitions, ocean/cleanup quests, factory order validation, product workflow, lesson phases, and full restart reset
 
 ## Recent Changes
+- 2026-03-20: Replaced hardcoded practice quiz questions with LLM-generated questions - All 3 practice quizzes (conditionals, loops, functions) now fetch fresh questions from `/api/generate-questions/:topic` using OpenAI via Replit AI Integrations; server-side generation with retry logic (up to 3 attempts), robust JSON parsing with sanitization, strict 8-question validation; client-side `useGeneratedQuestions` hook with loading/error states; `QuizLoadingOverlay` component with spinner, retry, and exit; FactoryPracticeQuizUI refactored to use shared `PracticeQuizBase`
 - 2026-03-07: Added login/registration system - PostgreSQL-backed user accounts with bcrypt password hashing, express-session with connect-pg-simple for persistent sessions, AuthScreen component (login/register forms), /api/auth/* endpoints (register, login, logout, me), session auto-check on app load
 - 2026-03-05: Added Factory World functions lesson + practice quiz - FactoryLessonUI (2-page overlay: page 1 explains functions as machines with parameters/return values, page 2 shows full order as 3 function calls); FactoryPracticeBooth at [-15,0,20] (unlocks after lesson, glowing booth with E-key interaction); FactoryPracticeQuizUI (8 questions on functions); World3HUD hides during lesson/quiz; factoryLessonPhase state (0=none, 1=intro, 2=grouping)
 - 2026-03-05: Added Olympic Village order fulfillment to Factory World - George assigns order (2 large hats, 3 medium t-shirts, 5 large jackets) with specific colors/lettering; MachineSettingsUI popup (quantity stepper, size dropdown, color dropdowns, lettering text input); machines produce output boxes (bobbing/highlighted); player picks up products, boxes at PackingTable, loads onto ShippingTruck (UPS-style with open back); per-machine state tracking (idle→produced→picked_up→boxed→loaded); World3HUD shows detailed order progress; carrying indicator overlay
@@ -57,7 +58,7 @@ A 3D educational game built with React Three Fiber where players learn about nat
 - `client/src/components/game/InteractionTarget.tsx` - Use-item-at-location targets with correct/wrong item handling
 - `client/src/components/game/House.tsx` - House with interior, exports HOUSE_POS constant
 - `client/src/components/game/PracticeBooth.tsx` - Interactive booth for programming practice quiz
-- `client/src/components/game/PracticeQuizUI.tsx` - 8 multiple-choice questions on if/else-if/else branching
+- `client/src/components/game/PracticeQuizUI.tsx` - LLM-generated questions on if/else-if/else branching
 - `client/src/components/game/Portal.tsx` - Glowing portal ring that appears after quest + quiz completion
 - `client/src/components/game/MarineEcosystem.tsx` - 3D ecosystem zones with marine animals, plants, and environmental issues
 - `client/src/components/game/SurveyUI.tsx` - Survey popup for counting animals/plants and identifying environmental issues

@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import path from "path";
+import { generateQuestions, isValidTopic } from "./questionGenerator";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -17,6 +18,20 @@ export async function registerRoutes(
   app.get("/api/download-full-project", (_req, res) => {
     const zipPath = path.resolve("client/public/full-project.zip");
     res.download(zipPath, "disaster-prep-quest.zip");
+  });
+
+  app.get("/api/generate-questions/:topic", async (req, res) => {
+    const { topic } = req.params;
+    if (!isValidTopic(topic)) {
+      return res.status(400).json({ error: `Invalid topic. Valid topics: conditionals, loops, functions` });
+    }
+    try {
+      const questions = await generateQuestions(topic);
+      res.json({ questions });
+    } catch (error: any) {
+      console.error("Question generation error:", error);
+      res.status(502).json({ error: "Failed to generate questions. Please try again." });
+    }
   });
 
   return httpServer;
