@@ -216,22 +216,33 @@ export function isLLMAvailable(): boolean {
 
 export async function generateQuestions(topic: QuizTopic): Promise<GeneratedQuestion[]> {
   if (!isLLMAvailable()) {
+    console.log(`[QuestionGen] LLM API not configured — skipping generation for "${topic}"`);
     throw new Error("LLM API not configured");
   }
 
+  console.log(`[QuestionGen] Starting question generation for "${topic}" via OpenAI API...`);
+  const startTime = Date.now();
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      return await attemptGeneration(topic);
+      console.log(`[QuestionGen] Attempt ${attempt + 1}/${MAX_RETRIES + 1} for "${topic}"...`);
+      const questions = await attemptGeneration(topic);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      console.log(`[QuestionGen] Successfully generated ${questions.length} questions for "${topic}" in ${elapsed}s`);
+      return questions;
     } catch (e: any) {
       lastError = e;
-      console.error(`Question generation attempt ${attempt + 1} failed:`, e.message);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      console.error(`[QuestionGen] Attempt ${attempt + 1} failed for "${topic}" after ${elapsed}s:`, e.message);
       if (attempt < MAX_RETRIES) {
+        console.log(`[QuestionGen] Retrying "${topic}" in 1s...`);
         await new Promise(r => setTimeout(r, 1000));
       }
     }
   }
 
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  console.error(`[QuestionGen] All attempts failed for "${topic}" after ${elapsed}s`);
   throw lastError || new Error("Failed to generate questions after retries");
 }

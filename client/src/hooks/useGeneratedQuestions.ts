@@ -19,6 +19,7 @@ async function checkLLMAvailability(): Promise<boolean> {
   if (llmAvailable !== null) return llmAvailable;
   if (llmCheckPromise) return llmCheckPromise;
 
+  console.log("[QuizLoader] Checking LLM availability...");
   llmCheckPromise = fetch("/api/llm-status")
     .then((res) => {
       if (!res.ok) throw new Error("LLM status check failed");
@@ -27,10 +28,12 @@ async function checkLLMAvailability(): Promise<boolean> {
     .then((data) => {
       if (typeof data.available !== "boolean") throw new Error("Invalid LLM status response");
       llmAvailable = data.available;
+      console.log(`[QuizLoader] LLM available: ${llmAvailable}`);
       return llmAvailable;
     })
     .catch(() => {
       llmAvailable = false;
+      console.log("[QuizLoader] LLM not available — using fallback questions");
       return false;
     })
     .finally(() => {
@@ -46,6 +49,8 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
     throw new Error("LLM not available");
   }
 
+  console.log(`[QuizLoader] Fetching AI-generated questions for "${topic}"...`);
+  const startTime = performance.now();
   const response = await fetch(`/api/generate-questions/${topic}`);
   if (!response.ok) {
     let msg = "Failed to generate questions";
@@ -59,17 +64,25 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
     } catch (e: any) {
       if (e.message === "LLM not available") throw e;
     }
+    const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+    console.error(`[QuizLoader] Failed to fetch questions for "${topic}" after ${elapsed}s: ${msg}`);
     throw new Error(msg);
   }
   const data = await response.json();
   if (!Array.isArray(data.questions) || data.questions.length < 8) {
     throw new Error("Received incomplete question set");
   }
+  const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+  console.log(`[QuizLoader] Received ${data.questions.length} AI-generated questions for "${topic}" in ${elapsed}s`);
   return data.questions;
 }
 
 function startPreload(topic: QuizTopic): void {
-  if (cache[topic]?.questions || cache[topic]?.loading) return;
+  if (cache[topic]?.questions || cache[topic]?.loading) {
+    if (cache[topic]?.questions) console.log(`[QuizLoader] Questions for "${topic}" already cached`);
+    return;
+  }
+  console.log(`[QuizLoader] Starting preload for "${topic}"...`);
 
   const entry: CacheEntry = {
     questions: null,
