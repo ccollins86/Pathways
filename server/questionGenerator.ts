@@ -173,7 +173,15 @@ Do not use escaped single quotes in strings. Use double quotes for strings withi
   return validated.slice(0, 8);
 }
 
+export function isLLMAvailable(): boolean {
+  return !!(process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL);
+}
+
 export async function generateQuestions(topic: QuizTopic): Promise<GeneratedQuestion[]> {
+  if (!isLLMAvailable()) {
+    throw new Error("LLM API not configured");
+  }
+
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {

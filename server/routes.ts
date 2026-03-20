@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import path from "path";
-import { generateQuestions, isValidTopic } from "./questionGenerator";
+import { generateQuestions, isValidTopic, isLLMAvailable } from "./questionGenerator";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -20,10 +20,17 @@ export async function registerRoutes(
     res.download(zipPath, "disaster-prep-quest.zip");
   });
 
+  app.get("/api/llm-status", (_req, res) => {
+    res.json({ available: isLLMAvailable() });
+  });
+
   app.get("/api/generate-questions/:topic", async (req, res) => {
     const { topic } = req.params;
     if (!isValidTopic(topic)) {
       return res.status(400).json({ error: `Invalid topic. Valid topics: conditionals, loops, functions` });
+    }
+    if (!isLLMAvailable()) {
+      return res.status(503).json({ error: "LLM API not configured", unavailable: true });
     }
     try {
       const questions = await generateQuestions(topic);

@@ -12,14 +12,53 @@ interface CacheEntry {
 
 const cache: Record<string, CacheEntry> = {};
 
+let llmAvailable: boolean | null = null;
+let llmCheckPromise: Promise<boolean> | null = null;
+
+async function checkLLMAvailability(): Promise<boolean> {
+  if (llmAvailable !== null) return llmAvailable;
+  if (llmCheckPromise) return llmCheckPromise;
+
+  llmCheckPromise = fetch("/api/llm-status")
+    .then((res) => {
+      if (!res.ok) throw new Error("LLM status check failed");
+      return res.json();
+    })
+    .then((data) => {
+      if (typeof data.available !== "boolean") throw new Error("Invalid LLM status response");
+      llmAvailable = data.available;
+      return llmAvailable;
+    })
+    .catch(() => {
+      llmAvailable = false;
+      return false;
+    })
+    .finally(() => {
+      llmCheckPromise = null;
+    });
+
+  return llmCheckPromise;
+}
+
 async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
+  const available = await checkLLMAvailability();
+  if (!available) {
+    throw new Error("LLM not available");
+  }
+
   const response = await fetch(`/api/generate-questions/${topic}`);
   if (!response.ok) {
     let msg = "Failed to generate questions";
     try {
       const data = await response.json();
+      if (data.unavailable) {
+        llmAvailable = false;
+        throw new Error("LLM not available");
+      }
       if (data.error) msg = data.error;
-    } catch {}
+    } catch (e: any) {
+      if (e.message === "LLM not available") throw e;
+    }
     throw new Error(msg);
   }
   const data = await response.json();
@@ -38,7 +77,7 @@ function startPreload(topic: QuizTopic): void {
     promise: null,
   };
 
-  entry.promise = fetchQuestionsFromAPI(topic)
+  const innerPromise = fetchQuestionsFromAPI(topic)
     .then((questions) => {
       entry.questions = questions;
       entry.loading = false;
@@ -48,6 +87,9 @@ function startPreload(topic: QuizTopic): void {
       entry.loading = false;
       throw err;
     });
+
+  innerPromise.catch(() => {});
+  entry.promise = innerPromise;
 
   cache[topic] = entry;
 }
@@ -68,6 +110,7 @@ export function preloadQuestionsForWorld(world: string): void {
 interface UseGeneratedQuestionsResult {
   questions: Question[];
   regenerate: () => void;
+  markServed: (index: number) => void;
 }
 
 export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsResult {
