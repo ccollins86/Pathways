@@ -61,6 +61,7 @@ interface PracticeQuizBaseProps {
   onResetScore?: () => void;
   onComplete: () => void;
   closeOnComplete?: boolean;
+  onMarkServed?: (index: number) => void;
 }
 
 export function PracticeQuizBase({
@@ -72,6 +73,7 @@ export function PracticeQuizBase({
   onResetScore,
   onComplete,
   closeOnComplete = false,
+  onMarkServed,
 }: PracticeQuizBaseProps) {
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -89,6 +91,7 @@ export function PracticeQuizBase({
     setWrongAttempt(false);
     setShowHint(false);
     onResetScore?.();
+    onMarkServed?.(0);
     try {
       successSoundRef.current = new Audio("/sounds/success.mp3");
       successSoundRef.current.volume = 0.5;
@@ -130,7 +133,9 @@ export function PracticeQuizBase({
       if (closeOnComplete) onClose();
       return;
     }
-    setCurrentQ((q) => q + 1);
+    const nextQ = currentQ + 1;
+    setCurrentQ(nextQ);
+    onMarkServed?.(nextQ);
     setSelectedAnswer(null);
     setAnsweredCorrectly(false);
     setWrongAttempt(false);

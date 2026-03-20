@@ -1,7 +1,6 @@
 import { useGame } from "@/lib/stores/useGame";
 import { PracticeQuizBase, type QuizTheme } from "./PracticeQuizBase";
 import { useGeneratedQuestions } from "@/hooks/useGeneratedQuestions";
-import { QuizLoadingOverlay } from "./QuizLoadingOverlay";
 
 const THEME: QuizTheme = {
   title: "Ocean Practice Station",
@@ -21,19 +20,7 @@ export function OceanPracticeQuizUI() {
   const oceanPracticeScore = useGame((s) => s.oceanPracticeScore);
   const completeOceanPractice = useGame((s) => s.completeOceanPractice);
   const resetOceanPracticeScore = useGame((s) => s.resetOceanPracticeScore);
-  const { questions, loading, error, regenerate } = useGeneratedQuestions("loops");
-
-  if (loading || error) {
-    return (
-      <QuizLoadingOverlay
-        loading={loading}
-        error={error}
-        theme={THEME}
-        onRetry={regenerate}
-        onClose={closeOceanPractice}
-      />
-    );
-  }
+  const { questions, markServed } = useGeneratedQuestions("loops");
 
   return (
     <PracticeQuizBase
@@ -44,6 +31,7 @@ export function OceanPracticeQuizUI() {
       onAddScore={addOceanPracticeScore}
       onResetScore={resetOceanPracticeScore}
       onComplete={completeOceanPractice}
+      onMarkServed={markServed}
     />
   );
 }

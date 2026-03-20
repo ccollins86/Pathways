@@ -1,7 +1,6 @@
 import { useGame } from "@/lib/stores/useGame";
 import { PracticeQuizBase, type QuizTheme } from "./PracticeQuizBase";
 import { useGeneratedQuestions } from "@/hooks/useGeneratedQuestions";
-import { QuizLoadingOverlay } from "./QuizLoadingOverlay";
 
 const THEME: QuizTheme = {
   title: "Practice Station",
@@ -21,19 +20,7 @@ export function PracticeQuizUI() {
   const practiceScore = useGame((s) => s.practiceScore);
   const completePractice = useGame((s) => s.completePractice);
   const resetPracticeScore = useGame((s) => s.resetPracticeScore);
-  const { questions, loading, error, regenerate } = useGeneratedQuestions("conditionals");
-
-  if (loading || error) {
-    return (
-      <QuizLoadingOverlay
-        loading={loading}
-        error={error}
-        theme={THEME}
-        onRetry={regenerate}
-        onClose={closePractice}
-      />
-    );
-  }
+  const { questions, markServed } = useGeneratedQuestions("conditionals");
 
   return (
     <PracticeQuizBase
@@ -44,6 +31,7 @@ export function PracticeQuizUI() {
       onAddScore={addPracticeScore}
       onResetScore={resetPracticeScore}
       onComplete={completePractice}
+      onMarkServed={markServed}
       closeOnComplete
     />
   );

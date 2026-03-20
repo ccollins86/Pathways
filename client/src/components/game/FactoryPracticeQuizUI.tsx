@@ -1,7 +1,6 @@
 import { useGame } from "@/lib/stores/useGame";
 import { PracticeQuizBase, type QuizTheme } from "./PracticeQuizBase";
 import { useGeneratedQuestions } from "@/hooks/useGeneratedQuestions";
-import { QuizLoadingOverlay } from "./QuizLoadingOverlay";
 
 const THEME: QuizTheme = {
   title: "Functions Practice",
@@ -21,19 +20,7 @@ export function FactoryPracticeQuizUI() {
   const completeFactoryPractice = useGame((s) => s.completeFactoryPractice);
   const factoryPracticeScore = useGame((s) => s.factoryPracticeScore);
   const resetFactoryPracticeScore = useGame((s) => s.resetFactoryPracticeScore);
-  const { questions, loading, error, regenerate } = useGeneratedQuestions("functions");
-
-  if (loading || error) {
-    return (
-      <QuizLoadingOverlay
-        loading={loading}
-        error={error}
-        theme={THEME}
-        onRetry={regenerate}
-        onClose={closeFactoryPractice}
-      />
-    );
-  }
+  const { questions, markServed } = useGeneratedQuestions("functions");
 
   return (
     <PracticeQuizBase
@@ -44,6 +31,7 @@ export function FactoryPracticeQuizUI() {
       onAddScore={addFactoryPracticeScore}
       onResetScore={resetFactoryPracticeScore}
       onComplete={completeFactoryPractice}
+      onMarkServed={markServed}
     />
   );
 }

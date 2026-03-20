@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Question } from "@/components/game/PracticeQuizBase";
+import { getFallbackQuestions } from "@/data/fallbackQuestions";
 
 type QuizTopic = "conditionals" | "loops" | "functions";
 
 interface CacheEntry {
-  questions: Question[];
+  questions: Question[] | null;
   loading: boolean;
-  error: string | null;
   promise: Promise<Question[]> | null;
 }
 
@@ -30,12 +30,11 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
 }
 
 function startPreload(topic: QuizTopic): void {
-  if (cache[topic]?.questions.length > 0 || cache[topic]?.loading) return;
+  if (cache[topic]?.questions || cache[topic]?.loading) return;
 
   const entry: CacheEntry = {
-    questions: [],
+    questions: null,
     loading: true,
-    error: null,
     promise: null,
   };
 
@@ -43,12 +42,10 @@ function startPreload(topic: QuizTopic): void {
     .then((questions) => {
       entry.questions = questions;
       entry.loading = false;
-      entry.error = null;
       return questions;
     })
     .catch((err) => {
       entry.loading = false;
-      entry.error = err.message || "Failed to load questions";
       throw err;
     });
 
@@ -70,15 +67,15 @@ export function preloadQuestionsForWorld(world: string): void {
 
 interface UseGeneratedQuestionsResult {
   questions: Question[];
-  loading: boolean;
-  error: string | null;
   regenerate: () => void;
 }
 
 export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsResult {
-  const [questions, setQuestions] = useState<Question[]>(cache[topic]?.questions || []);
-  const [loading, setLoading] = useState(!cache[topic]?.questions.length);
-  const [error, setError] = useState<string | null>(cache[topic]?.error || null);
+  const fallbackRef = useRef<Question[]>(getFallbackQuestions(topic));
+  const [generatedQuestions, setGeneratedQuestions] = useState<Question[] | null>(
+    cache[topic]?.questions || null
+  );
+  const [servedUpTo, setServedUpTo] = useState(0);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -86,72 +83,53 @@ export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsRe
     return () => { mountedRef.current = false; };
   }, []);
 
-  const loadFromCache = useCallback(async () => {
-    const entry = cache[topic];
-    if (entry?.questions.length) {
-      setQuestions(entry.questions);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    if (entry?.promise) {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await entry.promise;
-        if (mountedRef.current) {
-          setQuestions(result);
-          setLoading(false);
-        }
-      } catch (err: any) {
-        if (mountedRef.current) {
-          setError(err.message || "Failed to load questions");
-          setLoading(false);
-        }
-      }
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    startPreload(topic);
-    try {
-      const result = await cache[topic]!.promise!;
-      if (mountedRef.current) {
-        setQuestions(result);
-        setLoading(false);
-      }
-    } catch (err: any) {
-      if (mountedRef.current) {
-        setError(err.message || "Failed to load questions");
-        setLoading(false);
-      }
-    }
-  }, [topic]);
-
   useEffect(() => {
-    loadFromCache();
-  }, [loadFromCache]);
+    if (generatedQuestions) return;
 
-  const regenerate = useCallback(async () => {
-    delete cache[topic];
-    setLoading(true);
-    setError(null);
-    startPreload(topic);
-    try {
-      const result = await cache[topic]!.promise!;
-      if (mountedRef.current) {
-        setQuestions(result);
-        setLoading(false);
-      }
-    } catch (err: any) {
-      if (mountedRef.current) {
-        setError(err.message || "Failed to load questions");
-        setLoading(false);
-      }
+    const entry = cache[topic];
+    if (entry?.questions) {
+      setGeneratedQuestions(entry.questions);
+      return;
     }
+
+    if (!entry?.promise) {
+      startPreload(topic);
+    }
+
+    cache[topic]?.promise
+      ?.then((qs) => {
+        if (mountedRef.current) setGeneratedQuestions(qs);
+      })
+      .catch(() => {});
+  }, [topic, generatedQuestions]);
+
+  const markServed = useCallback((index: number) => {
+    setServedUpTo((prev) => Math.max(prev, index + 1));
+  }, []);
+
+  const questions: Question[] = [];
+  for (let i = 0; i < 8; i++) {
+    if (i < servedUpTo) {
+      questions.push(fallbackRef.current[i]);
+    } else if (generatedQuestions) {
+      questions.push({ ...generatedQuestions[i], id: i + 1 });
+    } else {
+      questions.push(fallbackRef.current[i]);
+    }
+  }
+
+  const regenerate = useCallback(() => {
+    delete cache[topic];
+    fallbackRef.current = getFallbackQuestions(topic);
+    setGeneratedQuestions(null);
+    setServedUpTo(0);
+    startPreload(topic);
+    cache[topic]?.promise
+      ?.then((qs) => {
+        if (mountedRef.current) setGeneratedQuestions(qs);
+      })
+      .catch(() => {});
   }, [topic]);
 
-  return { questions, loading, error, regenerate };
+  return { questions, regenerate, markServed };
 }
