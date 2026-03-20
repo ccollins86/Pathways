@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useState, useCallback, useEffect } from "react";
+import { preloadQuestionsForWorld } from "@/hooks/useGeneratedQuestions";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
@@ -1189,6 +1190,10 @@ function App() {
   const currentWorld = useGame((s) => s.currentWorld);
   const [user, setUser] = useState<{ id: number; username: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    preloadQuestionsForWorld(currentWorld);
+  }, [currentWorld]);
 
   const handleLogout = useCallback(async () => {
     try {
