@@ -58,27 +58,64 @@ Each question should:
 };
 
 function sanitizeJSON(text: string): string {
-  return text.replace(/\\'/g, "'");
+  let result = "";
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "\\" && i + 1 < text.length && text[i + 1] === "'") {
+      result += "'";
+      i++;
+    } else {
+      result += text[i];
+    }
+  }
+  return result;
+}
+
+function extractCodeBlock(text: string): string | null {
+  const openMarker = "```";
+  const openIdx = text.indexOf(openMarker);
+  if (openIdx === -1) return null;
+
+  let contentStart = openIdx + openMarker.length;
+  const afterMarker = text.slice(contentStart);
+  if (afterMarker.startsWith("json")) {
+    contentStart += 4;
+  }
+  while (contentStart < text.length && (text[contentStart] === " " || text[contentStart] === "\t" || text[contentStart] === "\n" || text[contentStart] === "\r")) {
+    contentStart++;
+  }
+
+  const closeIdx = text.indexOf(openMarker, contentStart);
+  if (closeIdx === -1) return null;
+
+  return text.slice(contentStart, closeIdx).trim();
+}
+
+function extractBracketContent(text: string, open: string, close: string): string | null {
+  const start = text.indexOf(open);
+  if (start === -1) return null;
+  const end = text.lastIndexOf(close);
+  if (end === -1 || end <= start) return null;
+  return text.slice(start, end + 1);
 }
 
 function extractJSON(text: string): any {
-  const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonBlockMatch) {
-    return JSON.parse(sanitizeJSON(jsonBlockMatch[1].trim()));
+  const codeBlock = extractCodeBlock(text);
+  if (codeBlock) {
+    return JSON.parse(sanitizeJSON(codeBlock));
   }
 
   try {
     return JSON.parse(sanitizeJSON(text));
   } catch {}
 
-  const arrayMatch = text.match(/\[[\s\S]*\]/);
-  if (arrayMatch) {
-    return JSON.parse(sanitizeJSON(arrayMatch[0]));
+  const arrayContent = extractBracketContent(text, "[", "]");
+  if (arrayContent) {
+    return JSON.parse(sanitizeJSON(arrayContent));
   }
 
-  const objectMatch = text.match(/\{[\s\S]*\}/);
-  if (objectMatch) {
-    return JSON.parse(sanitizeJSON(objectMatch[0]));
+  const objectContent = extractBracketContent(text, "{", "}");
+  if (objectContent) {
+    return JSON.parse(sanitizeJSON(objectContent));
   }
 
   throw new Error("No JSON found in response");
