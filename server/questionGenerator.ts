@@ -15,7 +15,7 @@ export interface GeneratedQuestion {
   hint: string;
 }
 
-const VALID_TOPICS = ["conditionals", "loops", "functions"] as const;
+const VALID_TOPICS = ["conditionals", "loops", "functions", "disaster_lesson"] as const;
 type QuizTopic = typeof VALID_TOPICS[number];
 
 export function isValidTopic(topic: string): topic is QuizTopic {
@@ -54,6 +54,17 @@ Each question should:
 - Include a clear explanation of the concept being tested
 - Include a helpful hint that guides the student without giving the answer away
 - Use relatable contexts like making products, greeting people, calculating costs
+- Use friendly, educational language appropriate for young learners`,
+
+  disaster_lesson: `Generate 3 multiple-choice quiz questions about JavaScript if/else-if/else conditional branching for beginner programming students (K-12 / introductory CS level). The questions should use a natural disaster preparedness theme.
+
+Each question should:
+- Show a short code snippet (3-8 lines) using if/else if/else with disaster-related variables (e.g. disaster types like "hurricane", "wildfire", "earthquake", "flood", "tornado"; preparation actions like sandbagging, boarding windows, securing furniture, clearing brush, evacuating)
+- Ask what the code outputs, which branch executes, or what a variable is set to
+- Have exactly 4 answer options
+- Include a clear explanation of why the correct answer is right, mentioning how conditions are checked top-to-bottom and only the first matching branch runs
+- Include a helpful hint that guides the student without giving the answer away
+- Question 1 should be straightforward (simple if/else-if matching), Question 2 should involve an else catch-all block, Question 3 should test a trickier concept like duplicate conditions or OR operators
 - Use friendly, educational language appropriate for young learners`,
 };
 
@@ -149,7 +160,15 @@ function validateQuestion(q: any, idx: number): GeneratedQuestion | null {
 
 const MAX_RETRIES = 2;
 
+const TOPIC_QUESTION_COUNT: Record<QuizTopic, number> = {
+  conditionals: 8,
+  loops: 8,
+  functions: 8,
+  disaster_lesson: 3,
+};
+
 async function attemptGeneration(topic: QuizTopic): Promise<GeneratedQuestion[]> {
+  const expectedCount = TOPIC_QUESTION_COUNT[topic];
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
@@ -157,10 +176,10 @@ async function attemptGeneration(topic: QuizTopic): Promise<GeneratedQuestion[]>
         role: "system",
         content: `You are a quiz question generator for an educational programming game aimed at beginner students.
 
-Respond with ONLY a JSON object containing a "questions" key with an array of exactly 8 question objects. No markdown, no code fences, no explanation text.
+Respond with ONLY a JSON object containing a "questions" key with an array of exactly ${expectedCount} question objects. No markdown, no code fences, no explanation text.
 
 Each question object must have these exact fields:
-- "id": number (1 through 8)
+- "id": number (1 through ${expectedCount})
 - "code": string (the code snippet with newlines)
 - "question": string (the question to ask about the code)
 - "options": array of exactly 4 strings (the multiple choice answers)
@@ -203,11 +222,11 @@ Do not use escaped single quotes in strings. Use double quotes for strings withi
     .map((q, idx) => validateQuestion(q, idx))
     .filter((q): q is GeneratedQuestion => q !== null);
 
-  if (validated.length < 8) {
-    throw new Error(`Only ${validated.length}/8 questions passed validation`);
+  if (validated.length < expectedCount) {
+    throw new Error(`Only ${validated.length}/${expectedCount} questions passed validation`);
   }
 
-  return validated.slice(0, 8);
+  return validated.slice(0, expectedCount);
 }
 
 export function isLLMAvailable(): boolean {

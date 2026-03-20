@@ -27,7 +27,7 @@ export async function registerRoutes(
   app.get("/api/generate-questions/:topic", async (req, res) => {
     const { topic } = req.params;
     if (!isValidTopic(topic)) {
-      return res.status(400).json({ error: `Invalid topic. Valid topics: conditionals, loops, functions` });
+      return res.status(400).json({ error: `Invalid topic. Valid topics: conditionals, loops, functions, disaster_lesson` });
     }
     if (!isLLMAvailable()) {
       return res.status(503).json({ error: "LLM API not configured", unavailable: true });

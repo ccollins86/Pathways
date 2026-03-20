@@ -265,9 +265,74 @@ function shuffleArray<T>(arr: T[]): T[] {
   return shuffled;
 }
 
-export function getFallbackQuestions(topic: "conditionals" | "loops" | "functions"): Question[] {
-  const pool = topic === "conditionals" ? FALLBACK_CONDITIONALS
-    : topic === "loops" ? FALLBACK_LOOPS
-    : FALLBACK_FUNCTIONS;
-  return shuffleArray(pool).slice(0, 8).map((q, i) => ({ ...q, id: i + 1 }));
+const FALLBACK_DISASTER_LESSON: Question[] = [
+  {
+    id: 1,
+    code: `let disaster = "wildfire";
+
+if (disaster === "hurricane") {
+  sandBagDoors();
+} else if (disaster === "wildfire") {
+  sprayRetardant();
+} else if (disaster === "earthquake") {
+  strapFurniture();
+}`,
+    question: "Which function gets called?",
+    options: ["sandBagDoors()", "sprayRetardant()", "strapFurniture()", "All three"],
+    correctIndex: 1,
+    explanation: 'Since disaster is "wildfire", only the matching else-if branch runs. The hurricane and earthquake branches are skipped entirely.',
+    hint: "Look at the value of disaster and find the condition that matches it.",
+  },
+  {
+    id: 2,
+    code: `let disaster = "earthquake";
+
+if (disaster === "hurricane") {
+  prepareType = "board windows";
+} else if (disaster === "wildfire") {
+  prepareType = "clear brush";
+} else {
+  prepareType = "secure items";
+}`,
+    question: "What is prepareType set to?",
+    options: ['"board windows"', '"clear brush"', '"secure items"', "Nothing — it's undefined"],
+    correctIndex: 2,
+    explanation: '"earthquake" doesn\'t match "hurricane" or "wildfire", so neither if nor else-if is true. The else block catches everything else, setting prepareType to "secure items".',
+    hint: "When none of the if/else-if conditions are true, which block runs?",
+  },
+  {
+    id: 3,
+    code: `let danger = "flood";
+
+if (danger === "flood") {
+  action = "evacuate";
+} else if (danger === "flood") {
+  action = "sandBag";
+} else {
+  action = "stay";
+}`,
+    question: 'There are two conditions checking for "flood". What is action?',
+    options: ['"evacuate"', '"sandBag"', '"stay"', '"evacuate" and "sandBag"'],
+    correctIndex: 0,
+    explanation: 'Even though both conditions check for "flood", only the FIRST matching branch runs. Once "evacuate" is assigned, all remaining branches are skipped.',
+    hint: "When multiple conditions could match, think about which one the computer checks first.",
+  },
+];
+
+export type QuizTopic = "conditionals" | "loops" | "functions" | "disaster_lesson";
+
+const TOPIC_POOLS: Record<QuizTopic, { questions: Question[]; count: number }> = {
+  conditionals: { questions: FALLBACK_CONDITIONALS, count: 8 },
+  loops: { questions: FALLBACK_LOOPS, count: 8 },
+  functions: { questions: FALLBACK_FUNCTIONS, count: 8 },
+  disaster_lesson: { questions: FALLBACK_DISASTER_LESSON, count: 3 },
+};
+
+export function getFallbackQuestions(topic: QuizTopic): Question[] {
+  const { questions, count } = TOPIC_POOLS[topic];
+  return shuffleArray(questions).slice(0, count).map((q, i) => ({ ...q, id: i + 1 }));
+}
+
+export function getQuestionCount(topic: QuizTopic): number {
+  return TOPIC_POOLS[topic].count;
 }

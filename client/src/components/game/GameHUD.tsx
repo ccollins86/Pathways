@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
+import { useGeneratedQuestions } from "@/hooks/useGeneratedQuestions";
 
 const ITEM_LABELS: Record<string, string> = {
   sandbag: "Sandbag",
@@ -10,65 +11,6 @@ const ITEM_LABELS: Record<string, string> = {
   wrench: "Wrench",
 };
 
-interface LessonQuestion {
-  code: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  hint: string;
-}
-
-const LESSON_QUESTIONS: LessonQuestion[] = [
-  {
-    code: `let disaster = "wildfire";
-
-if (disaster === "hurricane") {
-  sandBagDoors();
-} else if (disaster === "wildfire") {
-  sprayRetardant();
-} else if (disaster === "earthquake") {
-  strapFurniture();
-}`,
-    question: "Which function gets called?",
-    options: ["sandBagDoors()", "sprayRetardant()", "strapFurniture()", "All three"],
-    correctIndex: 1,
-    explanation: 'Since disaster is "wildfire", only the matching else-if branch runs. The hurricane and earthquake branches are skipped entirely.',
-    hint: "Look at the value of disaster and find the condition that matches it.",
-  },
-  {
-    code: `let disaster = "earthquake";
-
-if (disaster === "hurricane") {
-  prepareType = "board windows";
-} else if (disaster === "wildfire") {
-  prepareType = "clear brush";
-} else {
-  prepareType = "secure items";
-}`,
-    question: "What is prepareType set to?",
-    options: ['"board windows"', '"clear brush"', '"secure items"', "Nothing — it's undefined"],
-    correctIndex: 2,
-    explanation: '"earthquake" doesn\'t match "hurricane" or "wildfire", so neither if nor else-if is true. The else block catches everything else, setting prepareType to "secure items".',
-    hint: "When none of the if/else-if conditions are true, which block runs?",
-  },
-  {
-    code: `let danger = "flood";
-
-if (danger === "flood") {
-  action = "evacuate";
-} else if (danger === "flood") {
-  action = "sandBag";
-} else {
-  action = "stay";
-}`,
-    question: 'There are two conditions checking for "flood". What is action?',
-    options: ['"evacuate"', '"sandBag"', '"stay"', '"evacuate" and "sandBag"'],
-    correctIndex: 0,
-    explanation: 'Even though both conditions check for "flood", only the FIRST matching branch runs. Once "evacuate" is assigned, all remaining branches are skipped.',
-    hint: "When multiple conditions could match, think about which one the computer checks first.",
-  },
-];
 
 const IS_DEV = import.meta.env.DEV;
 
@@ -96,6 +38,8 @@ export function GameHUD() {
   const practiceCompleted = useGame((s) => s.practiceCompleted);
   const portalActive = useGame((s) => s.portalActive);
 
+  const { questions: lessonQuestions, markServed: markLessonServed } = useGeneratedQuestions("disaster_lesson");
+
   const [showLesson, setShowLesson] = useState(false);
   const [lessonQuizActive, setLessonQuizActive] = useState(false);
   const [lessonQuizQ, setLessonQuizQ] = useState(0);
@@ -115,7 +59,7 @@ export function GameHUD() {
 
   const handleLessonQuizAnswer = useCallback((index: number) => {
     if (lessonQuizCorrect) return;
-    const q = LESSON_QUESTIONS[lessonQuizQ];
+    const q = lessonQuestions[lessonQuizQ];
     setLessonQuizSelected(index);
     if (index === q.correctIndex) {
       setLessonQuizCorrect(true);
@@ -129,20 +73,22 @@ export function GameHUD() {
       setLessonQuizWrong(true);
       setTimeout(() => setLessonQuizSelected(null), 800);
     }
-  }, [lessonQuizCorrect, lessonQuizQ]);
+  }, [lessonQuizCorrect, lessonQuizQ, lessonQuestions]);
 
   const handleLessonQuizNext = useCallback(() => {
-    if (lessonQuizQ >= LESSON_QUESTIONS.length - 1) {
+    if (lessonQuizQ >= lessonQuestions.length - 1) {
       setLessonQuizDone(true);
       setLessonQuizActive(false);
     } else {
-      setLessonQuizQ((q) => q + 1);
+      const nextQ = lessonQuizQ + 1;
+      setLessonQuizQ(nextQ);
+      markLessonServed(nextQ);
       setLessonQuizSelected(null);
       setLessonQuizCorrect(false);
       setLessonQuizWrong(false);
       setLessonQuizHint(false);
     }
-  }, [lessonQuizQ]);
+  }, [lessonQuizQ, lessonQuestions, markLessonServed]);
 
   if (activeDialogue) return null;
 
@@ -342,7 +288,7 @@ export function GameHUD() {
             ) : (
               <>
                 <div
-                  onClick={() => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }}
+                  onClick={() => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); markLessonServed(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }}
                   style={{
                     padding: "10px 24px",
                     background: "#4fc3f7",
@@ -379,7 +325,7 @@ export function GameHUD() {
 
       {/* Lesson quiz */}
       {questCompleted && lessonQuizActive && !viewingLessonFromQuiz && (() => {
-        const q = LESSON_QUESTIONS[lessonQuizQ];
+        const q = lessonQuestions[lessonQuizQ];
         return (
           <div
             style={{
@@ -405,7 +351,7 @@ export function GameHUD() {
                 Lesson Quiz
               </div>
               <div style={{ fontSize: 13, opacity: 0.6 }}>
-                {lessonQuizQ + 1} / {LESSON_QUESTIONS.length}
+                {lessonQuizQ + 1} / {lessonQuestions.length}
               </div>
             </div>
 
@@ -552,7 +498,7 @@ export function GameHUD() {
                     cursor: "pointer",
                   }}
                 >
-                  {lessonQuizQ >= LESSON_QUESTIONS.length - 1 ? "Finish Quiz" : "Next Question"}
+                  {lessonQuizQ >= lessonQuestions.length - 1 ? "Finish Quiz" : "Next Question"}
                 </div>
               )}
             </div>

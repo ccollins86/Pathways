@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Question } from "@/components/game/PracticeQuizBase";
-import { getFallbackQuestions } from "@/data/fallbackQuestions";
-
-type QuizTopic = "conditionals" | "loops" | "functions";
+import { getFallbackQuestions, getQuestionCount, type QuizTopic } from "@/data/fallbackQuestions";
 
 interface CacheEntry {
   questions: Question[] | null;
@@ -107,16 +105,16 @@ function startPreload(topic: QuizTopic): void {
   cache[topic] = entry;
 }
 
-const WORLD_TOPICS: Record<string, QuizTopic> = {
-  town: "conditionals",
-  ocean: "loops",
-  factory: "functions",
+const WORLD_TOPICS: Record<string, QuizTopic[]> = {
+  town: ["conditionals", "disaster_lesson"],
+  ocean: ["loops"],
+  factory: ["functions"],
 };
 
 export function preloadQuestionsForWorld(world: string): void {
-  const topic = WORLD_TOPICS[world];
-  if (topic) {
-    startPreload(topic);
+  const topics = WORLD_TOPICS[world];
+  if (topics) {
+    topics.forEach((topic) => startPreload(topic));
   }
 }
 
@@ -163,8 +161,9 @@ export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsRe
     setServedUpTo((prev) => Math.max(prev, index + 1));
   }, []);
 
+  const questionCount = getQuestionCount(topic);
   const questions: Question[] = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < questionCount; i++) {
     if (i < servedUpTo) {
       questions.push(fallbackRef.current[i]);
     } else if (generatedQuestions) {
