@@ -67,7 +67,8 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
     throw new Error(msg);
   }
   const data = await response.json();
-  if (!Array.isArray(data.questions) || data.questions.length < 8) {
+  const expectedCount = getQuestionCount(topic);
+  if (!Array.isArray(data.questions) || data.questions.length < expectedCount) {
     throw new Error("Received incomplete question set");
   }
   const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
