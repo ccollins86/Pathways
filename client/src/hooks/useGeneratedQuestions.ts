@@ -165,9 +165,7 @@ export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsRe
   const questionCount = getQuestionCount(topic);
   const questions: Question[] = [];
   for (let i = 0; i < questionCount; i++) {
-    if (i < servedUpTo) {
-      questions.push(fallbackRef.current[i]);
-    } else if (generatedQuestions) {
+    if (generatedQuestions) {
       questions.push({ ...generatedQuestions[i], id: i + 1 });
     } else {
       questions.push(fallbackRef.current[i]);
