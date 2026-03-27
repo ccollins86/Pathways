@@ -95,6 +95,8 @@ export function GameHUD() {
   const unlockPractice = useGame((s) => s.unlockPractice);
   const practiceCompleted = useGame((s) => s.practiceCompleted);
   const portalActive = useGame((s) => s.portalActive);
+  const addTotalScore = useGame((s) => s.addTotalScore);
+  const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
   const [showLesson, setShowLesson] = useState(false);
   const [lessonQuizActive, setLessonQuizActive] = useState(false);
@@ -106,11 +108,22 @@ export function GameHUD() {
   const [viewingLessonFromQuiz, setViewingLessonFromQuiz] = useState(false);
   const [lessonQuizDone, setLessonQuizDone] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(true);
+  const [lessonQuizHadWrong, setLessonQuizHadWrong] = useState(false);
+  const [lessonQuizScore, setLessonQuizScore] = useState(0);
+  const [lessonQuizPopups, setLessonQuizPopups] = useState<{ id: number; text: string; color: string }[]>([]);
+  const lessonPopupIdRef = useRef(0);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     successSoundRef.current = new Audio("/sounds/success.mp3");
     successSoundRef.current.volume = 0.5;
+  }, []);
+
+  const addLessonPopup = useCallback((text: string, color: string) => {
+    lessonPopupIdRef.current += 1;
+    const id = lessonPopupIdRef.current;
+    setLessonQuizPopups((prev) => [...prev, { id, text, color }]);
+    setTimeout(() => setLessonQuizPopups((prev) => prev.filter((p) => p.id !== id)), 1500);
   }, []);
 
   const handleLessonQuizAnswer = useCallback((index: number) => {
@@ -119,6 +132,15 @@ export function GameHUD() {
     setLessonQuizSelected(index);
     if (index === q.correctIndex) {
       setLessonQuizCorrect(true);
+      addTotalScore(10);
+      setLessonQuizScore((s) => s + 10);
+      addLessonPopup("+10", "#4ade80");
+      if (!lessonQuizHadWrong) {
+        addTotalScore(5);
+        setLessonQuizScore((s) => s + 5);
+        incrementFirstTry();
+        setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 300);
+      }
       try {
         if (successSoundRef.current) {
           successSoundRef.current.currentTime = 0;
@@ -127,9 +149,10 @@ export function GameHUD() {
       } catch {}
     } else {
       setLessonQuizWrong(true);
+      setLessonQuizHadWrong(true);
       setTimeout(() => setLessonQuizSelected(null), 800);
     }
-  }, [lessonQuizCorrect, lessonQuizQ]);
+  }, [lessonQuizCorrect, lessonQuizQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
 
   const handleLessonQuizNext = useCallback(() => {
     if (lessonQuizQ >= LESSON_QUESTIONS.length - 1) {
@@ -141,6 +164,7 @@ export function GameHUD() {
       setLessonQuizCorrect(false);
       setLessonQuizWrong(false);
       setLessonQuizHint(false);
+      setLessonQuizHadWrong(false);
     }
   }, [lessonQuizQ]);
 
@@ -476,14 +500,48 @@ export function GameHUD() {
                   border: "1px solid #66bb6a",
                   borderRadius: 8,
                   marginBottom: 16,
+                  position: "relative",
                 }}
               >
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#66bb6a" }}>
-                  Correct!
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#66bb6a" }}>
+                    Correct! +10 pts
+                  </div>
+                  {!lessonQuizHadWrong && (
+                    <div style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#fbbf24",
+                      background: "rgba(251, 191, 36, 0.15)",
+                      border: "1px solid rgba(251, 191, 36, 0.4)",
+                      borderRadius: 20,
+                      padding: "2px 10px",
+                    }}>
+                      ⭐ First Try +5
+                    </div>
+                  )}
                 </div>
                 <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
                   {q.explanation}
                 </div>
+                {lessonQuizPopups.map((p) => (
+                  <div
+                    key={p.id}
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      right: 16,
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: p.color,
+                      textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                      animation: "floatUp 1.5s ease-out forwards",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {p.text}
+                  </div>
+                ))}
               </div>
             )}
 
@@ -556,6 +614,14 @@ export function GameHUD() {
                 </div>
               )}
             </div>
+          <style>{`
+            @keyframes floatUp {
+              0% { opacity: 0; transform: translateY(0) scale(0.7); }
+              15% { opacity: 1; transform: translateY(-12px) scale(1.1); }
+              30% { transform: translateY(-18px) scale(1); }
+              100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+            }
+          `}</style>
           </div>
         );
       })()}
