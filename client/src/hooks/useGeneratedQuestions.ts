@@ -73,6 +73,9 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
   }
   const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
   console.log(`[QuizLoader] Received ${data.questions.length} AI-generated questions for "${topic}" in ${elapsed}s`);
+  data.questions.forEach((q: any, i: number) => {
+    console.log(`[QuizLoader] Q${i + 1} (${topic}): "${q.question}" | Options: ${q.options.join(", ")} | Correct: ${q.options[q.correctIndex]}`);
+  });
   return data.questions;
 }
 
