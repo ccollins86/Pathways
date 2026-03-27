@@ -537,13 +537,8 @@ export function FactoryPracticeQuizUI() {
         <div style={{ fontSize: 18, fontWeight: 800, color: "#ff9800" }}>
           Functions Practice
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
-          <div style={{ fontSize: 13, color: "#b0bec5" }}>
-            Question {currentQuestion + 1}/{QUESTIONS.length}
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#ffeb3b" }}>
-            Score: {factoryPracticeScore}
-          </div>
+        <div style={{ fontSize: 13, color: "#b0bec5" }}>
+          Question {currentQuestion + 1}/{QUESTIONS.length}
         </div>
       </div>
 

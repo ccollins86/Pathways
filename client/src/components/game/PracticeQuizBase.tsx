@@ -458,13 +458,8 @@ export function PracticeQuizBase({
           <div style={{ fontSize: 20, fontWeight: 800, color: theme.accentColor }}>
             {theme.title}
           </div>
-          <div style={{ display: "flex", gap: 16, alignItems: "center", position: "relative" }}>
-            <div style={{ fontSize: 14, color: "#ffeb3b", fontWeight: 700 }}>
-              Score: {score}
-            </div>
-            <div style={{ fontSize: 13, opacity: 0.6 }}>
-              {currentQ + 1} / {questions.length}
-            </div>
+          <div style={{ fontSize: 13, opacity: 0.6 }}>
+            {currentQ + 1} / {questions.length}
           </div>
         </div>
 
