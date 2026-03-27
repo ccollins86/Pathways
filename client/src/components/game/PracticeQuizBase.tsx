@@ -151,7 +151,7 @@ export function PracticeQuizBase({
       if (!hadWrongAttempt) {
         onFirstTryBonus();
         setFirstTryCountLocal((c) => c + 1);
-        setTimeout(() => addPopup("+5 First Try!", "#facc15"), 300);
+        setTimeout(() => addPopup("+5 First Try!", "#facc15"), 900);
       }
     } else {
       setWrongAttempt(true);

@@ -139,7 +139,7 @@ export function GameHUD() {
         addTotalScore(5);
         setLessonQuizScore((s) => s + 5);
         incrementFirstTry();
-        setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 300);
+        setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 900);
       }
       try {
         if (successSoundRef.current) {
@@ -347,56 +347,24 @@ export function GameHUD() {
           </div>
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            {viewingLessonFromQuiz ? (
-              <div
-                onClick={() => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }}
-                style={{
-                  padding: "10px 24px",
-                  background: "#4fc3f7",
-                  border: "none",
-                  borderRadius: 8,
-                  color: "#0d47a1",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Back to Quiz
-              </div>
-            ) : (
-              <>
-                <div
-                  onClick={() => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }}
-                  style={{
-                    padding: "10px 24px",
-                    background: "#4fc3f7",
-                    border: "none",
-                    borderRadius: 8,
-                    color: "#0d47a1",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Test Your Understanding
-                </div>
-                <div
-                  onClick={() => { setShowLesson(false); setLessonQuizActive(false); setLessonQuizDone(false); restart(); }}
-                  style={{
-                    padding: "10px 24px",
-                    background: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Play Again
-                </div>
-              </>
-            )}
+            <div
+              onClick={viewingLessonFromQuiz
+                ? () => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }
+                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
+              }
+              style={{
+                padding: "12px 32px",
+                background: "#4fc3f7",
+                border: "none",
+                borderRadius: 8,
+                color: "#0d47a1",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {viewingLessonFromQuiz ? "Back to Quiz" : "Test Your Understanding"}
+            </div>
           </div>
         </div>
       )}
@@ -652,36 +620,21 @@ export function GameHUD() {
           <div style={{ fontSize: 16, lineHeight: 1.6, opacity: 0.9, marginBottom: 20 }}>
             Great job! You've shown you understand how branching statements work.
           </div>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
             <div
               onClick={() => { setLessonQuizDone(false); unlockPractice(); }}
               style={{
-                padding: "10px 24px",
+                padding: "12px 32px",
                 background: "#4fc3f7",
                 border: "none",
                 borderRadius: 8,
                 color: "#0d47a1",
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: 700,
                 cursor: "pointer",
               }}
             >
               Continue Playing
-            </div>
-            <div
-              onClick={() => { setLessonQuizDone(false); setLessonQuizActive(false); setShowLesson(false); restart(); }}
-              style={{
-                padding: "10px 24px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                borderRadius: 8,
-                color: "white",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Play Again
             </div>
           </div>
         </div>
