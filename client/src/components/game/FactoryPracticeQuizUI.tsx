@@ -637,17 +637,16 @@ export function FactoryPracticeQuizUI() {
             {isCorrect && !hadWrongAttempt && (
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: 700,
-                  color: "#facc15",
-                  background: "rgba(250, 204, 21, 0.15)",
-                  padding: "2px 8px",
-                  borderRadius: 4,
-                  border: "1px solid rgba(250, 204, 21, 0.3)",
-                  animation: "factory-first-try-glow 1s ease-in-out",
+                  color: "#fbbf24",
+                  background: "rgba(251, 191, 36, 0.15)",
+                  padding: "2px 10px",
+                  borderRadius: 20,
+                  border: "1px solid rgba(251, 191, 36, 0.4)",
                 }}
               >
-                +5 First Try!
+                ⭐ First Try +5
               </span>
             )}
           </div>
