@@ -1187,6 +1187,12 @@ function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
   const currentWorld = useGame((s) => s.currentWorld);
+  /* --- TEMPORARY: Login disabled --- */
+  const user = { id: 0, username: "Guest" };
+  const handleLogout = useCallback(() => {}, []);
+  /* --- END TEMPORARY: Login disabled --- */
+
+  /* --- TEMPORARY: Original login logic (commented out) ---
   const [user, setUser] = useState<{ id: number; username: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -1233,6 +1239,7 @@ function App() {
   if (!user) {
     return <AuthScreen onAuthenticated={setUser} />;
   }
+  --- END TEMPORARY: Original login logic (commented out) --- */
 
   return (
     <div
