@@ -162,17 +162,22 @@ export function PracticeQuizUI() {
   const practiceScore = useGame((s) => s.practiceScore);
   const completePractice = useGame((s) => s.completePractice);
   const resetPracticeScore = useGame((s) => s.resetPracticeScore);
+  const totalScore = useGame((s) => s.totalScore);
+  const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
   return (
     <PracticeQuizBase
       questions={QUESTIONS}
       theme={THEME}
       score={practiceScore}
+      totalScore={totalScore}
       onClose={closePractice}
       onAddScore={addPracticeScore}
       onResetScore={resetPracticeScore}
       onComplete={completePractice}
+      onFirstTryBonus={incrementFirstTry}
       closeOnComplete
+      worldName="Town"
     />
   );
 }

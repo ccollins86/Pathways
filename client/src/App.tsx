@@ -12,6 +12,7 @@ import { SurveyUI } from "./components/game/SurveyUI";
 import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
 import { AuthScreen } from "./components/AuthScreen";
+import { ScoreHUD } from "./components/game/ScoreHUD";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -1251,6 +1252,7 @@ function App() {
       }}
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
+      {phase === "playing" && <ScoreHUD />}
 
       <KeyboardControls map={keyMap}>
         <Canvas

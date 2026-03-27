@@ -163,6 +163,15 @@ interface GameState {
   factoryPracticeScore: number;
   factoryPracticeCompleted: boolean;
 
+  totalScore: number;
+  firstTryCount: number;
+  townQuestBonusAwarded: boolean;
+  oceanQuestBonusAwarded: boolean;
+  factoryQuestBonusAwarded: boolean;
+  townWorldBonusAwarded: boolean;
+  oceanWorldBonusAwarded: boolean;
+  factoryWorldBonusAwarded: boolean;
+
   start: () => void;
   restart: () => void;
   end: () => void;
@@ -237,6 +246,9 @@ interface GameState {
   addFactoryPracticeScore: (points: number) => void;
   resetFactoryPracticeScore: () => void;
   completeFactoryPractice: () => void;
+
+  addTotalScore: (points: number) => void;
+  incrementFirstTry: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -317,6 +329,15 @@ export const useGame = create<GameState>()(
     factoryPracticeScore: 0,
     factoryPracticeCompleted: false,
 
+    totalScore: 0,
+    firstTryCount: 0,
+    townQuestBonusAwarded: false,
+    oceanQuestBonusAwarded: false,
+    factoryQuestBonusAwarded: false,
+    townWorldBonusAwarded: false,
+    oceanWorldBonusAwarded: false,
+    factoryWorldBonusAwarded: false,
+
     start: () => {
       set((state) => {
         if (state.phase === "ready") {
@@ -395,6 +416,14 @@ export const useGame = create<GameState>()(
         factoryPracticeActive: false,
         factoryPracticeScore: 0,
         factoryPracticeCompleted: false,
+        totalScore: 0,
+        firstTryCount: 0,
+        townQuestBonusAwarded: false,
+        oceanQuestBonusAwarded: false,
+        factoryQuestBonusAwarded: false,
+        townWorldBonusAwarded: false,
+        oceanWorldBonusAwarded: false,
+        factoryWorldBonusAwarded: false,
       }));
     },
 
@@ -518,14 +547,17 @@ export const useGame = create<GameState>()(
     unlockPractice: () => set({ practiceUnlocked: true }),
     openPractice: () => set({ practiceActive: true }),
     closePractice: () => set({ practiceActive: false }),
-    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points })),
+    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points })),
     resetPracticeScore: () => set({ practiceScore: 0 }),
     completePractice: () => {
-      const { questCompleted } = get();
-      set({
+      const { questCompleted, townWorldBonusAwarded } = get();
+      const bonus = townWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
         practiceCompleted: true,
         portalActive: questCompleted,
-      });
+        townWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
     },
     enterPortal: () => {
       set({
@@ -562,7 +594,15 @@ export const useGame = create<GameState>()(
       );
       set({ ecosystems: updated, currentSurveyIndex: null });
     },
-    completeOceanQuest: () => set({ oceanQuestCompleted: true }),
+    completeOceanQuest: () => {
+      const { oceanQuestBonusAwarded } = get();
+      const bonus = oceanQuestBonusAwarded ? 0 : 25;
+      set((state) => ({
+        oceanQuestCompleted: true,
+        oceanQuestBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
     equipDivingSuit: () => set({ hasDivingSuit: true }),
 
     startCleanupQuest: () => set({ cleanupQuestStarted: true }),
@@ -586,9 +626,19 @@ export const useGame = create<GameState>()(
     unlockOceanPractice: () => set({ oceanPracticeUnlocked: true }),
     openOceanPractice: () => set({ oceanPracticeActive: true }),
     closeOceanPractice: () => set({ oceanPracticeActive: false }),
-    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points })),
+    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points, totalScore: state.totalScore + points })),
     resetOceanPracticeScore: () => set({ oceanPracticeScore: 0 }),
-    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false, oceanPortalActive: true }),
+    completeOceanPractice: () => {
+      const { oceanWorldBonusAwarded } = get();
+      const bonus = oceanWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
+        oceanPracticeCompleted: true,
+        oceanPracticeActive: false,
+        oceanPortalActive: true,
+        oceanWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
 
     enterFactoryPortal: () => {
       set({
@@ -669,13 +719,15 @@ export const useGame = create<GameState>()(
       else if (carryingBox === "jackets") set({ jacketMachineState: "loaded", carryingBox: null });
       const state = get();
       if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
-        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
+        const bonus = state.factoryQuestBonusAwarded ? 0 : 25;
+        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
       }
     },
     checkFactoryComplete: () => {
-      const { hatMachineState, tshirtMachineState, jacketMachineState } = get();
+      const { hatMachineState, tshirtMachineState, jacketMachineState, factoryQuestBonusAwarded } = get();
       if (hatMachineState === "loaded" && tshirtMachineState === "loaded" && jacketMachineState === "loaded") {
-        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
+        const bonus = factoryQuestBonusAwarded ? 0 : 25;
+        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
       }
     },
     advanceFactoryLesson: () => {
@@ -691,11 +743,22 @@ export const useGame = create<GameState>()(
     closeFactoryPractice: () =>
       set({ factoryPracticeActive: false }),
     addFactoryPracticeScore: (points) =>
-      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points })),
+      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points })),
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
-    completeFactoryPractice: () =>
-      set({ factoryPracticeCompleted: true, factoryPracticeActive: false }),
+    completeFactoryPractice: () => {
+      const { factoryWorldBonusAwarded } = get();
+      const bonus = factoryWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
+        factoryPracticeCompleted: true,
+        factoryPracticeActive: false,
+        factoryWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
+
+    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
+    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
@@ -714,11 +777,14 @@ export const useGame = create<GameState>()(
           earthquakeTasks.furnitureStrapped && earthquakeTasks.gasShutOff;
       }
       if (completed) {
-        const { practiceCompleted } = get();
-        set({
+        const { practiceCompleted, townQuestBonusAwarded } = get();
+        const bonus = townQuestBonusAwarded ? 0 : 25;
+        set((state) => ({
           questCompleted: true,
           portalActive: practiceCompleted,
-        });
+          townQuestBonusAwarded: true,
+          totalScore: state.totalScore + bonus,
+        }));
       }
     },
   }))

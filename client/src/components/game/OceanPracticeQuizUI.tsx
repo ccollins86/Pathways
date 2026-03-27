@@ -26,7 +26,7 @@ for (let eco of ecosystems) {
     question: "What is the value of count after the loop?",
     options: ["0", "1", "3", "It depends on the ecosystem"],
     correctIndex: 2,
-    explanation: "The loop runs once for each of the 3 ecosystems in the array. Each time, count increases by 1. So count goes from 0 → 1 → 2 → 3.",
+    explanation: "The loop runs once for each of the 3 ecosystems in the array. Each time, count increases by 1. So count goes from 0 \u2192 1 \u2192 2 \u2192 3.",
     hint: "Each time the loop runs, count goes up by 1. How many items does it loop over?",
   },
   {
@@ -39,7 +39,7 @@ while (water > 3) {
     question: "What is the value of water after the loop?",
     options: ["1", "2", "3", "0"],
     correctIndex: 1,
-    explanation: "The loop runs while water > 3. It goes: 10→8→6→4→2. When water is 2, the condition (2 > 3) is false, so the loop stops. Water is 2.",
+    explanation: "The loop runs while water > 3. It goes: 10\u21928\u21926\u21924\u21922. When water is 2, the condition (2 > 3) is false, so the loop stops. Water is 2.",
     hint: "Trace the value of water step by step: 10, then subtract 2 each time. At what value does the condition become false?",
   },
   {
@@ -53,7 +53,7 @@ while (sludgePatches > 0) {
     question: "How many times does vacuumSludge() get called?",
     options: ["4 times", "5 times", "6 times", "It runs forever"],
     correctIndex: 1,
-    explanation: "The loop starts with 5 patches and subtracts 1 each time. It runs for values 5, 4, 3, 2, 1 — that's 5 iterations. When patches reaches 0, the condition is false and the loop stops.",
+    explanation: "The loop starts with 5 patches and subtracts 1 each time. It runs for values 5, 4, 3, 2, 1 \u2014 that's 5 iterations. When patches reaches 0, the condition is false and the loop stops.",
     hint: "The loop starts at 5 and goes down by 1. List out each value where the condition is still true.",
   },
   {
@@ -67,7 +67,7 @@ for (let animal of animals) {
     question: "What does total equal after the loop finishes?",
     options: ["0", "1", "4", "It never stops"],
     correctIndex: 2,
-    explanation: "The for loop iterates over all 4 animals in the array. Each iteration adds 1 to total, so total ends up as 4 — one for each animal, just like counting animals at each ecosystem!",
+    explanation: "The for loop iterates over all 4 animals in the array. Each iteration adds 1 to total, so total ends up as 4 \u2014 one for each animal, just like counting animals at each ecosystem!",
     hint: "The loop adds 1 to total for each animal in the array. How many animals are in the array?",
   },
   {
@@ -84,7 +84,7 @@ while (dirty) {
     question: "How many times does the while loop run?",
     options: ["0 times", "2 times", "3 times", "It runs forever"],
     correctIndex: 2,
-    explanation: "The loop runs while dirty is true. After 3 scrubs, dirty becomes false and the loop stops. It runs exactly 3 times — just like cleaning until a condition changes!",
+    explanation: "The loop runs while dirty is true. After 3 scrubs, dirty becomes false and the loop stops. It runs exactly 3 times \u2014 just like cleaning until a condition changes!",
     hint: "The loop keeps running as long as dirty is true. When does dirty become false? Track the value of scrubs.",
   },
   {
@@ -98,7 +98,7 @@ for (let zone of zones) {
     question: "How many total function calls are made?",
     options: ["3 (one per zone)", "6 (two per zone)", "2 (survey and report)", "9"],
     correctIndex: 1,
-    explanation: "The loop runs 3 times (once per zone). Each iteration calls 2 functions: survey() and report(). So 3 × 2 = 6 total function calls. This is like doing multiple tasks at each ecosystem!",
+    explanation: "The loop runs 3 times (once per zone). Each iteration calls 2 functions: survey() and report(). So 3 \u00d7 2 = 6 total function calls. This is like doing multiple tasks at each ecosystem!",
     hint: "Each time the loop runs, how many functions are called? Multiply that by the number of zones.",
   },
   {
@@ -117,10 +117,10 @@ while (roster.length > 0) {
 }`,
     question: "Which loop type is the best choice for this task?",
     options: [
-      "For loop — you know exactly how many students",
-      "While loop — you don't know when to stop",
+      "For loop \u2014 you know exactly how many students",
+      "While loop \u2014 you don't know when to stop",
       "Both are equally good choices",
-      "Neither — you don't need a loop",
+      "Neither \u2014 you don't need a loop",
     ],
     correctIndex: 0,
     explanation: "A for loop is ideal here because you have a known collection (the roster) and want to do something for each item. While loops are better when you're waiting for a condition to change, like cleaning sludge until none remains.",
@@ -146,16 +146,21 @@ export function OceanPracticeQuizUI() {
   const oceanPracticeScore = useGame((s) => s.oceanPracticeScore);
   const completeOceanPractice = useGame((s) => s.completeOceanPractice);
   const resetOceanPracticeScore = useGame((s) => s.resetOceanPracticeScore);
+  const totalScore = useGame((s) => s.totalScore);
+  const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
   return (
     <PracticeQuizBase
       questions={QUESTIONS}
       theme={THEME}
       score={oceanPracticeScore}
+      totalScore={totalScore}
       onClose={closeOceanPractice}
       onAddScore={addOceanPracticeScore}
       onResetScore={resetOceanPracticeScore}
       onComplete={completeOceanPractice}
+      onFirstTryBonus={incrementFirstTry}
+      worldName="Ocean"
     />
   );
 }

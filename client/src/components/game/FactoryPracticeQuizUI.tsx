@@ -28,7 +28,7 @@ let myHat = makeHat("large", "white", "green", "Italy");`,
     ],
     correctIndex: 1,
     explanation:
-      'Parameters are the variable names listed in the function definition (size, topColor, brimColor, lettering). The actual values like "large" and "white" are called arguments — those are the specific inputs you pass in when you call the function.',
+      'Parameters are the variable names listed in the function definition (size, topColor, brimColor, lettering). The actual values like "large" and "white" are called arguments \u2014 those are the specific inputs you pass in when you call the function.',
   },
   {
     id: 2,
@@ -45,7 +45,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     options: ["1", "2", "3", "It depends"],
     correctIndex: 2,
     explanation:
-      'The function creates a shirt for each iteration of the loop. Since quantity is 3, the loop runs 3 times, pushing 3 shirts into the array. The function returns exactly what you asked for — 3 medium shirts!',
+      'The function creates a shirt for each iteration of the loop. Since quantity is 3, the loop runs 3 times, pushing 3 shirts into the array. The function returns exactly what you asked for \u2014 3 medium shirts!',
   },
   {
     id: 3,
@@ -64,7 +64,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     options: ["15", "25", "50", "250"],
     correctIndex: 3,
     explanation:
-      'Since itemType is "jacket", pricePerItem is set to 50. Then the function returns 50 × 5 = 250. Functions can use if/else inside them too — combining the concepts you learned earlier!',
+      'Since itemType is "jacket", pricePerItem is set to 50. Then the function returns 50 \u00d7 5 = 250. Functions can use if/else inside them too \u2014 combining the concepts you learned earlier!',
   },
   {
     id: 4,
@@ -79,7 +79,7 @@ let order = makeTshirt(3, "medium", "red", "blue");`,
     options: [
       "The sleeve color",
       "A finished jacket with all customizations applied",
-      "Nothing — it has no return statement",
+      "Nothing \u2014 it has no return statement",
       "The text for the lettering",
     ],
     correctIndex: 1,
@@ -115,7 +115,7 @@ let message3 = greet("Germany");`,
     options: ['"Hello, Italy!"', '"Hello, USA!"', '"Hello, Germany!"', '"Hello, name!"'],
     correctIndex: 1,
     explanation:
-      'When greet("USA") is called, the parameter name gets the value "USA". The function returns "Hello, " + "USA" + "!" which is "Hello, USA!". Same function, different input, different output — just like the same machine producing different products based on your settings!',
+      'When greet("USA") is called, the parameter name gets the value "USA". The function returns "Hello, " + "USA" + "!" which is "Hello, USA!". Same function, different input, different output \u2014 just like the same machine producing different products based on your settings!',
   },
   {
     id: 7,
@@ -138,7 +138,7 @@ let message3 = greet("Germany");`,
     ],
     correctIndex: 2,
     explanation:
-      'Since qty is 0, the condition (qty <= 0) is true, so the function returns "Invalid order!" immediately. The return statement exits the function right away — produce, pack, and ship never run. This is called an early return, and it\'s useful for input validation!',
+      'Since qty is 0, the condition (qty <= 0) is true, so the function returns "Invalid order!" immediately. The return statement exits the function right away \u2014 produce, pack, and ship never run. This is called an early return, and it\'s useful for input validation!',
   },
   {
     id: 8,
@@ -158,7 +158,7 @@ function makeHat(quantity, size, topColor, brimColor, lettering) {
     ],
     correctIndex: 0,
     explanation:
-      "The order of arguments must match the order of parameters in the function definition: quantity first (2), then size (\"large\"), then topColor (\"white\"), brimColor (\"green\"), and lettering (\"Italy\"). Getting the order wrong is a common bug — just like entering the wrong settings on a machine!",
+      "The order of arguments must match the order of parameters in the function definition: quantity first (2), then size (\"large\"), then topColor (\"white\"), brimColor (\"green\"), and lettering (\"Italy\"). Getting the order wrong is a common bug \u2014 just like entering the wrong settings on a machine!",
   },
 ];
 
@@ -194,18 +194,32 @@ function createConfetti(): ConfettiPiece[] {
   return pieces;
 }
 
+interface ScorePopup {
+  id: number;
+  text: string;
+  color: string;
+}
+
 export function FactoryPracticeQuizUI() {
   const closeFactoryPractice = useGame((s) => s.closeFactoryPractice);
   const addFactoryPracticeScore = useGame((s) => s.addFactoryPracticeScore);
   const completeFactoryPractice = useGame((s) => s.completeFactoryPractice);
   const factoryPracticeScore = useGame((s) => s.factoryPracticeScore);
+  const totalScore = useGame((s) => s.totalScore);
+  const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [hadWrongAttempt, setHadWrongAttempt] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const [animating, setAnimating] = useState(false);
+  const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
+  const [showSummary, setShowSummary] = useState(false);
+  const [firstTryCountLocal, setFirstTryCountLocal] = useState(0);
+  const [summaryPhase, setSummaryPhase] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const popupIdRef = useRef(0);
 
   const question = QUESTIONS[currentQuestion];
   const isCorrect = selectedAnswer === question.correctIndex;
@@ -218,6 +232,15 @@ export function FactoryPracticeQuizUI() {
     } catch {}
   }, []);
 
+  const addPopup = useCallback((text: string, color: string) => {
+    popupIdRef.current += 1;
+    const id = popupIdRef.current;
+    setScorePopups((prev) => [...prev, { id, text, color }]);
+    setTimeout(() => {
+      setScorePopups((prev) => prev.filter((p) => p.id !== id));
+    }, 1500);
+  }, []);
+
   const handleAnswer = useCallback(
     (index: number) => {
       if (selectedAnswer !== null || animating) return;
@@ -226,6 +249,7 @@ export function FactoryPracticeQuizUI() {
 
       if (index === question.correctIndex) {
         addFactoryPracticeScore(10);
+        addPopup("+10", "#4ade80");
         setConfetti(createConfetti());
         try {
           audioRef.current?.play();
@@ -235,20 +259,221 @@ export function FactoryPracticeQuizUI() {
           setAnimating(false);
           setConfetti([]);
         }, 1500);
+        if (!hadWrongAttempt) {
+          incrementFirstTry();
+          setFirstTryCountLocal((c) => c + 1);
+          setTimeout(() => addPopup("+5 First Try!", "#facc15"), 300);
+        }
+      } else {
+        setHadWrongAttempt(true);
       }
     },
-    [selectedAnswer, animating, question.correctIndex, addFactoryPracticeScore]
+    [selectedAnswer, animating, question.correctIndex, addFactoryPracticeScore, hadWrongAttempt, incrementFirstTry, addPopup]
   );
 
   const handleNext = useCallback(() => {
     if (isLastQuestion) {
-      completeFactoryPractice();
+      setShowSummary(true);
+      setSummaryPhase(0);
+      setTimeout(() => setSummaryPhase(1), 400);
+      setTimeout(() => setSummaryPhase(2), 900);
+      setTimeout(() => setSummaryPhase(3), 1400);
+      setTimeout(() => setSummaryPhase(4), 1900);
     } else {
       setCurrentQuestion((prev) => prev + 1);
       setSelectedAnswer(null);
       setShowExplanation(false);
+      setHadWrongAttempt(false);
     }
-  }, [isLastQuestion, completeFactoryPractice]);
+  }, [isLastQuestion]);
+
+  const handleFinishSummary = () => {
+    completeFactoryPractice();
+  };
+
+  const firstTryBonusTotal = firstTryCountLocal * 5;
+  const worldBonus = 50;
+  const accentColor = "#ff9800";
+
+  if (showSummary) {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)",
+          borderRadius: 20,
+          padding: "32px 40px",
+          color: "white",
+          fontFamily: "'Inter', sans-serif",
+          zIndex: 250,
+          border: `2px solid ${accentColor}`,
+          boxShadow: `0 0 60px ${accentColor}40, 0 20px 60px rgba(0,0,0,0.5)`,
+          width: 480,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: accentColor,
+            textTransform: "uppercase",
+            letterSpacing: 2,
+            marginBottom: 4,
+            opacity: summaryPhase >= 0 ? 1 : 0,
+            transform: summaryPhase >= 0 ? "translateY(0)" : "translateY(10px)",
+            transition: "all 0.5s ease-out",
+          }}
+        >
+          Factory Practice Complete!
+        </div>
+
+        <div
+          style={{
+            fontSize: 48,
+            marginBottom: 24,
+            opacity: summaryPhase >= 0 ? 1 : 0,
+            animation: summaryPhase >= 0 ? "factory-trophy-bounce 0.6s ease-out" : "none",
+          }}
+        >
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" style={{ display: "inline-block" }}>
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#facc15" stroke="#eab308" strokeWidth="0.5" />
+          </svg>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "10px 16px",
+              background: "rgba(255,255,255,0.05)",
+              borderRadius: 10,
+              opacity: summaryPhase >= 1 ? 1 : 0,
+              transform: summaryPhase >= 1 ? "translateX(0)" : "translateX(-20px)",
+              transition: "all 0.5s ease-out",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#4ade80" opacity="0.2"/><path d="M9 12l2 2 4-4" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>Correct Answers</span>
+            </div>
+            <span style={{ fontSize: 18, fontWeight: 800, color: "#4ade80" }}>+{factoryPracticeScore}</span>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "10px 16px",
+              background: firstTryCountLocal > 0 ? "rgba(250, 204, 21, 0.08)" : "rgba(255,255,255,0.03)",
+              borderRadius: 10,
+              opacity: summaryPhase >= 2 ? 1 : 0,
+              transform: summaryPhase >= 2 ? "translateX(0)" : "translateX(-20px)",
+              transition: "all 0.5s ease-out",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill={firstTryCountLocal > 0 ? "#facc15" : "#475569"} opacity={firstTryCountLocal > 0 ? 1 : 0.5}/></svg>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>First-Try Bonus ({firstTryCountLocal}/{QUESTIONS.length})</span>
+            </div>
+            <span style={{ fontSize: 18, fontWeight: 800, color: firstTryCountLocal > 0 ? "#facc15" : "#475569" }}>+{firstTryBonusTotal}</span>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "10px 16px",
+              background: "rgba(168, 85, 247, 0.08)",
+              borderRadius: 10,
+              opacity: summaryPhase >= 3 ? 1 : 0,
+              transform: summaryPhase >= 3 ? "translateX(0)" : "translateX(-20px)",
+              transition: "all 0.5s ease-out",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#a855f7" opacity="0.9"/></svg>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>World Completion</span>
+            </div>
+            <span style={{ fontSize: 18, fontWeight: 800, color: "#a855f7" }}>+{worldBonus}</span>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "12px 16px",
+              background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}08)`,
+              borderRadius: 10,
+              border: `1px solid ${accentColor}40`,
+              opacity: summaryPhase >= 4 ? 1 : 0,
+              transform: summaryPhase >= 4 ? "translateY(0) scale(1)" : "translateY(10px) scale(0.95)",
+              transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            <span style={{ fontSize: 16, fontWeight: 700 }}>Session Total</span>
+            <span
+              style={{
+                fontSize: 24,
+                fontWeight: 900,
+                color: accentColor,
+                textShadow: summaryPhase >= 4 ? `0 0 12px ${accentColor}60` : "none",
+              }}
+            >
+              +{factoryPracticeScore + firstTryBonusTotal + worldBonus}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ opacity: summaryPhase >= 4 ? 1 : 0, transition: "opacity 0.5s ease-out 0.3s" }}>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>
+            Total Score: {totalScore}
+          </div>
+          <div
+            onClick={handleFinishSummary}
+            style={{
+              display: "inline-block",
+              padding: "12px 40px",
+              background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`,
+              border: "none",
+              borderRadius: 10,
+              color: "white",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: `0 4px 20px ${accentColor}40`,
+              transition: "transform 0.2s, box-shadow 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLDivElement).style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLDivElement).style.transform = "scale(1)";
+            }}
+          >
+            Continue
+          </div>
+        </div>
+
+        <style>{`
+          @keyframes factory-trophy-bounce {
+            0% { transform: scale(0) rotate(-15deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            75% { transform: scale(0.95) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -295,19 +520,49 @@ export function FactoryPracticeQuizUI() {
           0% { transform: translateY(0) rotate(0deg); opacity: 1; }
           100% { transform: translateY(${200 + Math.random() * 100}px) rotate(${360 + Math.random() * 360}deg); opacity: 0; }
         }
+        @keyframes factory-score-pop {
+          0% { opacity: 0; transform: translateY(0) scale(0.7); }
+          15% { opacity: 1; transform: translateY(-12px) scale(1.1); }
+          30% { transform: translateY(-18px) scale(1); }
+          100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+        }
+        @keyframes factory-first-try-glow {
+          0% { box-shadow: 0 0 0 rgba(250, 204, 21, 0); }
+          50% { box-shadow: 0 0 12px rgba(250, 204, 21, 0.4); }
+          100% { box-shadow: 0 0 0 rgba(250, 204, 21, 0); }
+        }
       `}</style>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div style={{ fontSize: 18, fontWeight: 800, color: "#ff9800" }}>
           Functions Practice
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
           <div style={{ fontSize: 13, color: "#b0bec5" }}>
             Question {currentQuestion + 1}/{QUESTIONS.length}
           </div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "#ffeb3b" }}>
             Score: {factoryPracticeScore}
           </div>
+          {scorePopups.map((popup) => (
+            <div
+              key={popup.id}
+              style={{
+                position: "absolute",
+                right: 0,
+                top: -8,
+                fontSize: 14,
+                fontWeight: 800,
+                color: popup.color,
+                whiteSpace: "nowrap",
+                animation: "factory-score-pop 1.5s ease-out forwards",
+                pointerEvents: "none",
+                textShadow: `0 0 8px ${popup.color}80`,
+              }}
+            >
+              {popup.text}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -377,8 +632,24 @@ export function FactoryPracticeQuizUI() {
             marginBottom: 16,
           }}
         >
-          <div style={{ fontWeight: 700, marginBottom: 4, color: isCorrect ? "#69f0ae" : "#ff8a80" }}>
-            {isCorrect ? "Correct! +10 points" : "Not quite!"}
+          <div style={{ fontWeight: 700, marginBottom: 4, color: isCorrect ? "#69f0ae" : "#ff8a80", display: "flex", alignItems: "center", gap: 8 }}>
+            <span>{isCorrect ? "Correct! +10 pts" : "Not quite!"}</span>
+            {isCorrect && !hadWrongAttempt && (
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#facc15",
+                  background: "rgba(250, 204, 21, 0.15)",
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  border: "1px solid rgba(250, 204, 21, 0.3)",
+                  animation: "factory-first-try-glow 1s ease-in-out",
+                }}
+              >
+                +5 First Try!
+              </span>
+            )}
           </div>
           {question.explanation}
         </div>
@@ -401,7 +672,7 @@ export function FactoryPracticeQuizUI() {
               letterSpacing: 1,
             }}
           >
-            {isLastQuestion ? "Finish" : "Next Question"}
+            {isLastQuestion ? "View Results" : "Next Question"}
           </div>
         </div>
       )}
