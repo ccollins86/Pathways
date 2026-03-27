@@ -43,11 +43,12 @@ export function ScoreHUD() {
       style={{
         position: "absolute",
         top: 16,
-        right: 16,
+        left: "50%",
+        transform: "translateX(-50%)",
         zIndex: 100,
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-end",
+        alignItems: "center",
         pointerEvents: "none",
       }}
     >
