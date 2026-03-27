@@ -544,25 +544,6 @@ export function FactoryPracticeQuizUI() {
           <div style={{ fontSize: 14, fontWeight: 700, color: "#ffeb3b" }}>
             Score: {factoryPracticeScore}
           </div>
-          {scorePopups.map((popup) => (
-            <div
-              key={popup.id}
-              style={{
-                position: "absolute",
-                right: 0,
-                top: -8,
-                fontSize: 14,
-                fontWeight: 800,
-                color: popup.color,
-                whiteSpace: "nowrap",
-                animation: "factory-score-pop 1.5s ease-out forwards",
-                pointerEvents: "none",
-                textShadow: `0 0 8px ${popup.color}80`,
-              }}
-            >
-              {popup.text}
-            </div>
-          ))}
         </div>
       </div>
 
@@ -630,12 +611,15 @@ export function FactoryPracticeQuizUI() {
             fontSize: 13,
             lineHeight: 1.6,
             marginBottom: 16,
+            position: "relative",
           }}
         >
-          <div style={{ fontWeight: 700, marginBottom: 4, color: isCorrect ? "#69f0ae" : "#ff8a80", display: "flex", alignItems: "center", gap: 8 }}>
-            <span>{isCorrect ? "Correct! +10 pts" : "Not quite!"}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <div style={{ fontWeight: 700, color: isCorrect ? "#69f0ae" : "#ff8a80" }}>
+              {isCorrect ? "Correct! +10 pts" : "Not quite!"}
+            </div>
             {isCorrect && !hadWrongAttempt && (
-              <span
+              <div
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
@@ -647,10 +631,28 @@ export function FactoryPracticeQuizUI() {
                 }}
               >
                 ⭐ First Try +5
-              </span>
+              </div>
             )}
           </div>
           {question.explanation}
+          {isCorrect && scorePopups.map((popup) => (
+            <div
+              key={popup.id}
+              style={{
+                position: "absolute",
+                top: -10,
+                right: 16,
+                fontSize: 18,
+                fontWeight: 800,
+                color: popup.color,
+                textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                animation: "factory-score-pop 1.5s ease-out forwards",
+                pointerEvents: "none",
+              }}
+            >
+              {popup.text}
+            </div>
+          ))}
         </div>
       )}
 
