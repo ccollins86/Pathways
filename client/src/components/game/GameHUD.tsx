@@ -136,10 +136,9 @@ export function GameHUD() {
       setLessonQuizScore((s) => s + 10);
       addLessonPopup("+10", "#4ade80");
       if (!lessonQuizHadWrong) {
-        addTotalScore(5);
         setLessonQuizScore((s) => s + 5);
         incrementFirstTry();
-        setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 900);
+        setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
       }
       try {
         if (successSoundRef.current) {

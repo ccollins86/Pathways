@@ -262,7 +262,7 @@ export function FactoryPracticeQuizUI() {
         if (!hadWrongAttempt) {
           incrementFirstTry();
           setFirstTryCountLocal((c) => c + 1);
-          setTimeout(() => addPopup("+5 First Try!", "#facc15"), 900);
+          setTimeout(() => addPopup("+5 First Try!", "#facc15"), 600);
         }
       } else {
         setHadWrongAttempt(true);
