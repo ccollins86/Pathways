@@ -39,8 +39,8 @@ export function PracticeBooth({ position, playerPosition, practiceUnlocked, prac
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const activeDialogue = useGame.getState().activeDialogue;
-      if (e.code === "KeyE" && nearBooth && practiceUnlocked && !practiceActive && !activeDialogue) {
+      const s = useGame.getState();
+      if (e.code === "KeyE" && nearBooth && practiceUnlocked && !practiceActive && !s.practiceCompleted && !s.activeDialogue) {
         onInteract();
       }
     };
