@@ -62,7 +62,6 @@ interface PracticeQuizBaseProps {
   onResetScore?: () => void;
   onComplete: () => void;
   onFirstTryBonus: () => void;
-  closeOnComplete?: boolean;
   worldName: string;
   worldBonusAwarded?: boolean;
 }
@@ -84,7 +83,6 @@ export function PracticeQuizBase({
   onResetScore,
   onComplete,
   onFirstTryBonus,
-  closeOnComplete = false,
   worldName,
   worldBonusAwarded = false,
 }: PracticeQuizBaseProps) {
@@ -166,6 +164,7 @@ export function PracticeQuizBase({
 
   const handleNext = () => {
     if (isLastQuestion) {
+      onComplete();
       setShowSummary(true);
       setSummaryPhase(0);
       const baseScore = score + 10 + (!hadWrongAttempt ? 0 : 0);
@@ -185,8 +184,7 @@ export function PracticeQuizBase({
   };
 
   const handleFinishSummary = () => {
-    onComplete();
-    if (closeOnComplete) onClose();
+    onClose();
   };
 
   const basePoints = score + (answeredCorrectly ? 0 : 0);

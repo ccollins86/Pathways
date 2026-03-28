@@ -633,7 +633,6 @@ export const useGame = create<GameState>()(
       const bonus = oceanWorldBonusAwarded ? 0 : 50;
       set((state) => ({
         oceanPracticeCompleted: true,
-        oceanPracticeActive: false,
         oceanPortalActive: true,
         oceanWorldBonusAwarded: true,
         totalScore: state.totalScore + bonus,
@@ -751,7 +750,6 @@ export const useGame = create<GameState>()(
       const bonus = factoryWorldBonusAwarded ? 0 : 50;
       set((state) => ({
         factoryPracticeCompleted: true,
-        factoryPracticeActive: false,
         factoryWorldBonusAwarded: true,
         totalScore: state.totalScore + bonus,
       }));

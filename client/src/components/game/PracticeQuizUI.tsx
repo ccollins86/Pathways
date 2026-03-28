@@ -177,7 +177,6 @@ export function PracticeQuizUI() {
       onResetScore={resetPracticeScore}
       onComplete={completePractice}
       onFirstTryBonus={incrementFirstTry}
-      closeOnComplete
       worldName="Town"
       worldBonusAwarded={townWorldBonusAwarded}
     />

@@ -274,6 +274,7 @@ export function FactoryPracticeQuizUI() {
 
   const handleNext = useCallback(() => {
     if (isLastQuestion) {
+      completeFactoryPractice();
       setShowSummary(true);
       setSummaryPhase(0);
       setTimeout(() => setSummaryPhase(1), 400);
@@ -286,10 +287,10 @@ export function FactoryPracticeQuizUI() {
       setShowExplanation(false);
       setHadWrongAttempt(false);
     }
-  }, [isLastQuestion]);
+  }, [isLastQuestion, completeFactoryPractice]);
 
   const handleFinishSummary = () => {
-    completeFactoryPractice();
+    closeFactoryPractice();
   };
 
   const firstTryBonusTotal = firstTryCountLocal * 5;

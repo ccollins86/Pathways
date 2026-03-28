@@ -541,7 +541,6 @@ describe("useGame store", () => {
     it("completes ocean practice and activates portal", () => {
       getState().completeOceanPractice();
       expect(getState().oceanPracticeCompleted).toBe(true);
-      expect(getState().oceanPracticeActive).toBe(false);
       expect(getState().oceanPortalActive).toBe(true);
     });
   });
@@ -1000,7 +999,6 @@ describe("useGame store", () => {
       getState().openFactoryPractice();
       getState().completeFactoryPractice();
       expect(getState().factoryPracticeCompleted).toBe(true);
-      expect(getState().factoryPracticeActive).toBe(false);
     });
   });
 
@@ -1329,7 +1327,6 @@ describe("useGame store", () => {
       getState().addFactoryPracticeScore(10);
       getState().completeFactoryPractice();
       expect(getState().factoryPracticeCompleted).toBe(true);
-      expect(getState().factoryPracticeActive).toBe(false);
     });
   });
 });
