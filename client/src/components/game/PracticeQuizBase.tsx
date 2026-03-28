@@ -193,6 +193,8 @@ export function PracticeQuizBase({
   const firstTryBonusTotal = firstTryCountLocal * 5;
   const isFirstCompletion = !worldBonusAwarded;
   const worldBonus = isFirstCompletion ? 50 : 0;
+  const firstTryRatio = questions.length > 0 ? firstTryCountLocal / questions.length : 0;
+  const starsEarned = firstTryRatio >= 0.75 ? 3 : firstTryRatio >= 0.4 ? 2 : 1;
 
   if (showSummary) {
     return (
@@ -233,15 +235,50 @@ export function PracticeQuizBase({
 
           <div
             style={{
-              fontSize: 48,
+              display: "flex",
+              justifyContent: "center",
+              gap: 8,
               marginBottom: 24,
               opacity: summaryPhase >= 0 ? 1 : 0,
-              animation: summaryPhase >= 0 ? "trophy-bounce 0.6s ease-out" : "none",
             }}
           >
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" style={{ display: "inline-block" }}>
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#facc15" stroke="#eab308" strokeWidth="0.5" />
-            </svg>
+            {[1, 2, 3].map((star) => {
+              const earned = star <= starsEarned;
+              return (
+                <svg
+                  key={star}
+                  width="44"
+                  height="44"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  style={{
+                    display: "inline-block",
+                    animation: summaryPhase >= 0 ? `star-pop-${star} 0.5s ease-out ${star * 0.2}s both` : "none",
+                    filter: earned ? `drop-shadow(0 0 8px rgba(250, 204, 21, 0.6))` : "none",
+                  }}
+                >
+                  <path
+                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                    fill={earned ? "#facc15" : "rgba(255,255,255,0.1)"}
+                    stroke={earned ? "#eab308" : "rgba(255,255,255,0.2)"}
+                    strokeWidth="0.5"
+                  />
+                </svg>
+              );
+            })}
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              color: "rgba(255,255,255,0.5)",
+              marginBottom: 20,
+              opacity: summaryPhase >= 0 ? 1 : 0,
+              transition: "opacity 0.5s ease-out 0.6s",
+            }}
+          >
+            {starsEarned === 3
+              ? "Perfect! All stars earned!"
+              : `${starsEarned}/3 stars — get ${Math.ceil(questions.length * 0.75)} of ${questions.length} first try for 3 stars!`}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
@@ -393,11 +430,20 @@ export function PracticeQuizBase({
           </div>
 
           <style>{`
-            @keyframes trophy-bounce {
-              0% { transform: scale(0) rotate(-15deg); }
-              50% { transform: scale(1.2) rotate(5deg); }
-              75% { transform: scale(0.95) rotate(-2deg); }
-              100% { transform: scale(1) rotate(0deg); }
+            @keyframes star-pop-1 {
+              0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+              60% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+              100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            }
+            @keyframes star-pop-2 {
+              0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+              60% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+              100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            }
+            @keyframes star-pop-3 {
+              0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+              60% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+              100% { transform: scale(1) rotate(0deg); opacity: 1; }
             }
           `}</style>
         </div>
