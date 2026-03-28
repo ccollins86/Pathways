@@ -99,6 +99,7 @@ export function PracticeQuizBase({
   const [firstTryCountLocal, setFirstTryCountLocal] = useState(0);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [summaryPhase, setSummaryPhase] = useState(0);
+  const [wasFirstCompletion, setWasFirstCompletion] = useState(false);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
   const popupIdRef = useRef(0);
 
@@ -164,6 +165,7 @@ export function PracticeQuizBase({
 
   const handleNext = () => {
     if (isLastQuestion) {
+      setWasFirstCompletion(!worldBonusAwarded);
       onComplete();
       setShowSummary(true);
       setSummaryPhase(0);
@@ -189,8 +191,7 @@ export function PracticeQuizBase({
 
   const basePoints = score + (answeredCorrectly ? 0 : 0);
   const firstTryBonusTotal = firstTryCountLocal * 5;
-  const isFirstCompletion = !worldBonusAwarded;
-  const worldBonus = isFirstCompletion ? 50 : 0;
+  const worldBonus = wasFirstCompletion ? 50 : 0;
   const firstTryRatio = questions.length > 0 ? firstTryCountLocal / questions.length : 0;
   const starsEarned = firstTryRatio >= 0.75 ? 3 : firstTryRatio >= 0.4 ? 2 : 1;
 
@@ -317,7 +318,7 @@ export function PracticeQuizBase({
               </span>
             </div>
 
-            {isFirstCompletion && (
+            {wasFirstCompletion && (
             <div
               style={{
                 display: "flex",

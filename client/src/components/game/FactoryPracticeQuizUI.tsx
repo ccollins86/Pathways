@@ -219,6 +219,7 @@ export function FactoryPracticeQuizUI() {
   const [showSummary, setShowSummary] = useState(false);
   const [firstTryCountLocal, setFirstTryCountLocal] = useState(0);
   const [summaryPhase, setSummaryPhase] = useState(0);
+  const [wasFirstCompletion, setWasFirstCompletion] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const popupIdRef = useRef(0);
 
@@ -274,6 +275,7 @@ export function FactoryPracticeQuizUI() {
 
   const handleNext = useCallback(() => {
     if (isLastQuestion) {
+      setWasFirstCompletion(!factoryWorldBonusAwarded);
       completeFactoryPractice();
       setShowSummary(true);
       setSummaryPhase(0);
@@ -287,15 +289,14 @@ export function FactoryPracticeQuizUI() {
       setShowExplanation(false);
       setHadWrongAttempt(false);
     }
-  }, [isLastQuestion, completeFactoryPractice]);
+  }, [isLastQuestion, completeFactoryPractice, factoryWorldBonusAwarded]);
 
   const handleFinishSummary = () => {
     closeFactoryPractice();
   };
 
   const firstTryBonusTotal = firstTryCountLocal * 5;
-  const isFirstCompletion = !factoryWorldBonusAwarded;
-  const worldBonus = isFirstCompletion ? 50 : 0;
+  const worldBonus = wasFirstCompletion ? 50 : 0;
   const accentColor = "#ff9800";
   const firstTryRatio = QUESTIONS.length > 0 ? firstTryCountLocal / QUESTIONS.length : 0;
   const starsEarned = firstTryRatio >= 0.75 ? 3 : firstTryRatio >= 0.4 ? 2 : 1;
@@ -412,7 +413,7 @@ export function FactoryPracticeQuizUI() {
             <span style={{ fontSize: 18, fontWeight: 800, color: firstTryCountLocal > 0 ? "#facc15" : "#475569" }}>+{firstTryBonusTotal}</span>
           </div>
 
-          {isFirstCompletion && (
+          {wasFirstCompletion && (
           <div
             style={{
               display: "flex",
