@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Question } from "@/components/game/PracticeQuizBase";
-import { getFallbackQuestions, getQuestionCount, type QuizTopic } from "@/data/fallbackQuestions";
+import { getFallbackQuestions, getQuestionCount, getHardcodedPool, type QuizTopic } from "@/data/fallbackQuestions";
 
 interface CacheEntry {
   questions: Question[] | null;
@@ -73,9 +73,21 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
   }
   const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
   console.log(`[QuizLoader] Received ${data.questions.length} AI-generated questions for "${topic}" in ${elapsed}s`);
+  const hardcoded = getHardcodedPool(topic);
+  let allUnique = true;
   data.questions.forEach((q: any, i: number) => {
     console.log(`[QuizLoader] Q${i + 1} (${topic}): "${q.question}" | Options: ${q.options.join(", ")} | Correct: ${q.options[q.correctIndex]}`);
+    const duplicate = hardcoded.find((hq: Question) => hq.question === q.question);
+    if (duplicate) {
+      console.warn(`[QuizLoader] ⚠ Q${i + 1} (${topic}) MATCHES hardcoded question: "${q.question}"`);
+      allUnique = false;
+    }
   });
+  if (allUnique) {
+    console.log(`[QuizLoader] ✓ All ${data.questions.length} AI questions for "${topic}" are unique (no hardcoded duplicates)`);
+  } else {
+    console.warn(`[QuizLoader] ⚠ Some AI questions for "${topic}" matched hardcoded fallbacks`);
+  }
   return data.questions;
 }
 

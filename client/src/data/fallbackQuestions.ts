@@ -336,3 +336,7 @@ export function getFallbackQuestions(topic: QuizTopic): Question[] {
 export function getQuestionCount(topic: QuizTopic): number {
   return TOPIC_POOLS[topic].count;
 }
+
+export function getHardcodedPool(topic: QuizTopic): Question[] {
+  return TOPIC_POOLS[topic].questions;
+}
