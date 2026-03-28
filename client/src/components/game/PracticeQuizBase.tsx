@@ -64,6 +64,7 @@ interface PracticeQuizBaseProps {
   onFirstTryBonus: () => void;
   closeOnComplete?: boolean;
   worldName: string;
+  worldBonusAwarded?: boolean;
 }
 
 interface ScorePopup {
@@ -85,6 +86,7 @@ export function PracticeQuizBase({
   onFirstTryBonus,
   closeOnComplete = false,
   worldName,
+  worldBonusAwarded = false,
 }: PracticeQuizBaseProps) {
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -189,7 +191,8 @@ export function PracticeQuizBase({
 
   const basePoints = score + (answeredCorrectly ? 0 : 0);
   const firstTryBonusTotal = firstTryCountLocal * 5;
-  const worldBonus = 50;
+  const isFirstCompletion = !worldBonusAwarded;
+  const worldBonus = isFirstCompletion ? 50 : 0;
 
   if (showSummary) {
     return (
@@ -292,6 +295,7 @@ export function PracticeQuizBase({
               </span>
             </div>
 
+            {isFirstCompletion && (
             <div
               style={{
                 display: "flex",
@@ -312,9 +316,10 @@ export function PracticeQuizBase({
                 <span style={{ fontSize: 14, fontWeight: 500 }}>World Completion</span>
               </div>
               <span style={{ fontSize: 18, fontWeight: 800, color: "#a855f7" }}>
-                +{worldBonus}
+                +50
               </span>
             </div>
+            )}
 
             <div
               style={{

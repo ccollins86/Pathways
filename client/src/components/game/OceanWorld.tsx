@@ -1456,7 +1456,7 @@ function OceanPracticeBooth({
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const s = useGame.getState();
-      if (e.code === "KeyE" && nearBooth && unlocked && !active && !s.oceanPracticeCompleted && !s.world2Dialogue) {
+      if (e.code === "KeyE" && nearBooth && unlocked && !active && !s.world2Dialogue) {
         onInteract();
       }
     };

@@ -860,7 +860,7 @@ function FactoryPracticeBooth({ position, playerPosition }: { position: [number,
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const s = useGame.getState();
-      if (e.code === "KeyE" && nearRef.current && s.factoryPracticeUnlocked && !s.factoryPracticeCompleted && !s.factoryPracticeActive && !s.world3Dialogue && !s.activeMachine) {
+      if (e.code === "KeyE" && nearRef.current && s.factoryPracticeUnlocked && !s.factoryPracticeActive && !s.world3Dialogue && !s.activeMachine) {
         openFactoryPractice();
       }
     };
@@ -909,7 +909,7 @@ function FactoryPracticeBooth({ position, playerPosition }: { position: [number,
           COMPLETED
         </Text>
       )}
-      {isNear && !factoryPracticeCompleted && !factoryPracticeActive && (
+      {isNear && !factoryPracticeActive && (
         <Text
           position={[0, 3.8, 0]}
           fontSize={0.25}

@@ -207,6 +207,7 @@ export function FactoryPracticeQuizUI() {
   const factoryPracticeScore = useGame((s) => s.factoryPracticeScore);
   const totalScore = useGame((s) => s.totalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
+  const factoryWorldBonusAwarded = useGame((s) => s.factoryWorldBonusAwarded);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -292,7 +293,8 @@ export function FactoryPracticeQuizUI() {
   };
 
   const firstTryBonusTotal = firstTryCountLocal * 5;
-  const worldBonus = 50;
+  const isFirstCompletion = !factoryWorldBonusAwarded;
+  const worldBonus = isFirstCompletion ? 50 : 0;
   const accentColor = "#ff9800";
 
   if (showSummary) {
@@ -385,6 +387,7 @@ export function FactoryPracticeQuizUI() {
             <span style={{ fontSize: 18, fontWeight: 800, color: firstTryCountLocal > 0 ? "#facc15" : "#475569" }}>+{firstTryBonusTotal}</span>
           </div>
 
+          {isFirstCompletion && (
           <div
             style={{
               display: "flex",
@@ -402,8 +405,9 @@ export function FactoryPracticeQuizUI() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#a855f7" opacity="0.9"/></svg>
               <span style={{ fontSize: 14, fontWeight: 500 }}>World Completion</span>
             </div>
-            <span style={{ fontSize: 18, fontWeight: 800, color: "#a855f7" }}>+{worldBonus}</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: "#a855f7" }}>+50</span>
           </div>
+          )}
 
           <div
             style={{

@@ -148,6 +148,7 @@ export function OceanPracticeQuizUI() {
   const resetOceanPracticeScore = useGame((s) => s.resetOceanPracticeScore);
   const totalScore = useGame((s) => s.totalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
+  const oceanWorldBonusAwarded = useGame((s) => s.oceanWorldBonusAwarded);
 
   return (
     <PracticeQuizBase
@@ -161,6 +162,7 @@ export function OceanPracticeQuizUI() {
       onComplete={completeOceanPractice}
       onFirstTryBonus={incrementFirstTry}
       worldName="Ocean"
+      worldBonusAwarded={oceanWorldBonusAwarded}
     />
   );
 }

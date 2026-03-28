@@ -164,6 +164,7 @@ export function PracticeQuizUI() {
   const resetPracticeScore = useGame((s) => s.resetPracticeScore);
   const totalScore = useGame((s) => s.totalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
+  const townWorldBonusAwarded = useGame((s) => s.townWorldBonusAwarded);
 
   return (
     <PracticeQuizBase
@@ -178,6 +179,7 @@ export function PracticeQuizUI() {
       onFirstTryBonus={incrementFirstTry}
       closeOnComplete
       worldName="Town"
+      worldBonusAwarded={townWorldBonusAwarded}
     />
   );
 }
