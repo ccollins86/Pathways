@@ -369,19 +369,6 @@ export function FactoryPracticeQuizUI() {
             );
           })}
         </div>
-        <div
-          style={{
-            fontSize: 13,
-            color: "rgba(255,255,255,0.5)",
-            marginBottom: 20,
-            opacity: summaryPhase >= 0 ? 1 : 0,
-            transition: "opacity 0.5s ease-out 0.6s",
-          }}
-        >
-          {starsEarned === 3
-            ? "Perfect! All stars earned!"
-            : `${starsEarned}/3 stars — get ${Math.ceil(QUESTIONS.length * 0.75)} of ${QUESTIONS.length} first try for 3 stars!`}
-        </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
           <div
