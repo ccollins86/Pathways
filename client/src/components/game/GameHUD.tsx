@@ -112,6 +112,7 @@ export function GameHUD() {
   const [lessonQuizScore, setLessonQuizScore] = useState(0);
   const [lessonQuizPopups, setLessonQuizPopups] = useState<{ id: number; text: string; color: string }[]>([]);
   const lessonPopupIdRef = useRef(0);
+  const lessonBonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export function GameHUD() {
       if (!lessonQuizHadWrong) {
         setLessonQuizScore((s) => s + 5);
         incrementFirstTry();
-        setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
+        lessonBonusTimerRef.current = setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
       }
       try {
         if (successSoundRef.current) {
@@ -154,6 +155,11 @@ export function GameHUD() {
   }, [lessonQuizCorrect, lessonQuizQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
 
   const handleLessonQuizNext = useCallback(() => {
+    if (lessonBonusTimerRef.current) {
+      clearTimeout(lessonBonusTimerRef.current);
+      lessonBonusTimerRef.current = null;
+    }
+    setLessonQuizPopups([]);
     if (lessonQuizQ >= LESSON_QUESTIONS.length - 1) {
       setLessonQuizDone(true);
       setLessonQuizActive(false);
