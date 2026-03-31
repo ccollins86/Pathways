@@ -632,7 +632,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "Italy",
       });
-      expect(result).toBe("Quantity should be 2 hats!");
+      expect(result).toBe("Check the quantity — that's not right.");
       expect(getState().hatMachineState).toBe("idle");
     });
 
@@ -644,7 +644,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "Italy",
       });
-      expect(result).toBe("Size should be Large!");
+      expect(result).toBe("Check the size — that's not right.");
     });
 
     it("rejects wrong top color for hats", () => {
@@ -655,7 +655,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "Italy",
       });
-      expect(result).toBe("Top color should be White!");
+      expect(result).toBe("Check the top color — that's not right.");
     });
 
     it("rejects wrong brim color for hats", () => {
@@ -666,7 +666,7 @@ describe("useGame store", () => {
         color2: "Red",
         lettering: "Italy",
       });
-      expect(result).toBe("Brim color should be Green!");
+      expect(result).toBe("Check the brim color — that's not right.");
     });
 
     it("rejects wrong lettering for hats", () => {
@@ -677,7 +677,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "France",
       });
-      expect(result).toBe('Lettering should be "Italy"!');
+      expect(result).toBe("Check the lettering — that's not right.");
     });
   });
 
@@ -717,7 +717,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Quantity should be 3 t-shirts!");
+      expect(result).toBe("Check the quantity — that's not right.");
     });
 
     it("rejects wrong size for tshirts", () => {
@@ -729,7 +729,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Size should be Medium!");
+      expect(result).toBe("Check the size — that's not right.");
     });
 
     it("rejects wrong sleeve color for tshirts", () => {
@@ -741,7 +741,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Sleeve color should be Red!");
+      expect(result).toBe("Check the sleeve color — that's not right.");
     });
 
     it("rejects wrong body color for tshirts", () => {
@@ -753,7 +753,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Body color should be Blue!");
+      expect(result).toBe("Check the body color — that's not right.");
     });
 
     it("rejects wrong lettering color for tshirts", () => {
@@ -765,7 +765,7 @@ describe("useGame store", () => {
         color3: "Red",
         lettering: "USA",
       });
-      expect(result).toBe("Lettering color should be White!");
+      expect(result).toBe("Check the lettering color — that's not right.");
     });
 
     it("rejects wrong lettering for tshirts", () => {
@@ -777,7 +777,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "Canada",
       });
-      expect(result).toBe('Lettering should be "USA"!');
+      expect(result).toBe("Check the lettering — that's not right.");
     });
   });
 
@@ -817,7 +817,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Quantity should be 5 jackets!");
+      expect(result).toBe("Check the quantity — that's not right.");
     });
 
     it("rejects wrong size for jackets", () => {
@@ -829,7 +829,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Size should be Large!");
+      expect(result).toBe("Check the size — that's not right.");
     });
 
     it("rejects wrong sleeve color for jackets", () => {
@@ -841,7 +841,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Sleeve color should be Black!");
+      expect(result).toBe("Check the sleeve color — that's not right.");
     });
 
     it("rejects wrong body color for jackets", () => {
@@ -853,7 +853,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Body color should be Red!");
+      expect(result).toBe("Check the body color — that's not right.");
     });
 
     it("rejects wrong lettering color for jackets", () => {
@@ -865,7 +865,7 @@ describe("useGame store", () => {
         color3: "Blue",
         lettering: "Germany",
       });
-      expect(result).toBe("Lettering color should be Yellow!");
+      expect(result).toBe("Check the lettering color — that's not right.");
     });
 
     it("rejects wrong lettering for jackets", () => {
@@ -877,7 +877,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "France",
       });
-      expect(result).toBe('Lettering should be "Germany"!');
+      expect(result).toBe("Check the lettering — that's not right.");
     });
   });
 

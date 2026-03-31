@@ -262,7 +262,7 @@ export function MachineSettingsUI() {
         <>
           <Select label="Top Color" value={color1} onChange={setColor1} options={COLOR_OPTIONS} />
           <Select label="Brim Color" value={color2} onChange={setColor2} options={COLOR_OPTIONS} />
-          <TextInput label="Lettering" value={lettering} onChange={setLettering} placeholder="e.g. Italy" />
+          <TextInput label="Lettering" value={lettering} onChange={setLettering} placeholder="Enter text" />
         </>
       )}
 
@@ -271,7 +271,7 @@ export function MachineSettingsUI() {
           <Select label="Sleeve Color" value={color1} onChange={setColor1} options={COLOR_OPTIONS} />
           <Select label="Body Color" value={color2} onChange={setColor2} options={COLOR_OPTIONS} />
           <Select label="Lettering Color" value={color3} onChange={setColor3} options={COLOR_OPTIONS} />
-          <TextInput label="Text on T-Shirt" value={lettering} onChange={setLettering} placeholder="e.g. USA" />
+          <TextInput label="Text on T-Shirt" value={lettering} onChange={setLettering} placeholder="Enter text" />
         </>
       )}
 
@@ -280,7 +280,7 @@ export function MachineSettingsUI() {
           <Select label="Sleeve Color" value={color1} onChange={setColor1} options={COLOR_OPTIONS} />
           <Select label="Body Color" value={color2} onChange={setColor2} options={COLOR_OPTIONS} />
           <Select label="Lettering Color" value={color3} onChange={setColor3} options={COLOR_OPTIONS} />
-          <TextInput label="Text on Jacket" value={lettering} onChange={setLettering} placeholder="e.g. Germany" />
+          <TextInput label="Text on Jacket" value={lettering} onChange={setLettering} placeholder="Enter text" />
         </>
       )}
 

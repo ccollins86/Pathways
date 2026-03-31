@@ -726,9 +726,29 @@ export function FactoryPracticeQuizUI() {
             marginBottom: 16,
           }}
         >
-          <div style={{ fontWeight: 700, color: "#ff8a80" }}>
+          <div style={{ fontWeight: 700, color: "#ff8a80", marginBottom: 4 }}>
             Not quite! Try again.
           </div>
+          <div
+            onClick={() => setShowHint(!showHint)}
+            style={{
+              fontSize: 13,
+              color: "#ffb74d",
+              cursor: "pointer",
+              marginTop: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span style={{ fontSize: 10 }}>{showHint ? "\u25BC" : "\u25B6"}</span>
+            {showHint ? "Hide Hint" : "Show Hint"}
+          </div>
+          {showHint && (
+            <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(255,152,0,0.4)" }}>
+              {question.hint}
+            </div>
+          )}
         </div>
       )}
 

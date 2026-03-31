@@ -670,29 +670,29 @@ export const useGame = create<GameState>()(
     submitMachineOrder: (machine, settings) => {
       const normalize = (s: string) => s.trim().toLowerCase();
       if (machine === "hat") {
-        if (settings.quantity !== 2) return "Quantity should be 2 hats!";
-        if (normalize(settings.size) !== "large") return "Size should be Large!";
-        if (normalize(settings.color1) !== "white") return "Top color should be White!";
-        if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Brim color should be Green!";
-        if (normalize(settings.lettering) !== "italy") return 'Lettering should be "Italy"!';
+        if (settings.quantity !== 2) return "Check the quantity — that's not right.";
+        if (normalize(settings.size) !== "large") return "Check the size — that's not right.";
+        if (normalize(settings.color1) !== "white") return "Check the top color — that's not right.";
+        if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Check the brim color — that's not right.";
+        if (normalize(settings.lettering) !== "italy") return "Check the lettering — that's not right.";
         set({ hatMachineState: "produced", activeMachine: null });
         return null;
       } else if (machine === "tshirt") {
-        if (settings.quantity !== 3) return "Quantity should be 3 t-shirts!";
-        if (normalize(settings.size) !== "medium") return "Size should be Medium!";
-        if (normalize(settings.color1) !== "#e53935" && normalize(settings.color1) !== "red") return "Sleeve color should be Red!";
-        if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Body color should be Blue!";
-        if (normalize(settings.color3 || "") !== "white") return "Lettering color should be White!";
-        if (normalize(settings.lettering) !== "usa") return 'Lettering should be "USA"!';
+        if (settings.quantity !== 3) return "Check the quantity — that's not right.";
+        if (normalize(settings.size) !== "medium") return "Check the size — that's not right.";
+        if (normalize(settings.color1) !== "#e53935" && normalize(settings.color1) !== "red") return "Check the sleeve color — that's not right.";
+        if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Check the body color — that's not right.";
+        if (normalize(settings.color3 || "") !== "white") return "Check the lettering color — that's not right.";
+        if (normalize(settings.lettering) !== "usa") return "Check the lettering — that's not right.";
         set({ tshirtMachineState: "produced", activeMachine: null });
         return null;
       } else if (machine === "jacket") {
-        if (settings.quantity !== 5) return "Quantity should be 5 jackets!";
-        if (normalize(settings.size) !== "large") return "Size should be Large!";
-        if (normalize(settings.color1) !== "black") return "Sleeve color should be Black!";
-        if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Body color should be Red!";
-        if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Lettering color should be Yellow!";
-        if (normalize(settings.lettering) !== "germany") return 'Lettering should be "Germany"!';
+        if (settings.quantity !== 5) return "Check the quantity — that's not right.";
+        if (normalize(settings.size) !== "large") return "Check the size — that's not right.";
+        if (normalize(settings.color1) !== "black") return "Check the sleeve color — that's not right.";
+        if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Check the body color — that's not right.";
+        if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Check the lettering color — that's not right.";
+        if (normalize(settings.lettering) !== "germany") return "Check the lettering — that's not right.";
         set({ jacketMachineState: "produced", activeMachine: null });
         return null;
       }
