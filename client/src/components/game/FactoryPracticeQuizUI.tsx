@@ -232,6 +232,7 @@ export function FactoryPracticeQuizUI() {
   const [summaryPhase, setSummaryPhase] = useState(0);
   const [wasFirstCompletion, setWasFirstCompletion] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const bonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popupIdRef = useRef(0);
 
   const question = QUESTIONS[currentQuestion];
@@ -277,7 +278,7 @@ export function FactoryPracticeQuizUI() {
         if (!hadWrongAttempt) {
           incrementFirstTry();
           setFirstTryCountLocal((c) => c + 1);
-          setTimeout(() => addPopup("+5 First Try!", "#facc15"), 600);
+          bonusTimerRef.current = setTimeout(() => addPopup("+5 First Try!", "#facc15"), 600);
         }
       } else {
         setHadWrongAttempt(true);
@@ -302,6 +303,11 @@ export function FactoryPracticeQuizUI() {
       setTimeout(() => setSummaryPhase(3), 1400);
       setTimeout(() => setSummaryPhase(4), 1900);
     } else {
+      if (bonusTimerRef.current) {
+        clearTimeout(bonusTimerRef.current);
+        bonusTimerRef.current = null;
+      }
+      setScorePopups([]);
       setCurrentQuestion((prev) => prev + 1);
       setSelectedAnswer(null);
       setAnsweredCorrectly(false);

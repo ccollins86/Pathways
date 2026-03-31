@@ -97,6 +97,7 @@ export function PracticeQuizBase({
   const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
   const [showSummary, setShowSummary] = useState(false);
   const [firstTryCountLocal, setFirstTryCountLocal] = useState(0);
+  const bonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [summaryPhase, setSummaryPhase] = useState(0);
   const [wasFirstCompletion, setWasFirstCompletion] = useState(false);
@@ -152,7 +153,7 @@ export function PracticeQuizBase({
       if (!hadWrongAttempt) {
         onFirstTryBonus();
         setFirstTryCountLocal((c) => c + 1);
-        setTimeout(() => addPopup("+5 First Try!", "#facc15"), 600);
+        bonusTimerRef.current = setTimeout(() => addPopup("+5 First Try!", "#facc15"), 600);
       }
     } else {
       setWrongAttempt(true);
@@ -177,6 +178,11 @@ export function PracticeQuizBase({
       setTimeout(() => setSummaryPhase(4), 1900);
       return;
     }
+    if (bonusTimerRef.current) {
+      clearTimeout(bonusTimerRef.current);
+      bonusTimerRef.current = null;
+    }
+    setScorePopups([]);
     setCurrentQ((q) => q + 1);
     setSelectedAnswer(null);
     setAnsweredCorrectly(false);
