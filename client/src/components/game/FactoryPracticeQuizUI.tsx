@@ -599,7 +599,7 @@ export function FactoryPracticeQuizUI() {
       `}</style>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#ff9800" }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: "#ff9800" }}>
           Functions Practice
         </div>
         <div style={{ fontSize: 13, color: "#b0bec5" }}>
@@ -613,7 +613,7 @@ export function FactoryPracticeQuizUI() {
           borderRadius: 8,
           padding: "14px 18px",
           fontFamily: "'Courier New', monospace",
-          fontSize: 12,
+          fontSize: 13,
           lineHeight: 1.7,
           marginBottom: 16,
           border: "1px solid rgba(255, 152, 0, 0.3)",
@@ -624,7 +624,7 @@ export function FactoryPracticeQuizUI() {
         {question.code}
       </div>
 
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>{question.question}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#b0bec5" }}>{question.question}</div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
         {question.options.map((option, i) => {
@@ -648,7 +648,7 @@ export function FactoryPracticeQuizUI() {
                 border: `2px solid ${borderColor}`,
                 borderRadius: 8,
                 cursor: !answeredCorrectly ? "pointer" : "default",
-                fontSize: 13,
+                fontSize: 14,
                 fontFamily: "'Courier New', monospace",
                 transition: "all 0.2s",
               }}
@@ -666,14 +666,12 @@ export function FactoryPracticeQuizUI() {
             background: "rgba(76,175,80,0.15)",
             border: "1px solid #4caf50",
             borderRadius: 8,
-            fontSize: 13,
-            lineHeight: 1.6,
             marginBottom: 16,
             position: "relative",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <div style={{ fontWeight: 700, color: "#69f0ae" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#69f0ae" }}>
               Correct! +10 pts
             </div>
             {!hadWrongAttempt && (
@@ -726,7 +724,7 @@ export function FactoryPracticeQuizUI() {
             marginBottom: 16,
           }}
         >
-          <div style={{ fontWeight: 700, color: "#ff8a80", marginBottom: 4 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#ff8a80", marginBottom: 4 }}>
             Not quite! Try again.
           </div>
           <div
