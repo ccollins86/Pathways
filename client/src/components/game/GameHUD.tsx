@@ -960,8 +960,6 @@ export function DevPanel() {
   const enterFactoryPortal = useGame((s) => s.enterFactoryPortal);
   const restart = useGame((s) => s.restart);
 
-  if (!IS_DEV) return null;
-
   const skipTo = (world: string) => {
     setOpen(false);
     if (world === "town") {
@@ -1002,7 +1000,7 @@ export function DevPanel() {
           fontFamily: "'Inter', sans-serif",
         }}
       >
-        DEV
+        SKIP WORLD (TEMP)
       </button>
       {open && (
         <div
