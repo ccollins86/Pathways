@@ -1286,36 +1286,28 @@ function ChemicalSludgePatch({
   playerPosition: THREE.Vector3;
   inBoat: boolean;
 }) {
-  const [isNear, setIsNear] = useState(false);
+  const isNearRef = useRef(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const cleanSludge = useGame((s) => s.cleanSludge);
-  const world2Dialogue = useGame((s) => s.world2Dialogue);
   const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
   const ref = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (patch.cleaned) return;
     const dx = playerPosition.x - patch.position[0];
     const dz = playerPosition.z - patch.position[2];
     const dist = Math.sqrt(dx * dx + dz * dz);
-    setIsNear(dist < 5);
-
-    if (ref.current) {
-      const t = state.clock.elapsedTime;
-      ref.current.rotation.y = t * 0.1 + index;
-      const children = ref.current.children;
-      for (let i = 0; i < children.length; i++) {
-        if ((children[i] as THREE.Mesh).isMesh) {
-          const mesh = children[i] as THREE.Mesh;
-          mesh.position.y = patch.position[1] + Math.sin(t * 0.5 + i) * 0.1;
-        }
-      }
+    const near = dist < 5;
+    if (near !== isNearRef.current) {
+      isNearRef.current = near;
+      setShowPrompt(near);
     }
   });
 
   useEffect(() => {
     if (patch.cleaned || !inBoat) return;
     const handleKey = (e: KeyboardEvent) => {
-      if ((e.key === "e" || e.key === "E") && isNear) {
+      if ((e.key === "e" || e.key === "E") && isNearRef.current) {
         const w2d = useGame.getState().world2Dialogue;
         if (w2d) return;
         cleanSludge(index);
@@ -1326,40 +1318,40 @@ function ChemicalSludgePatch({
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, inBoat, patch.cleaned, index, cleanSludge, openWorld2Dialogue]);
+  }, [inBoat, patch.cleaned, index, cleanSludge, openWorld2Dialogue]);
 
   if (patch.cleaned) return null;
 
   return (
     <group ref={ref} position={patch.position}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <circleGeometry args={[5, 32]} />
+        <circleGeometry args={[5, 12]} />
         <meshStandardMaterial
           color="#39ff14"
           emissive="#39ff14"
-          emissiveIntensity={0.9}
+          emissiveIntensity={1.2}
           transparent
           opacity={0.85}
           roughness={0.1}
         />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
-        <circleGeometry args={[3, 20]} />
+        <circleGeometry args={[3, 10]} />
         <meshStandardMaterial
           color="#76ff03"
           emissive="#76ff03"
-          emissiveIntensity={0.7}
+          emissiveIntensity={1.0}
           transparent
           opacity={0.75}
           roughness={0.1}
         />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
-        <circleGeometry args={[2.5, 16]} />
+        <circleGeometry args={[2.5, 8]} />
         <meshStandardMaterial
           color="#69f0ae"
           emissive="#69f0ae"
-          emissiveIntensity={0.6}
+          emissiveIntensity={0.8}
           transparent
           opacity={0.7}
           roughness={0.1}
@@ -1367,33 +1359,30 @@ function ChemicalSludgePatch({
       </mesh>
 
       <mesh position={[0, 0.5, 0]}>
-        <sphereGeometry args={[2, 16, 12]} />
+        <sphereGeometry args={[2, 8, 6]} />
         <meshStandardMaterial
           color="#39ff14"
           emissive="#39ff14"
-          emissiveIntensity={0.6}
+          emissiveIntensity={0.8}
           transparent
           opacity={0.25}
         />
       </mesh>
 
-      {[0, 1.5, -1.2, 0.8, -2, 1.8, -0.5].map((x, i) => (
-        <mesh key={`bubble-${i}`} position={[x, 0.2 + i * 0.15, i * 0.4 - 1]}>
-          <sphereGeometry args={[0.2 + i * 0.05, 8, 6]} />
+      {[0, 1.5, -1.2].map((x, i) => (
+        <mesh key={`bubble-${i}`} position={[x, 0.3 + i * 0.2, i * 0.5 - 0.5]}>
+          <sphereGeometry args={[0.25, 6, 4]} />
           <meshStandardMaterial
             color="#b9f6ca"
             emissive="#39ff14"
-            emissiveIntensity={1}
+            emissiveIntensity={1.2}
             transparent
             opacity={0.7}
           />
         </mesh>
       ))}
 
-      <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
-      <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
-
-      {inBoat && isNear && !world2Dialogue && (
+      {inBoat && showPrompt && (
         <Text
           position={[0, 2, 0]}
           fontSize={0.4}
