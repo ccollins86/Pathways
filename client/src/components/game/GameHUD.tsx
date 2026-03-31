@@ -219,8 +219,8 @@ export function GameHUD() {
             fontFamily: "'Inter', sans-serif",
             zIndex: 150,
             textAlign: "center",
-            border: "3px solid #66bb6a",
-            boxShadow: "0 0 40px rgba(102, 187, 106, 0.5)",
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
           }}
         >
           <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
@@ -614,8 +614,8 @@ export function GameHUD() {
             fontFamily: "'Inter', sans-serif",
             zIndex: 150,
             textAlign: "center",
-            border: "3px solid #66bb6a",
-            boxShadow: "0 0 40px rgba(102, 187, 106, 0.5)",
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
             maxWidth: 440,
           }}
         >
