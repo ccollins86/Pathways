@@ -1275,24 +1275,60 @@ function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
   );
 }
 
+function SludgeCleanedEffect({ position }: { position: [number, number, number] }) {
+  const [visible, setVisible] = useState(true);
+  const groupRef = useRef<THREE.Group>(null);
+  const startTime = useRef(0);
+
+  useFrame((state) => {
+    if (!visible || !groupRef.current) return;
+    if (startTime.current === 0) startTime.current = state.clock.elapsedTime;
+    const elapsed = state.clock.elapsedTime - startTime.current;
+    if (elapsed > 2) {
+      setVisible(false);
+      return;
+    }
+    groupRef.current.position.y = position[1] + 1 + elapsed * 1.5;
+    const scale = elapsed < 0.3 ? elapsed / 0.3 : 1;
+    groupRef.current.scale.setScalar(scale);
+  });
+
+  if (!visible) return null;
+
+  return (
+    <group ref={groupRef} position={[position[0], position[1] + 1, position[2]]}>
+      <Text
+        fontSize={0.6}
+        color="#4ade80"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.04}
+        outlineColor="#000"
+      >
+        +25
+      </Text>
+    </group>
+  );
+}
+
 function ChemicalSludgePatch({
   patch,
   index,
   playerPosition,
   inBoat,
+  onCleaned,
 }: {
   patch: SludgePatch;
   index: number;
   playerPosition: THREE.Vector3;
   inBoat: boolean;
+  onCleaned: (index: number) => void;
 }) {
   const isNearRef = useRef(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const cleanSludge = useGame((s) => s.cleanSludge);
-  const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
   const ref = useRef<THREE.Group>(null);
 
-  useFrame(() => {
+  useFrame((state) => {
     if (patch.cleaned) return;
     const dx = playerPosition.x - patch.position[0];
     const dz = playerPosition.z - patch.position[2];
@@ -1302,6 +1338,18 @@ function ChemicalSludgePatch({
       isNearRef.current = near;
       setShowPrompt(near);
     }
+
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.rotation.y = t * 0.1 + index;
+      const children = ref.current.children;
+      for (let i = 0; i < children.length; i++) {
+        if ((children[i] as THREE.Mesh).isMesh) {
+          const mesh = children[i] as THREE.Mesh;
+          mesh.position.y = patch.position[1] + Math.sin(t * 0.5 + i) * 0.1;
+        }
+      }
+    }
   });
 
   useEffect(() => {
@@ -1310,48 +1358,45 @@ function ChemicalSludgePatch({
       if ((e.key === "e" || e.key === "E") && isNearRef.current) {
         const w2d = useGame.getState().world2Dialogue;
         if (w2d) return;
-        cleanSludge(index);
-        openWorld2Dialogue([
-          { speaker: "System", text: "Sludge vacuumed up! The ocean is a little cleaner now." },
-        ]);
+        onCleaned(index);
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [inBoat, patch.cleaned, index, cleanSludge, openWorld2Dialogue]);
+  }, [inBoat, patch.cleaned, index, onCleaned]);
 
   if (patch.cleaned) return null;
 
   return (
     <group ref={ref} position={patch.position}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <circleGeometry args={[5, 12]} />
+        <circleGeometry args={[5, 32]} />
         <meshStandardMaterial
           color="#39ff14"
           emissive="#39ff14"
-          emissiveIntensity={1.2}
+          emissiveIntensity={0.9}
           transparent
           opacity={0.85}
           roughness={0.1}
         />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
-        <circleGeometry args={[3, 10]} />
+        <circleGeometry args={[3, 20]} />
         <meshStandardMaterial
           color="#76ff03"
           emissive="#76ff03"
-          emissiveIntensity={1.0}
+          emissiveIntensity={0.7}
           transparent
           opacity={0.75}
           roughness={0.1}
         />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
-        <circleGeometry args={[2.5, 8]} />
+        <circleGeometry args={[2.5, 16]} />
         <meshStandardMaterial
           color="#69f0ae"
           emissive="#69f0ae"
-          emissiveIntensity={0.8}
+          emissiveIntensity={0.6}
           transparent
           opacity={0.7}
           roughness={0.1}
@@ -1359,28 +1404,31 @@ function ChemicalSludgePatch({
       </mesh>
 
       <mesh position={[0, 0.5, 0]}>
-        <sphereGeometry args={[2, 8, 6]} />
+        <sphereGeometry args={[2, 16, 12]} />
         <meshStandardMaterial
           color="#39ff14"
           emissive="#39ff14"
-          emissiveIntensity={0.8}
+          emissiveIntensity={0.6}
           transparent
           opacity={0.25}
         />
       </mesh>
 
-      {[0, 1.5, -1.2].map((x, i) => (
-        <mesh key={`bubble-${i}`} position={[x, 0.3 + i * 0.2, i * 0.5 - 0.5]}>
-          <sphereGeometry args={[0.25, 6, 4]} />
+      {[0, 1.5, -1.2, 0.8, -2, 1.8, -0.5].map((x, i) => (
+        <mesh key={`bubble-${i}`} position={[x, 0.2 + i * 0.15, i * 0.4 - 1]}>
+          <sphereGeometry args={[0.2 + i * 0.05, 8, 6]} />
           <meshStandardMaterial
             color="#b9f6ca"
             emissive="#39ff14"
-            emissiveIntensity={1.2}
+            emissiveIntensity={1}
             transparent
             opacity={0.7}
           />
         </mesh>
       ))}
+
+      <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
+      <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
 
       {inBoat && showPrompt && (
         <Text
@@ -1583,10 +1631,27 @@ export function OceanWorld() {
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
   const oceanPortalActive = useGame((s) => s.oceanPortalActive);
   const enterFactoryPortal = useGame((s) => s.enterFactoryPortal);
+  const cleanSludge = useGame((s) => s.cleanSludge);
+  const addTotalScore = useGame((s) => s.addTotalScore);
 
   const allSurveyed = ecosystems.every((e) => e.surveyed);
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
   const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
+
+  const [cleanedEffects, setCleanedEffects] = useState<{ id: number; position: [number, number, number] }[]>([]);
+  const cleanedEffectIdRef = useRef(0);
+
+  const handleSludgeCleaned = useCallback((index: number) => {
+    const patch = useGame.getState().sludgePatches[index];
+    cleanSludge(index);
+    addTotalScore(25);
+    cleanedEffectIdRef.current += 1;
+    const effectId = cleanedEffectIdRef.current;
+    setCleanedEffects((prev) => [...prev, { id: effectId, position: patch.position }]);
+    setTimeout(() => {
+      setCleanedEffects((prev) => prev.filter((e) => e.id !== effectId));
+    }, 2500);
+  }, [cleanSludge, addTotalScore]);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
@@ -1818,7 +1883,12 @@ export function OceanWorld() {
           index={i}
           playerPosition={playerPos}
           inBoat={inBoat}
+          onCleaned={handleSludgeCleaned}
         />
+      ))}
+
+      {cleanedEffects.map((effect) => (
+        <SludgeCleanedEffect key={`cleaned-${effect.id}`} position={effect.position} />
       ))}
 
       <OceanPracticeBooth
