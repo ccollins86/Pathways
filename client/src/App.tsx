@@ -1054,8 +1054,6 @@ function FactoryLessonUI() {
               fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
             }}
           >
             Continue
@@ -1180,12 +1178,10 @@ function FactoryLessonUI() {
             background: "#69f0ae",
             border: "none",
             borderRadius: 8,
-            color: "#1a1a1a",
+            color: "#1b5e20",
             fontSize: 16,
             fontWeight: 700,
             cursor: "pointer",
-            textTransform: "uppercase",
-            letterSpacing: 1,
           }}
         >
           Continue Playing
