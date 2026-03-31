@@ -5,7 +5,7 @@ import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
 import { FactoryWorld } from "./components/game/FactoryWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
-import { GameHUD, DevPanel } from "./components/game/GameHUD";
+import { GameHUD } from "./components/game/GameHUD";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
@@ -1313,7 +1313,6 @@ function App() {
           </>
         )}
 
-        {phase === "playing" && <DevPanel />}
       </KeyboardControls>
     </div>
   );
