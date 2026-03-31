@@ -106,19 +106,9 @@ function BeachBuilding() {
         <meshStandardMaterial map={woodTexture} color="#deb887" />
       </mesh>
 
-      <mesh position={[0, 3.15, 0]} castShadow>
-        <boxGeometry args={[6.6, 0.15, 5.6]} />
-        <meshStandardMaterial color="#6b3410" />
-      </mesh>
-
-      <mesh position={[0, 4.6, 0]} castShadow rotation={[0, Math.PI / 4, 0]}>
-        <coneGeometry args={[4.2, 2.6, 4]} />
-        <meshStandardMaterial color="#a0522d" />
-      </mesh>
-
-      <mesh position={[0, 3.3, 0]}>
-        <coneGeometry args={[4.6, 0.15, 4]} />
-        <meshStandardMaterial color="#6b3410" />
+      <mesh position={[0, 4.2, 0]} castShadow>
+        <coneGeometry args={[4.5, 2.8, 4]} />
+        <meshStandardMaterial color="#8b4513" />
       </mesh>
 
       <mesh position={[0, 1.2, 2.51]}>
@@ -150,7 +140,7 @@ function BeachBuilding() {
       </mesh>
 
       <Text
-        position={[0, 3.2, 2.85]}
+        position={[0, 3.2, 2.55]}
         fontSize={0.35}
         color="#fff8dc"
         anchorX="center"
