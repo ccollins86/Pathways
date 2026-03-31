@@ -80,18 +80,21 @@ function FactoryCeiling() {
 function FactoryLights() {
   return (
     <group>
-      <ambientLight intensity={0.7} color="#e8e0d0" />
+      <ambientLight intensity={0.5} color="#d4c8b0" />
       <directionalLight
         position={[10, 6, 10]}
-        intensity={0.8}
+        intensity={0.6}
         color="#fff8e1"
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      <pointLight position={[-15, 5, 10]} color="#fffde7" intensity={4} distance={30} />
-      <pointLight position={[15, 5, 10]} color="#fffde7" intensity={4} distance={30} />
-      <pointLight position={[0, 5, -10]} color="#fffde7" intensity={4} distance={30} />
+      <pointLight position={[-15, 3, -5]} color="#ff8a50" intensity={3} distance={12} />
+      <pointLight position={[0, 3, -15]} color="#64b5f6" intensity={3} distance={12} />
+      <pointLight position={[15, 3, -5]} color="#81c784" intensity={3} distance={12} />
+      <pointLight position={[-15, 5, 10]} color="#fffde7" intensity={3} distance={25} />
+      <pointLight position={[15, 5, 10]} color="#fffde7" intensity={3} distance={25} />
+      <pointLight position={[0, 5, -10]} color="#fffde7" intensity={3} distance={25} />
     </group>
   );
 }
@@ -728,9 +731,9 @@ function ShippingTruck({ position, playerPosition }: { position: [number, number
   );
 }
 
-function SafetySign({ position, text }: { position: [number, number, number]; text: string }) {
+function SafetySign({ position, text, rotation = [0, 0, 0] }: { position: [number, number, number]; text: string; rotation?: [number, number, number] }) {
   return (
-    <group position={position}>
+    <group position={position} rotation={rotation}>
       <mesh castShadow>
         <boxGeometry args={[2, 1, 0.08]} />
         <meshStandardMaterial color="#ffeb3b" />
@@ -753,6 +756,220 @@ function SafetySign({ position, text }: { position: [number, number, number]; te
   );
 }
 
+function WallPoster({ position, rotation = [0, 0, 0], bgColor, textColor, title, subtitle }: {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  bgColor: string;
+  textColor: string;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <group position={position} rotation={rotation}>
+      <mesh>
+        <boxGeometry args={[1.4, 1.8, 0.05]} />
+        <meshStandardMaterial color={bgColor} />
+      </mesh>
+      <mesh position={[0, 0.55, 0.03]}>
+        <boxGeometry args={[1.2, 0.5, 0.01]} />
+        <meshStandardMaterial color={textColor} transparent opacity={0.15} />
+      </mesh>
+      <Text
+        position={[0, 0.2, 0.04]}
+        fontSize={0.15}
+        color={textColor}
+        anchorX="center"
+        anchorY="middle"
+        fontWeight="bold"
+        maxWidth={1.2}
+        textAlign="center"
+      >
+        {title}
+      </Text>
+      {subtitle && (
+        <Text
+          position={[0, -0.2, 0.04]}
+          fontSize={0.1}
+          color={textColor}
+          anchorX="center"
+          anchorY="middle"
+          maxWidth={1.1}
+          textAlign="center"
+        >
+          {subtitle}
+        </Text>
+      )}
+    </group>
+  );
+}
+
+function CeilingPipes() {
+  return (
+    <group>
+      {[[-25, 7, 0], [-25, 6.5, 0], [25, 7, 0], [25, 6.5, 0]].map(([x, y, z], i) => (
+        <mesh key={`pipe-long-${i}`} position={[x, y, z]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.12, 0.12, 60, 8]} />
+          <meshStandardMaterial color="#6d6d6d" metalness={0.7} roughness={0.3} />
+        </mesh>
+      ))}
+
+      {[-25, 25].map((x, xi) =>
+        [-20, -5, 10, 25].map((z, zi) => (
+          <group key={`pipe-elbow-${xi}-${zi}`} position={[x, 7, z]}>
+            <mesh rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.12, 0.12, 4, 8]} />
+              <meshStandardMaterial color="#6d6d6d" metalness={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[0, 0.4, 0]}>
+              <cylinderGeometry args={[0.16, 0.16, 0.15, 8]} />
+              <meshStandardMaterial color="#555555" metalness={0.8} />
+            </mesh>
+          </group>
+        ))
+      )}
+
+      {[-10, 10].map((x, i) => (
+        <mesh key={`pipe-cross-${i}`} position={[x, 7.2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 40, 8]} />
+          <meshStandardMaterial color="#8a8a8a" metalness={0.6} roughness={0.3} />
+        </mesh>
+      ))}
+
+      {[-25, 25].map((x, xi) =>
+        [-15, 0, 15].map((z, zi) => (
+          <mesh key={`valve-${xi}-${zi}`} position={[x, 6.5, z]}>
+            <group>
+              <mesh>
+                <cylinderGeometry args={[0.18, 0.18, 0.1, 8]} />
+                <meshStandardMaterial color="#b71c1c" metalness={0.5} />
+              </mesh>
+              <mesh position={[0, 0.15, 0]} rotation={[0, 0, Math.PI / 4]}>
+                <boxGeometry args={[0.4, 0.06, 0.06]} />
+                <meshStandardMaterial color="#c62828" metalness={0.4} />
+              </mesh>
+            </group>
+          </mesh>
+        ))
+      )}
+    </group>
+  );
+}
+
+function DustParticles() {
+  const particlesRef = useRef<THREE.Points>(null);
+  const particleCount = 80;
+
+  const positions = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 50;
+      pos[i * 3 + 1] = 1 + Math.random() * 6;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 50;
+    }
+    return pos;
+  }, []);
+
+  const speeds = useMemo(() => {
+    const s = new Float32Array(particleCount);
+    for (let i = 0; i < particleCount; i++) {
+      s[i] = 0.2 + Math.random() * 0.4;
+    }
+    return s;
+  }, []);
+
+  useFrame((state) => {
+    if (!particlesRef.current) return;
+    const geo = particlesRef.current.geometry;
+    const posArr = geo.attributes.position.array as Float32Array;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < particleCount; i++) {
+      posArr[i * 3] += Math.sin(t * speeds[i] + i) * 0.003;
+      posArr[i * 3 + 1] += Math.sin(t * 0.3 + i * 0.5) * 0.002;
+      posArr[i * 3 + 2] += Math.cos(t * speeds[i] + i) * 0.003;
+    }
+    geo.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={particlesRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[positions, 3]}
+          count={particleCount}
+        />
+      </bufferGeometry>
+      <pointsMaterial color="#fff8e1" size={0.08} transparent opacity={0.35} sizeAttenuation />
+    </points>
+  );
+}
+
+function ShippingCrate({ position, color, size = [1.2, 1, 1.2] }: {
+  position: [number, number, number];
+  color: string;
+  size?: [number, number, number];
+}) {
+  return (
+    <group position={position}>
+      <mesh position={[0, size[1] / 2, 0]} castShadow>
+        <boxGeometry args={size} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      <mesh position={[0, size[1] / 2, size[2] / 2 + 0.01]}>
+        <boxGeometry args={[size[0] * 0.8, 0.05, 0.02]} />
+        <meshStandardMaterial color="#5d4037" />
+      </mesh>
+      <mesh position={[0, size[1] / 2, size[2] / 2 + 0.01]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[size[1] * 0.7, 0.05, 0.02]} />
+        <meshStandardMaterial color="#5d4037" />
+      </mesh>
+    </group>
+  );
+}
+
+function Pallet({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      {[-0.4, 0, 0.4].map((x, i) => (
+        <mesh key={`slat-${i}`} position={[x, 0.04, 0]} castShadow>
+          <boxGeometry args={[0.15, 0.08, 1.2]} />
+          <meshStandardMaterial color="#a1887f" />
+        </mesh>
+      ))}
+      {[-0.45, 0, 0.45].map((z, i) => (
+        <mesh key={`board-${i}`} position={[0, 0.1, z]} castShadow>
+          <boxGeometry args={[1, 0.04, 0.18]} />
+          <meshStandardMaterial color="#8d6e63" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function HazardStripe({ position, rotation = [0, 0, 0], width, length }: {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  width: number;
+  length: number;
+}) {
+  return (
+    <group position={position} rotation={rotation}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[width, length]} />
+        <meshStandardMaterial color="#ffeb3b" transparent opacity={0.4} />
+      </mesh>
+      <mesh position={[width / 2 + 0.02, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.06, length]} />
+        <meshStandardMaterial color="#1a1a1a" transparent opacity={0.6} />
+      </mesh>
+      <mesh position={[-width / 2 - 0.02, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.06, length]} />
+        <meshStandardMaterial color="#1a1a1a" transparent opacity={0.6} />
+      </mesh>
+    </group>
+  );
+}
+
 function FactoryDecor() {
   return (
     <group>
@@ -769,25 +986,62 @@ function FactoryDecor() {
         </group>
       ))}
 
-      {[[25, 0, -20], [25, 0, 5]].map(([x, y, z], i) => (
-        <group key={`crate-${i}`} position={[x, y, z]}>
-          <mesh position={[0, 0.5, 0]} castShadow>
-            <boxGeometry args={[1.2, 1, 1.2]} />
-            <meshStandardMaterial color="#8d6e63" />
-          </mesh>
-          <mesh position={[0, 0.5, 0.61]}>
-            <boxGeometry args={[1.0, 0.05, 0.02]} />
-            <meshStandardMaterial color="#5d4037" />
-          </mesh>
-          <mesh position={[0, 0.5, 0.61]} rotation={[0, 0, Math.PI / 2]}>
-            <boxGeometry args={[0.8, 0.05, 0.02]} />
-            <meshStandardMaterial color="#5d4037" />
-          </mesh>
-        </group>
-      ))}
+      <ShippingCrate position={[25, 0, -20]} color="#8d6e63" />
+      <ShippingCrate position={[25, 0, 5]} color="#8d6e63" />
+      <ShippingCrate position={[26.5, 0, -20]} color="#a1887f" size={[1, 0.8, 1]} />
+      <ShippingCrate position={[25, 0.95, -20]} color="#6d4c41" size={[1, 0.7, 1]} />
+      <ShippingCrate position={[26.5, 0, 5]} color="#795548" size={[1.1, 0.9, 1.1]} />
 
-      <SafetySign position={[-29.8, 4, -15]} text="SAFETY FIRST" />
-      <SafetySign position={[-29.8, 4, 15]} text="WEAR PPE" />
+      <Pallet position={[24, 0, -10]} />
+      <ShippingCrate position={[24, 0.13, -10]} color="#8d6e63" size={[0.9, 0.7, 0.9]} />
+      <Pallet position={[26, 0, 15]} />
+      <Pallet position={[24, 0, 20]} />
+      <ShippingCrate position={[24, 0.13, 20]} color="#a1887f" size={[0.8, 0.6, 0.8]} />
+      <ShippingCrate position={[24.7, 0.13, 20]} color="#6d4c41" size={[0.8, 0.6, 0.8]} />
+
+      <SafetySign position={[-29.5, 4, -15]} text="SAFETY FIRST" rotation={[0, Math.PI / 2, 0]} />
+      <SafetySign position={[-29.5, 4, 15]} text="WEAR PPE" rotation={[0, Math.PI / 2, 0]} />
+
+      <WallPoster
+        position={[-29.5, 3, 0]}
+        rotation={[0, Math.PI / 2, 0]}
+        bgColor="#1565c0"
+        textColor="#ffffff"
+        title="QUALITY CONTROL"
+        subtitle="Check every item before packing"
+      />
+      <WallPoster
+        position={[29.5, 3, -10]}
+        rotation={[0, -Math.PI / 2, 0]}
+        bgColor="#c62828"
+        textColor="#ffffff"
+        title="FIRE EXIT"
+        subtitle="Keep clear at all times"
+      />
+      <WallPoster
+        position={[29.5, 3, 10]}
+        rotation={[0, -Math.PI / 2, 0]}
+        bgColor="#2e7d32"
+        textColor="#ffffff"
+        title="PRODUCTION GOAL"
+        subtitle="Fill orders accurately and on time"
+      />
+      <WallPoster
+        position={[-10, 3, -29.5]}
+        rotation={[0, 0, 0]}
+        bgColor="#e65100"
+        textColor="#ffffff"
+        title="MACHINE AREA"
+        subtitle="Authorized personnel only"
+      />
+      <WallPoster
+        position={[10, 3, -29.5]}
+        rotation={[0, 0, 0]}
+        bgColor="#4527a0"
+        textColor="#ffffff"
+        title="TEAM WORK"
+        subtitle="Together we deliver excellence"
+      />
 
       <group position={[0, 0, -28]}>
         <mesh position={[0, 1.5, 0]} castShadow>
@@ -820,16 +1074,34 @@ function FactoryDecor() {
         </mesh>
       </group>
 
-      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 60]} />
-        <meshStandardMaterial color="#ffeb3b" transparent opacity={0.3} />
-      </mesh>
+      <HazardStripe position={[0, 0.01, 0]} width={3} length={55} />
+
       {[-8, 8].map((x, i) => (
         <mesh key={`lane-${i}`} position={[x, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.15, 60]} />
           <meshStandardMaterial color="#ffeb3b" transparent opacity={0.5} />
         </mesh>
       ))}
+
+      {[[-15, 0.01, -5], [0, 0.01, -15], [15, 0.01, -5]].map(([x, y, z], i) => (
+        <mesh key={`machine-zone-${i}`} position={[x, y, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[6, 5]} />
+          <meshStandardMaterial color="#ff9800" transparent opacity={0.08} />
+        </mesh>
+      ))}
+      {[[-15, 0.01, -5], [0, 0.01, -15], [15, 0.01, -5]].map(([x, y, z], i) => (
+        <group key={`machine-border-${i}`}>
+          {[[-3, 0, -2.5], [3, 0, -2.5], [-3, 0, 2.5], [3, 0, 2.5]].map(([ox, , oz], j) => (
+            <mesh key={`corner-${i}-${j}`} position={[x + ox, y, z + oz]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.8, 0.08]} />
+              <meshStandardMaterial color="#ff9800" transparent opacity={0.5} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      <CeilingPipes />
+      <DustParticles />
     </group>
   );
 }
@@ -981,6 +1253,7 @@ export function FactoryWorld() {
 
   return (
     <>
+      <fog attach="fog" args={["#2a2418", 30, 65]} />
       <FactoryLights />
       <FactoryFloor />
       <FactoryWalls />
