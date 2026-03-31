@@ -1295,6 +1295,8 @@ function App() {
             <FactoryPracticeQuizWrapper />
           </>
         )}
+
+        {phase === "playing" && <DevPanel />}
       </KeyboardControls>
     </div>
   );
