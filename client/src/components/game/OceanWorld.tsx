@@ -1305,7 +1305,7 @@ function SludgeCleanedEffect({ position }: { position: [number, number, number] 
         outlineWidth={0.04}
         outlineColor="#000"
       >
-        +25
+        +5
       </Text>
     </group>
   );
@@ -1644,7 +1644,7 @@ export function OceanWorld() {
   const handleSludgeCleaned = useCallback((index: number) => {
     const patch = useGame.getState().sludgePatches[index];
     cleanSludge(index);
-    addTotalScore(25);
+    addTotalScore(5);
     cleanedEffectIdRef.current += 1;
     const effectId = cleanedEffectIdRef.current;
     setCleanedEffects((prev) => [...prev, { id: effectId, position: patch.position }]);
