@@ -309,7 +309,7 @@ function World2HUD() {
               {objectiveText}
             </div>
             {oceanQuestStarted && !oceanQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 12 }}>
+              <div style={{ marginTop: 8, fontSize: 13 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                   <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
                     {hasDivingSuit ? "✓" : "○"}
@@ -328,7 +328,7 @@ function World2HUD() {
               </div>
             )}
             {cleanupQuestStarted && !cleanupQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 12 }}>
+              <div style={{ marginTop: 8, fontSize: 13 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
                   Chemical Spill Cleanup:
                 </div>
@@ -633,6 +633,23 @@ function World3HUD() {
           {carryingBox && `Carrying Box: ${carryingBox.charAt(0).toUpperCase() + carryingBox.slice(1)}`}
         </div>
       )}
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+          background: "rgba(40, 30, 10, 0.7)",
+          borderRadius: 8,
+          padding: "8px 14px",
+          color: "rgba(255,255,255,0.6)",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 12,
+          zIndex: 50,
+        }}
+      >
+        WASD / Arrows to move | E to interact
+      </div>
 
       <div
         onClick={restart}
