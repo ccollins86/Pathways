@@ -479,7 +479,7 @@ function World3AdminPanel({ username }: { username?: string }) {
           factoryPracticeUnlocked: true,
         });
       }}
-      lessonDone={factoryOrderComplete && factoryLessonPhase >= 1}
+      lessonDone={(factoryOrderComplete && factoryLessonPhase >= 1) || factoryPracticeUnlocked}
       practiceDone={factoryPracticeCompleted}
     />
   );
