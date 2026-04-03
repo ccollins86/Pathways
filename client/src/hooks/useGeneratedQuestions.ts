@@ -77,6 +77,11 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
   let allUnique = true;
   data.questions.forEach((q: any, i: number) => {
     console.log(`[QuizLoader] Q${i + 1} (${topic}): "${q.question}" | Options: ${q.options.join(", ")} | Correct: ${q.options[q.correctIndex]}`);
+    const optionSet = new Set(q.options.map((o: string) => o.trim()));
+    if (optionSet.size < q.options.length) {
+      console.warn(`[QuizLoader] ⚠ Q${i + 1} (${topic}) has DUPLICATE answer options — will use fallback for this question`);
+      q._hasDuplicateOptions = true;
+    }
     const duplicate = hardcoded.find((hq: Question) => hq.question === q.question);
     if (duplicate) {
       console.warn(`[QuizLoader] ⚠ Q${i + 1} (${topic}) MATCHES hardcoded question: "${q.question}"`);
@@ -179,9 +184,19 @@ export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsRe
 
   const questionCount = getQuestionCount(topic);
   const questions: Question[] = [];
+  let fallbackIndex = 0;
   for (let i = 0; i < questionCount; i++) {
     if (generatedQuestions) {
-      questions.push({ ...generatedQuestions[i], id: i + 1 });
+      const q = generatedQuestions[i] as any;
+      const opts = q.options as string[];
+      const uniqueOpts = new Set(opts.map((o: string) => o.trim()));
+      if (uniqueOpts.size < opts.length || q._hasDuplicateOptions) {
+        console.warn(`[QuizLoader] Replacing Q${i + 1} (${topic}) with fallback due to duplicate options`);
+        questions.push({ ...fallbackRef.current[fallbackIndex % fallbackRef.current.length], id: i + 1 });
+        fallbackIndex++;
+      } else {
+        questions.push({ ...generatedQuestions[i], id: i + 1 });
+      }
     } else {
       questions.push(fallbackRef.current[i]);
     }

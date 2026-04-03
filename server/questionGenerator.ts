@@ -28,7 +28,7 @@ const TOPIC_PROMPTS: Record<QuizTopic, string> = {
 Each question should:
 - Show a short code snippet (3-8 lines) using if/else if/else with simple, relatable variables (weather, animals, scores, time of day, food, colors, etc.)
 - Ask what the code outputs or which branch executes
-- Have exactly 4 answer options
+- Have exactly 4 answer options — all options MUST be unique and distinct from each other
 - Include a clear explanation of why the correct answer is right, mentioning how conditions are checked top-to-bottom
 - Include a helpful hint that guides the student without giving the answer away
 - Vary in difficulty: start easy (simple if/else) and build to slightly harder (multiple else-if, OR operators, duplicate conditions)
@@ -39,7 +39,7 @@ Each question should:
 Each question should:
 - Show a short code snippet (3-8 lines) using for...of or while loops with simple, relatable contexts (animals, fruits, cleaning, counting, nature)
 - Ask about loop execution count, final variable values, or which loop type is best for a task
-- Have exactly 4 answer options
+- Have exactly 4 answer options — all options MUST be unique and distinct from each other
 - Include a clear explanation walking through how the loop executes step by step
 - Include a helpful hint that guides the student without giving the answer away
 - Mix for...of loops (iterating over arrays) and while loops (condition-based)
@@ -50,7 +50,7 @@ Each question should:
 Each question should:
 - Show a short code snippet (3-8 lines) using functions with parameters, arguments, and return values
 - Topics to cover: parameters vs arguments, return values, function composition (calling functions from other functions), early returns, argument order
-- Have exactly 4 answer options
+- Have exactly 4 answer options — all options MUST be unique and distinct from each other
 - Include a clear explanation of the concept being tested
 - Include a helpful hint that guides the student without giving the answer away
 - Use relatable contexts like making products, greeting people, calculating costs
@@ -61,7 +61,7 @@ Each question should:
 Each question should:
 - Show a short code snippet (3-8 lines) using if/else if/else with disaster-related variables (e.g. disaster types like "hurricane", "wildfire", "earthquake", "flood", "tornado"; preparation actions like sandbagging, boarding windows, securing furniture, clearing brush, evacuating)
 - Ask what the code outputs, which branch executes, or what a variable is set to
-- Have exactly 4 answer options
+- Have exactly 4 answer options — all options MUST be unique and distinct from each other
 - Include a clear explanation of why the correct answer is right, mentioning how conditions are checked top-to-bottom and only the first matching branch runs
 - Include a helpful hint that guides the student without giving the answer away
 - Question 1 should be straightforward (simple if/else-if matching), Question 2 should involve an else catch-all block, Question 3 should test a trickier concept like duplicate conditions or OR operators
@@ -143,6 +143,12 @@ function validateQuestion(q: any, idx: number): GeneratedQuestion | null {
   const options = Array.isArray(q.options) ? q.options.map(String) : [];
   if (options.length < 4) return null;
 
+  const uniqueOptions = new Set(options.slice(0, 4).map(o => o.trim()));
+  if (uniqueOptions.size < 4) {
+    console.warn(`[QuestionGen] Rejecting Q${idx + 1}: duplicate answer options detected`);
+    return null;
+  }
+
   let correctIndex = typeof q.correctIndex === "number" ? q.correctIndex
     : typeof q.correct_index === "number" ? q.correct_index : -1;
   if (correctIndex < 0 || correctIndex > 3) return null;
@@ -182,7 +188,7 @@ Each question object must have these exact fields:
 - "id": number (1 through ${expectedCount})
 - "code": string (the code snippet with newlines)
 - "question": string (the question to ask about the code)
-- "options": array of exactly 4 strings (the multiple choice answers)
+- "options": array of exactly 4 strings (the multiple choice answers) — ALL 4 OPTIONS MUST BE DISTINCT. Never include duplicate or identical answer choices.
 - "correctIndex": number (0-3, the index of the correct option)
 - "explanation": string (why the correct answer is right)
 - "hint": string (a helpful hint without giving the answer away)
