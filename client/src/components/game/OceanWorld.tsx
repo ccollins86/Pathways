@@ -1347,7 +1347,7 @@ function ChemicalSludgePatch({
 
     if (glowRef.current) {
       const t = state.clock.elapsedTime;
-      const s = 1 + Math.sin(t * 0.5 + index) * 0.08;
+      const s = 1 + Math.sin(t * 0.3 + index) * 0.015;
       glowRef.current.scale.set(s, 1, s);
     }
   });
