@@ -443,20 +443,16 @@ function StoneWell({ position }: { position: [number, number, number] }) {
         );
       })}
       <mesh position={[0, 0.4, 0]} castShadow>
-        <cylinderGeometry args={[0.8, 0.9, 0.8, 12]} />
-        <meshStandardMaterial color="#7a7068" roughness={0.95} />
+        <cylinderGeometry args={[0.8, 0.9, 0.8, 12, 1, true]} />
+        <meshStandardMaterial color="#7a7068" roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
       <mesh position={[0, 0.82, 0]} castShadow>
-        <cylinderGeometry args={[0.85, 0.82, 0.06, 12]} />
+        <torusGeometry args={[0.83, 0.06, 8, 16]} />
         <meshStandardMaterial color="#6a5a4a" roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0.88, 0]}>
-        <torusGeometry args={[0.84, 0.04, 8, 16]} />
-        <meshStandardMaterial color="#5a4a3a" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 0.7, 0]}>
-        <cylinderGeometry args={[0.7, 0.7, 0.04, 16]} />
-        <meshStandardMaterial color="#2a7aaa" roughness={0.1} metalness={0.3} transparent opacity={0.85} />
+      <mesh position={[0, 0.6, 0]}>
+        <cylinderGeometry args={[0.72, 0.72, 0.02, 16]} />
+        <meshStandardMaterial color="#2a8abf" roughness={0.05} metalness={0.4} transparent opacity={0.9} />
       </mesh>
       <mesh position={[0, 0.15, 0]}>
         <cylinderGeometry args={[0.65, 0.65, 0.5, 12]} />
