@@ -586,8 +586,8 @@ function Playground({ position }: { position: [number, number, number] }) {
         </mesh>
         {[-0.3, 0.3].map((sx, si) => (
           <group key={si}>
-            <mesh position={[sx, 1.65, 0]}>
-              <boxGeometry args={[0.02, 1.0, 0.02]} />
+            <mesh position={[sx, 1.85, 0]}>
+              <boxGeometry args={[0.02, 1.5, 0.02]} />
               <meshStandardMaterial color="#aaa" metalness={0.5} />
             </mesh>
             <mesh position={[sx, 1.1, 0]}>
