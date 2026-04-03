@@ -1311,6 +1311,12 @@ function SludgeCleanedEffect({ position }: { position: [number, number, number] 
   );
 }
 
+const BUBBLE_POSITIONS = [
+  [0, 0.2, -1],
+  [1.5, 0.35, -0.6],
+  [-1.2, 0.5, -0.2],
+] as const;
+
 function ChemicalSludgePatch({
   patch,
   index,
@@ -1326,7 +1332,7 @@ function ChemicalSludgePatch({
 }) {
   const isNearRef = useRef(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const ref = useRef<THREE.Group>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (patch.cleaned) return;
@@ -1339,16 +1345,10 @@ function ChemicalSludgePatch({
       setShowPrompt(near);
     }
 
-    if (ref.current) {
+    if (glowRef.current) {
       const t = state.clock.elapsedTime;
-      ref.current.rotation.y = t * 0.1 + index;
-      const children = ref.current.children;
-      for (let i = 0; i < children.length; i++) {
-        if ((children[i] as THREE.Mesh).isMesh) {
-          const mesh = children[i] as THREE.Mesh;
-          mesh.position.y = patch.position[1] + Math.sin(t * 0.5 + i) * 0.1;
-        }
-      }
+      const s = 1 + Math.sin(t * 0.5 + index) * 0.08;
+      glowRef.current.scale.set(s, 1, s);
     }
   });
 
@@ -1368,9 +1368,9 @@ function ChemicalSludgePatch({
   if (patch.cleaned) return null;
 
   return (
-    <group ref={ref} position={patch.position}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <circleGeometry args={[5, 32]} />
+    <group position={patch.position}>
+      <mesh ref={glowRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <circleGeometry args={[5, 16]} />
         <meshStandardMaterial
           color="#39ff14"
           emissive="#39ff14"
@@ -1381,7 +1381,7 @@ function ChemicalSludgePatch({
         />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
-        <circleGeometry args={[3, 20]} />
+        <circleGeometry args={[3, 12]} />
         <meshStandardMaterial
           color="#76ff03"
           emissive="#76ff03"
@@ -1392,7 +1392,7 @@ function ChemicalSludgePatch({
         />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
-        <circleGeometry args={[2.5, 16]} />
+        <circleGeometry args={[2.5, 12]} />
         <meshStandardMaterial
           color="#69f0ae"
           emissive="#69f0ae"
@@ -1403,20 +1403,9 @@ function ChemicalSludgePatch({
         />
       </mesh>
 
-      <mesh position={[0, 0.5, 0]}>
-        <sphereGeometry args={[2, 16, 12]} />
-        <meshStandardMaterial
-          color="#39ff14"
-          emissive="#39ff14"
-          emissiveIntensity={0.6}
-          transparent
-          opacity={0.25}
-        />
-      </mesh>
-
-      {[0, 1.5, -1.2, 0.8, -2, 1.8, -0.5].map((x, i) => (
-        <mesh key={`bubble-${i}`} position={[x, 0.2 + i * 0.15, i * 0.4 - 1]}>
-          <sphereGeometry args={[0.2 + i * 0.05, 8, 6]} />
+      {BUBBLE_POSITIONS.map((pos, i) => (
+        <mesh key={`bubble-${i}`} position={[pos[0], pos[1], pos[2]]}>
+          <sphereGeometry args={[0.25, 6, 4]} />
           <meshStandardMaterial
             color="#b9f6ca"
             emissive="#39ff14"
@@ -1426,9 +1415,6 @@ function ChemicalSludgePatch({
           />
         </mesh>
       ))}
-
-      <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
-      <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
 
       {inBoat && showPrompt && (
         <Text
