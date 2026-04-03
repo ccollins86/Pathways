@@ -166,7 +166,7 @@ export function PracticeQuizBase({
 
   const handleNext = () => {
     if (isLastQuestion) {
-      setWasFirstCompletion(!worldBonusAwarded);
+      setWasFirstCompletion(worldBonusAwarded ? false : true);
       onComplete();
       setShowSummary(true);
       setSummaryPhase(0);
@@ -203,7 +203,6 @@ export function PracticeQuizBase({
 
   if (showSummary) {
     return (
-      <>
         <div
           style={{
             position: "absolute",
@@ -439,7 +438,6 @@ export function PracticeQuizBase({
             }
           `}</style>
         </div>
-      </>
     );
   }
 

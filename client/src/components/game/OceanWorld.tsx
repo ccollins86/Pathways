@@ -1275,7 +1275,7 @@ function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
   );
 }
 
-function SludgeCleanedEffect({ position }: { position: [number, number, number] }) {
+function SludgeCleanedEffect({ position }: Readonly<{ position: [number, number, number] }>) {
   const [visible, setVisible] = useState(true);
   const groupRef = useRef<THREE.Group>(null);
   const startTime = useRef(0);

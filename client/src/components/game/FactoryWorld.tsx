@@ -731,7 +731,7 @@ function ShippingTruck({ position, playerPosition }: { position: [number, number
   );
 }
 
-function SafetySign({ position, text, rotation = [0, 0, 0] }: { position: [number, number, number]; text: string; rotation?: [number, number, number] }) {
+function SafetySign({ position, text, rotation = [0, 0, 0] }: Readonly<{ position: [number, number, number]; text: string; rotation?: [number, number, number] }>) {
   return (
     <group position={position} rotation={rotation}>
       <mesh castShadow>
@@ -756,14 +756,14 @@ function SafetySign({ position, text, rotation = [0, 0, 0] }: { position: [numbe
   );
 }
 
-function WallPoster({ position, rotation = [0, 0, 0], bgColor, textColor, title, subtitle }: {
+function WallPoster({ position, rotation = [0, 0, 0], bgColor, textColor, title, subtitle }: Readonly<{
   position: [number, number, number];
   rotation?: [number, number, number];
   bgColor: string;
   textColor: string;
   title: string;
   subtitle?: string;
-}) {
+}>) {
   return (
     <group position={position} rotation={rotation}>
       <mesh>
@@ -904,11 +904,11 @@ function DustParticles() {
   );
 }
 
-function ShippingCrate({ position, color, size = [1.2, 1, 1.2] }: {
+function ShippingCrate({ position, color, size = [1.2, 1, 1.2] }: Readonly<{
   position: [number, number, number];
   color: string;
   size?: [number, number, number];
-}) {
+}>) {
   return (
     <group position={position}>
       <mesh position={[0, size[1] / 2, 0]} castShadow>
@@ -927,7 +927,7 @@ function ShippingCrate({ position, color, size = [1.2, 1, 1.2] }: {
   );
 }
 
-function Pallet({ position }: { position: [number, number, number] }) {
+function Pallet({ position }: Readonly<{ position: [number, number, number] }>) {
   return (
     <group position={position}>
       {[-0.4, 0, 0.4].map((x, i) => (
@@ -946,12 +946,12 @@ function Pallet({ position }: { position: [number, number, number] }) {
   );
 }
 
-function HazardStripe({ position, rotation = [0, 0, 0], width, length }: {
+function HazardStripe({ position, rotation = [0, 0, 0], width, length }: Readonly<{
   position: [number, number, number];
   rotation?: [number, number, number];
   width: number;
   length: number;
-}) {
+}>) {
   return (
     <group position={position} rotation={rotation}>
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
