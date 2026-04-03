@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
 import { useGeneratedQuestions } from "@/hooks/useGeneratedQuestions";
+import { isAdmin } from "@/config/adminUsers";
 
 const ITEM_LABELS: Record<string, string> = {
   sandbag: "Sandbag",
@@ -14,7 +15,7 @@ const ITEM_LABELS: Record<string, string> = {
 
 const IS_DEV = import.meta.env.DEV;
 
-export function GameHUD() {
+export function GameHUD({ username }: { username?: string }) {
   const talkedToDan = useGame((s) => s.talkedToDan);
   const talkedToBob = useGame((s) => s.talkedToBob);
   const knownDisaster = useGame((s) => s.knownDisaster);
@@ -871,7 +872,156 @@ export function GameHUD() {
         WASD / Arrows to move | E to interact{carriedItemInfo ? " | Q to drop" : ""}
       </div>
 
+      {username && isAdmin(username) && (
+        <AdminSkipPanel
+          world="town"
+          onSkipToLesson={() => {
+            const disaster = useGame.getState().disaster || "hurricane";
+            useGame.setState({
+              questCompleted: true,
+              knownDisaster: disaster,
+              talkedToDan: true,
+              talkedToBob: true,
+              reportedToDan: true,
+              tasksActive: true,
+            });
+            setShowLesson(true);
+          }}
+          onSkipToPractice={() => {
+            const disaster = useGame.getState().disaster || "hurricane";
+            useGame.setState({
+              questCompleted: true,
+              knownDisaster: disaster,
+              talkedToDan: true,
+              talkedToBob: true,
+              reportedToDan: true,
+              tasksActive: true,
+              practiceUnlocked: true,
+            });
+          }}
+          lessonDone={practiceUnlocked || showLesson || lessonQuizActive || lessonQuizDone}
+          practiceDone={practiceCompleted}
+        />
+      )}
+
     </>
+  );
+}
+
+export function AdminSkipPanel({
+  world,
+  onSkipToLesson,
+  onSkipToPractice,
+  lessonDone,
+  practiceDone,
+}: {
+  world: "town" | "ocean" | "factory";
+  onSkipToLesson: () => void;
+  onSkipToPractice: () => void;
+  lessonDone: boolean;
+  practiceDone: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const worldLabels: Record<string, string> = {
+    town: "Town",
+    ocean: "Ocean",
+    factory: "Factory",
+  };
+
+  const accentColors: Record<string, string> = {
+    town: "#ff9800",
+    ocean: "#4fc3f7",
+    factory: "#ff9800",
+  };
+
+  const accent = accentColors[world];
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 60,
+        left: 16,
+        zIndex: 100,
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          background: open ? `rgba(255, 152, 0, 0.85)` : "rgba(60, 60, 60, 0.7)",
+          border: `1px solid ${accent}`,
+          borderRadius: 6,
+          padding: "6px 12px",
+          color: "white",
+          fontSize: 11,
+          cursor: "pointer",
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        ADMIN
+      </button>
+      {open && (
+        <div
+          style={{
+            background: "rgba(20, 20, 30, 0.92)",
+            border: `1px solid ${accent}`,
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 6,
+            position: "absolute",
+            bottom: 36,
+            left: 0,
+            minWidth: 180,
+          }}
+        >
+          <div style={{ color: accent, fontSize: 10, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
+            {worldLabels[world]} — Skip To
+          </div>
+          <button
+            onClick={() => { onSkipToLesson(); setOpen(false); }}
+            disabled={lessonDone}
+            style={{
+              display: "block",
+              width: "100%",
+              background: lessonDone ? "rgba(100, 200, 100, 0.3)" : "rgba(255,255,255,0.08)",
+              border: lessonDone ? "1px solid rgba(100, 200, 100, 0.5)" : "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 5,
+              padding: "7px 10px",
+              color: lessonDone ? "#8f8" : "white",
+              fontSize: 12,
+              cursor: lessonDone ? "default" : "pointer",
+              marginBottom: 4,
+              textAlign: "left",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            {lessonDone ? "● Learning Phase" : "Learning Phase"}
+          </button>
+          <button
+            onClick={() => { onSkipToPractice(); setOpen(false); }}
+            disabled={practiceDone}
+            style={{
+              display: "block",
+              width: "100%",
+              background: practiceDone ? "rgba(100, 200, 100, 0.3)" : "rgba(255,255,255,0.08)",
+              border: practiceDone ? "1px solid rgba(100, 200, 100, 0.5)" : "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 5,
+              padding: "7px 10px",
+              color: practiceDone ? "#8f8" : "white",
+              fontSize: 12,
+              cursor: practiceDone ? "default" : "pointer",
+              marginBottom: 4,
+              textAlign: "left",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            {practiceDone ? "● Practice Phase" : "Practice Phase"}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

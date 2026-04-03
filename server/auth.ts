@@ -53,6 +53,11 @@ export function setupAuth(app: Express) {
 
       const { username, password } = parsed.data;
 
+      const RESERVED_USERNAMES = ["admin", "teacher", "instructor", "demo"];
+      if (RESERVED_USERNAMES.includes(username.toLowerCase())) {
+        return res.status(400).json({ message: "This username is reserved" });
+      }
+
       if (username.length < 3) {
         return res.status(400).json({ message: "Username must be at least 3 characters" });
       }

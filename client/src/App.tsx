@@ -6,7 +6,8 @@ import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
 import { FactoryWorld } from "./components/game/FactoryWorld";
 import { DialogueUI } from "./components/game/DialogueUI";
-import { GameHUD, DevPanel } from "./components/game/GameHUD";
+import { GameHUD, DevPanel, AdminSkipPanel } from "./components/game/GameHUD";
+import { isAdmin } from "./config/adminUsers";
 import { PracticeQuizUI } from "./components/game/PracticeQuizUI";
 import { OceanPracticeQuizUI } from "./components/game/OceanPracticeQuizUI";
 import { SurveyUI } from "./components/game/SurveyUI";
@@ -405,6 +406,82 @@ function World2HUD() {
         Back to Town
       </div>
     </>
+  );
+}
+
+function World2AdminPanel({ username }: { username?: string }) {
+  const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
+  const oceanPracticeUnlocked = useGame((s) => s.oceanPracticeUnlocked);
+  const oceanPracticeCompleted = useGame((s) => s.oceanPracticeCompleted);
+  const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
+
+  if (!username || !isAdmin(username)) return null;
+
+  return (
+    <AdminSkipPanel
+      world="ocean"
+      onSkipToLesson={() => {
+        useGame.setState({
+          oceanQuestStarted: true,
+          oceanQuestCompleted: true,
+          cleanupQuestStarted: true,
+          cleanupQuestCompleted: true,
+          oceanLessonPhase: 1,
+          hasDivingSuit: true,
+        });
+      }}
+      onSkipToPractice={() => {
+        useGame.setState({
+          oceanQuestStarted: true,
+          oceanQuestCompleted: true,
+          cleanupQuestStarted: true,
+          cleanupQuestCompleted: true,
+          oceanLessonPhase: 3,
+          oceanPracticeUnlocked: true,
+          hasDivingSuit: true,
+        });
+      }}
+      lessonDone={cleanupQuestCompleted && oceanLessonPhase >= 1}
+      practiceDone={oceanPracticeCompleted}
+    />
+  );
+}
+
+function World3AdminPanel({ username }: { username?: string }) {
+  const factoryLessonPhase = useGame((s) => s.factoryLessonPhase);
+  const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
+  const factoryPracticeUnlocked = useGame((s) => s.factoryPracticeUnlocked);
+  const factoryPracticeCompleted = useGame((s) => s.factoryPracticeCompleted);
+
+  if (!username || !isAdmin(username)) return null;
+
+  return (
+    <AdminSkipPanel
+      world="factory"
+      onSkipToLesson={() => {
+        useGame.setState({
+          factoryQuestStarted: true,
+          hatMachineState: "loaded",
+          tshirtMachineState: "loaded",
+          jacketMachineState: "loaded",
+          factoryOrderComplete: true,
+          factoryLessonPhase: 1,
+        });
+      }}
+      onSkipToPractice={() => {
+        useGame.setState({
+          factoryQuestStarted: true,
+          hatMachineState: "loaded",
+          tshirtMachineState: "loaded",
+          jacketMachineState: "loaded",
+          factoryOrderComplete: true,
+          factoryLessonPhase: 0,
+          factoryPracticeUnlocked: true,
+        });
+      }}
+      lessonDone={factoryOrderComplete && factoryLessonPhase >= 1}
+      practiceDone={factoryPracticeCompleted}
+    />
   );
 }
 
@@ -1273,7 +1350,7 @@ function App() {
 
         {phase === "playing" && currentWorld === "town" && (
           <>
-            <GameHUD />
+            <GameHUD username={user.username} />
             <DialogueUI />
             {practiceActive && <PracticeQuizUI />}
           </>
@@ -1286,6 +1363,7 @@ function App() {
             <SurveyUI />
             <OceanLessonUI />
             <OceanPracticeQuizWrapper />
+            <World2AdminPanel username={user.username} />
           </>
         )}
 
@@ -1296,6 +1374,7 @@ function App() {
             <MachineSettingsUI />
             <FactoryLessonUI />
             <FactoryPracticeQuizWrapper />
+            <World3AdminPanel username={user.username} />
           </>
         )}
       </KeyboardControls>
