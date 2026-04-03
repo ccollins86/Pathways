@@ -168,6 +168,7 @@ interface GameState {
   townQuestBonusAwarded: boolean;
   oceanQuestBonusAwarded: boolean;
   factoryQuestBonusAwarded: boolean;
+  factoryStagePointsAwarded: Set<string>;
   townWorldBonusAwarded: boolean;
   oceanWorldBonusAwarded: boolean;
   factoryWorldBonusAwarded: boolean;
@@ -334,6 +335,7 @@ export const useGame = create<GameState>()(
     townQuestBonusAwarded: false,
     oceanQuestBonusAwarded: false,
     factoryQuestBonusAwarded: false,
+    factoryStagePointsAwarded: new Set<string>(),
     townWorldBonusAwarded: false,
     oceanWorldBonusAwarded: false,
     factoryWorldBonusAwarded: false,
@@ -421,6 +423,7 @@ export const useGame = create<GameState>()(
         townQuestBonusAwarded: false,
         oceanQuestBonusAwarded: false,
         factoryQuestBonusAwarded: false,
+        factoryStagePointsAwarded: new Set<string>(),
         townWorldBonusAwarded: false,
         oceanWorldBonusAwarded: false,
         factoryWorldBonusAwarded: false,
@@ -675,7 +678,10 @@ export const useGame = create<GameState>()(
         if (normalize(settings.color1) !== "white") return "Check the top color — that's not right.";
         if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Check the brim color — that's not right.";
         if (normalize(settings.lettering) !== "italy") return "Check the lettering — that's not right.";
-        set({ hatMachineState: "produced", activeMachine: null });
+        const key = "config-hat";
+        const awarded = get().factoryStagePointsAwarded;
+        const bonus = awarded.has(key) ? 0 : 5;
+        set((s) => ({ hatMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
         return null;
       } else if (machine === "tshirt") {
         if (settings.quantity !== 3) return "Check the quantity — that's not right.";
@@ -684,7 +690,10 @@ export const useGame = create<GameState>()(
         if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Check the body color — that's not right.";
         if (normalize(settings.color3 || "") !== "white") return "Check the lettering color — that's not right.";
         if (normalize(settings.lettering) !== "usa") return "Check the lettering — that's not right.";
-        set({ tshirtMachineState: "produced", activeMachine: null });
+        const key = "config-tshirt";
+        const awarded = get().factoryStagePointsAwarded;
+        const bonus = awarded.has(key) ? 0 : 5;
+        set((s) => ({ tshirtMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
         return null;
       } else if (machine === "jacket") {
         if (settings.quantity !== 5) return "Check the quantity — that's not right.";
@@ -693,7 +702,10 @@ export const useGame = create<GameState>()(
         if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Check the body color — that's not right.";
         if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Check the lettering color — that's not right.";
         if (normalize(settings.lettering) !== "germany") return "Check the lettering — that's not right.";
-        set({ jacketMachineState: "produced", activeMachine: null });
+        const key = "config-jacket";
+        const awarded = get().factoryStagePointsAwarded;
+        const bonus = awarded.has(key) ? 0 : 5;
+        set((s) => ({ jacketMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
         return null;
       }
       return null;
@@ -713,9 +725,12 @@ export const useGame = create<GameState>()(
     loadBox: () => {
       const { carryingBox } = get();
       if (!carryingBox) return;
-      if (carryingBox === "hats") set({ hatMachineState: "loaded", carryingBox: null });
-      else if (carryingBox === "tshirts") set({ tshirtMachineState: "loaded", carryingBox: null });
-      else if (carryingBox === "jackets") set({ jacketMachineState: "loaded", carryingBox: null });
+      const loadKey = `load-${carryingBox}`;
+      const loadAwarded = get().factoryStagePointsAwarded;
+      const loadBonus = loadAwarded.has(loadKey) ? 0 : 5;
+      if (carryingBox === "hats") set((s) => ({ hatMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
+      else if (carryingBox === "tshirts") set((s) => ({ tshirtMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
+      else if (carryingBox === "jackets") set((s) => ({ jacketMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
       const state = get();
       if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
         const bonus = state.factoryQuestBonusAwarded ? 0 : 25;

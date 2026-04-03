@@ -951,6 +951,67 @@ describe("useGame store", () => {
     });
   });
 
+  describe("factory quest stage scoring", () => {
+    it("awards points for configuring machines", () => {
+      const before = getState().totalScore;
+      getState().submitMachineOrder("hat", {
+        quantity: 2,
+        size: "Large",
+        color1: "White",
+        color2: "Green",
+        lettering: "Italy",
+      });
+      expect(getState().totalScore).toBe(before + 5);
+      getState().submitMachineOrder("tshirt", {
+        quantity: 3,
+        size: "Medium",
+        color1: "Red",
+        color2: "Blue",
+        color3: "White",
+        lettering: "USA",
+      });
+      expect(getState().totalScore).toBe(before + 10);
+      getState().submitMachineOrder("jacket", {
+        quantity: 5,
+        size: "Large",
+        color1: "Black",
+        color2: "Red",
+        color3: "Yellow",
+        lettering: "Germany",
+      });
+      expect(getState().totalScore).toBe(before + 15);
+    });
+
+    it("awards points for loading boxes on truck", () => {
+      getState().submitMachineOrder("hat", { quantity: 2, size: "Large", color1: "White", color2: "Green", lettering: "Italy" });
+      getState().submitMachineOrder("tshirt", { quantity: 3, size: "Medium", color1: "Red", color2: "Blue", color3: "White", lettering: "USA" });
+      getState().submitMachineOrder("jacket", { quantity: 5, size: "Large", color1: "Black", color2: "Red", color3: "Yellow", lettering: "Germany" });
+      const afterConfig = getState().totalScore;
+
+      getState().pickUpProduct("hats");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().totalScore).toBe(afterConfig + 5);
+
+      getState().pickUpProduct("tshirts");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().totalScore).toBe(afterConfig + 10);
+
+      getState().pickUpProduct("jackets");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().totalScore).toBe(afterConfig + 15 + 25);
+    });
+
+    it("does not double-award stage points", () => {
+      getState().submitMachineOrder("hat", { quantity: 2, size: "Large", color1: "White", color2: "Green", lettering: "Italy" });
+      const afterFirst = getState().totalScore;
+      getState().submitMachineOrder("hat", { quantity: 2, size: "Large", color1: "White", color2: "Green", lettering: "Italy" });
+      expect(getState().totalScore).toBe(afterFirst);
+    });
+  });
+
   describe("factory lesson and practice", () => {
     it("advances factory lesson phases", () => {
       expect(getState().factoryLessonPhase).toBe(0);
