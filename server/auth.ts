@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import { pool } from "./db";
 import { insertUserSchema } from "@shared/schema";
+import { ADMIN_USERNAMES } from "../shared/adminUsers";
 
 const PgSession = connectPgSimple(session);
 
@@ -53,7 +54,6 @@ export function setupAuth(app: Express) {
 
       const { username, password } = parsed.data;
 
-      const { ADMIN_USERNAMES } = await import("../shared/adminUsers");
       if (ADMIN_USERNAMES.includes(username.toLowerCase())) {
         return res.status(400).json({ message: "This username is reserved" });
       }
