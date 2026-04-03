@@ -474,8 +474,8 @@ function StoneWell({ position }: { position: [number, number, number] }) {
         <cylinderGeometry args={[0.1, 0.1, 0.12, 8]} />
         <meshStandardMaterial color="#6a5a4a" roughness={0.8} />
       </mesh>
-      <mesh position={[0.2, 1.7, 0]}>
-        <boxGeometry args={[0.02, 0.6, 0.02]} />
+      <mesh position={[0.2, 1.77, 0]}>
+        <boxGeometry args={[0.02, 0.7, 0.02]} />
         <meshStandardMaterial color="#8a7a5a" roughness={0.8} />
       </mesh>
       <mesh position={[0.2, 1.35, 0]}>
