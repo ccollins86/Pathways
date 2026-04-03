@@ -35,3 +35,8 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.development]
+ADMIN_SEED_PASSWORD = "admin123"
