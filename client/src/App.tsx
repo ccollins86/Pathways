@@ -411,7 +411,6 @@ function World2HUD() {
 
 function World2AdminPanel({ username }: { username?: string }) {
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
-  const oceanPracticeUnlocked = useGame((s) => s.oceanPracticeUnlocked);
   const oceanPracticeCompleted = useGame((s) => s.oceanPracticeCompleted);
   const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
 
