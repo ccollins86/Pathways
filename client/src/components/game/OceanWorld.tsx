@@ -1332,9 +1332,7 @@ function ChemicalSludgePatch({
 }) {
   const isNearRef = useRef(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame((state) => {
+  useFrame(() => {
     if (patch.cleaned) return;
     const dx = playerPosition.x - patch.position[0];
     const dz = playerPosition.z - patch.position[2];
@@ -1343,11 +1341,6 @@ function ChemicalSludgePatch({
     if (near !== isNearRef.current) {
       isNearRef.current = near;
       setShowPrompt(near);
-    }
-
-    if (groupRef.current) {
-      const t = state.clock.elapsedTime;
-      groupRef.current.position.y = Math.sin(t * 0.4 + index) * 0.03;
     }
   });
 
@@ -1368,54 +1361,25 @@ function ChemicalSludgePatch({
 
   return (
     <group position={patch.position}>
-      <group ref={groupRef}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
         <circleGeometry args={[5, 16]} />
-        <meshStandardMaterial
-          color="#39ff14"
-          emissive="#39ff14"
-          emissiveIntensity={0.9}
-          transparent
-          opacity={0.85}
-          roughness={0.1}
-        />
+        <meshBasicMaterial color="#39ff14" />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
         <circleGeometry args={[3, 12]} />
-        <meshStandardMaterial
-          color="#76ff03"
-          emissive="#76ff03"
-          emissiveIntensity={0.7}
-          transparent
-          opacity={0.75}
-          roughness={0.1}
-        />
+        <meshBasicMaterial color="#76ff03" />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
         <circleGeometry args={[2.5, 12]} />
-        <meshStandardMaterial
-          color="#69f0ae"
-          emissive="#69f0ae"
-          emissiveIntensity={0.6}
-          transparent
-          opacity={0.7}
-          roughness={0.1}
-        />
+        <meshBasicMaterial color="#69f0ae" />
       </mesh>
 
       {BUBBLE_POSITIONS.map((pos, i) => (
         <mesh key={`bubble-${i}`} position={[pos[0], pos[1], pos[2]]}>
           <sphereGeometry args={[0.25, 6, 4]} />
-          <meshStandardMaterial
-            color="#b9f6ca"
-            emissive="#39ff14"
-            emissiveIntensity={1}
-            transparent
-            opacity={0.7}
-          />
+          <meshBasicMaterial color="#b9f6ca" />
         </mesh>
       ))}
-      </group>
 
       {inBoat && showPrompt && (
         <Text
