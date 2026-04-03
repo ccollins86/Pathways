@@ -454,6 +454,10 @@ function StoneWell({ position }: { position: [number, number, number] }) {
         <torusGeometry args={[0.84, 0.04, 8, 16]} />
         <meshStandardMaterial color="#5a4a3a" roughness={0.85} />
       </mesh>
+      <mesh position={[0, 0.7, 0]}>
+        <cylinderGeometry args={[0.7, 0.7, 0.04, 16]} />
+        <meshStandardMaterial color="#2a7aaa" roughness={0.1} metalness={0.3} transparent opacity={0.85} />
+      </mesh>
       <mesh position={[0, 0.15, 0]}>
         <cylinderGeometry args={[0.65, 0.65, 0.5, 12]} />
         <meshStandardMaterial color="#1a3a5a" roughness={0.2} metalness={0.15} />
