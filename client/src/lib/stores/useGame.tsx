@@ -515,6 +515,7 @@ export const useGame = create<GameState>()(
       if (carriedItem) newConsumed.add(carriedItem.id);
       set({
         questFailed: true,
+        questCompleted: false,
         failReason: reason,
         carriedItem: null,
         consumedItems: newConsumed,
@@ -774,7 +775,8 @@ export const useGame = create<GameState>()(
     incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
 
     checkQuestCompletion: () => {
-      const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
+      const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks, questFailed } = get();
+      if (questFailed) return;
       let completed = false;
       if (knownDisaster === "hurricane") {
         completed =
