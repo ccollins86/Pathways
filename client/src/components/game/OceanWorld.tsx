@@ -1311,12 +1311,6 @@ function SludgeCleanedEffect({ position }: Readonly<{ position: [number, number,
   );
 }
 
-const BUBBLE_POSITIONS = [
-  [0, 0.2, -1],
-  [1.5, 0.35, -0.6],
-  [-1.2, 0.5, -0.2],
-] as const;
-
 function ChemicalSludgePatch({
   patch,
   index,
@@ -1332,7 +1326,9 @@ function ChemicalSludgePatch({
 }) {
   const isNearRef = useRef(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  useFrame(() => {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
     if (patch.cleaned) return;
     const dx = playerPosition.x - patch.position[0];
     const dz = playerPosition.z - patch.position[2];
@@ -1341,6 +1337,18 @@ function ChemicalSludgePatch({
     if (near !== isNearRef.current) {
       isNearRef.current = near;
       setShowPrompt(near);
+    }
+
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.rotation.y = t * 0.1 + index;
+      const children = ref.current.children;
+      for (let i = 0; i < children.length; i++) {
+        if ((children[i] as THREE.Mesh).isMesh) {
+          const mesh = children[i] as THREE.Mesh;
+          mesh.position.y = patch.position[1] + Math.sin(t * 0.5 + i) * 0.1;
+        }
+      }
     }
   });
 
@@ -1360,26 +1368,67 @@ function ChemicalSludgePatch({
   if (patch.cleaned) return null;
 
   return (
-    <group position={patch.position}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.3, 0]}>
-        <circleGeometry args={[5, 16]} />
-        <meshBasicMaterial color="#39ff14" depthTest={false} />
+    <group ref={ref} position={patch.position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <circleGeometry args={[5, 32]} />
+        <meshStandardMaterial
+          color="#39ff14"
+          emissive="#39ff14"
+          emissiveIntensity={0.9}
+          transparent
+          opacity={0.85}
+          roughness={0.1}
+        />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.31, 1.5]}>
-        <circleGeometry args={[3, 12]} />
-        <meshBasicMaterial color="#76ff03" depthTest={false} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
+        <circleGeometry args={[3, 20]} />
+        <meshStandardMaterial
+          color="#76ff03"
+          emissive="#76ff03"
+          emissiveIntensity={0.7}
+          transparent
+          opacity={0.75}
+          roughness={0.1}
+        />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.31, -1.2]}>
-        <circleGeometry args={[2.5, 12]} />
-        <meshBasicMaterial color="#69f0ae" depthTest={false} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
+        <circleGeometry args={[2.5, 16]} />
+        <meshStandardMaterial
+          color="#69f0ae"
+          emissive="#69f0ae"
+          emissiveIntensity={0.6}
+          transparent
+          opacity={0.7}
+          roughness={0.1}
+        />
       </mesh>
 
-      {BUBBLE_POSITIONS.map((pos, i) => (
-        <mesh key={`bubble-${i}`} position={[pos[0], pos[1] + 0.3, pos[2]]}>
-          <sphereGeometry args={[0.25, 6, 4]} />
-          <meshBasicMaterial color="#b9f6ca" />
+      <mesh position={[0, 0.5, 0]}>
+        <sphereGeometry args={[2, 16, 12]} />
+        <meshStandardMaterial
+          color="#39ff14"
+          emissive="#39ff14"
+          emissiveIntensity={0.6}
+          transparent
+          opacity={0.25}
+        />
+      </mesh>
+
+      {[0, 1.5, -1.2, 0.8, -2, 1.8, -0.5].map((x, i) => (
+        <mesh key={`bubble-${i}`} position={[x, 0.2 + i * 0.15, i * 0.4 - 1]}>
+          <sphereGeometry args={[0.2 + i * 0.05, 8, 6]} />
+          <meshStandardMaterial
+            color="#b9f6ca"
+            emissive="#39ff14"
+            emissiveIntensity={1}
+            transparent
+            opacity={0.7}
+          />
         </mesh>
       ))}
+
+      <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
+      <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
 
       {inBoat && showPrompt && (
         <Text
