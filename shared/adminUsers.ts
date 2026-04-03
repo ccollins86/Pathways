@@ -1,8 +1,6 @@
 export const ADMIN_USERNAMES: string[] = [
   "admin",
-  "teacher",
-  "instructor",
-  "demo",
+  "nestor",
 ];
 
 export function isAdmin(username: string): boolean {
