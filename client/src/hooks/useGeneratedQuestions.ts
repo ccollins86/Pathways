@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { Question } from "@/components/game/PracticeQuizBase";
-import { getFallbackQuestions, getQuestionCount, getHardcodedPool, type QuizTopic } from "@/data/fallbackQuestions";
+import { getFallbackQuestions, getQuestionCount, type QuizTopic } from "@/data/fallbackQuestions";
 
 interface CacheEntry {
   questions: Question[] | null;
@@ -17,7 +17,6 @@ async function checkLLMAvailability(): Promise<boolean> {
   if (llmAvailable !== null) return llmAvailable;
   if (llmCheckPromise) return llmCheckPromise;
 
-  console.log("[QuizLoader] Checking LLM availability...");
   llmCheckPromise = fetch("/api/llm-status")
     .then((res) => {
       if (!res.ok) throw new Error("LLM status check failed");
@@ -26,12 +25,10 @@ async function checkLLMAvailability(): Promise<boolean> {
     .then((data) => {
       if (typeof data.available !== "boolean") throw new Error("Invalid LLM status response");
       llmAvailable = data.available;
-      console.log(`[QuizLoader] LLM available: ${llmAvailable}`);
       return llmAvailable;
     })
     .catch(() => {
       llmAvailable = false;
-      console.log("[QuizLoader] LLM not available — using fallback questions");
       return false;
     })
     .finally(() => {
@@ -47,8 +44,6 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
     throw new Error("LLM not available");
   }
 
-  console.log(`[QuizLoader] Fetching AI-generated questions for "${topic}"...`);
-  const startTime = performance.now();
   const response = await fetch(`/api/generate-questions/${topic}`);
   if (!response.ok) {
     let msg = "Failed to generate questions";
@@ -62,8 +57,6 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
     } catch (e: any) {
       if (e.message === "LLM not available") throw e;
     }
-    const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-    console.error(`[QuizLoader] Failed to fetch questions for "${topic}" after ${elapsed}s: ${msg}`);
     throw new Error(msg);
   }
   const data = await response.json();
@@ -71,37 +64,19 @@ async function fetchQuestionsFromAPI(topic: QuizTopic): Promise<Question[]> {
   if (!Array.isArray(data.questions) || data.questions.length < expectedCount) {
     throw new Error("Received incomplete question set");
   }
-  const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-  console.log(`[QuizLoader] Received ${data.questions.length} AI-generated questions for "${topic}" in ${elapsed}s`);
-  const hardcoded = getHardcodedPool(topic);
-  let allUnique = true;
-  data.questions.forEach((q: any, i: number) => {
-    console.log(`[QuizLoader] Q${i + 1} (${topic}): "${q.question}" | Options: ${q.options.join(", ")} | Correct: ${q.options[q.correctIndex]}`);
+  data.questions.forEach((q: any) => {
     const optionSet = new Set(q.options.map((o: string) => o.trim()));
     if (optionSet.size < q.options.length) {
-      console.warn(`[QuizLoader] ⚠ Q${i + 1} (${topic}) has DUPLICATE answer options — will use fallback for this question`);
       q._hasDuplicateOptions = true;
     }
-    const duplicate = hardcoded.find((hq: Question) => hq.question === q.question);
-    if (duplicate) {
-      console.warn(`[QuizLoader] ⚠ Q${i + 1} (${topic}) MATCHES hardcoded question: "${q.question}"`);
-      allUnique = false;
-    }
   });
-  if (allUnique) {
-    console.log(`[QuizLoader] ✓ All ${data.questions.length} AI questions for "${topic}" are unique (no hardcoded duplicates)`);
-  } else {
-    console.warn(`[QuizLoader] ⚠ Some AI questions for "${topic}" matched hardcoded fallbacks`);
-  }
   return data.questions;
 }
 
 function startPreload(topic: QuizTopic): void {
   if (cache[topic]?.questions || cache[topic]?.loading) {
-    if (cache[topic]?.questions) console.log(`[QuizLoader] Questions for "${topic}" already cached`);
     return;
   }
-  console.log(`[QuizLoader] Starting preload for "${topic}"...`);
 
   const entry: CacheEntry = {
     questions: null,
@@ -191,7 +166,6 @@ export function useGeneratedQuestions(topic: QuizTopic): UseGeneratedQuestionsRe
       const opts = q.options as string[];
       const uniqueOpts = new Set(opts.map((o: string) => o.trim()));
       if (uniqueOpts.size < opts.length || q._hasDuplicateOptions) {
-        console.warn(`[QuizLoader] Replacing Q${i + 1} (${topic}) with fallback due to duplicate options`);
         questions.push({ ...fallbackRef.current[fallbackIndex % fallbackRef.current.length], id: i + 1 });
         fallbackIndex++;
       } else {

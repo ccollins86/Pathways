@@ -36,7 +36,6 @@ export async function registerRoutes(
       const questions = await generateQuestions(topic);
       res.json({ questions });
     } catch (error: any) {
-      console.error("Question generation error:", error);
       res.status(502).json({ error: "Failed to generate questions. Please try again." });
     }
   });
