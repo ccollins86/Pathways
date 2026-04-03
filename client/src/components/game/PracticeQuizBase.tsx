@@ -170,7 +170,7 @@ export function PracticeQuizBase({
       onComplete();
       setShowSummary(true);
       setSummaryPhase(0);
-      const baseScore = score + 10 + (!hadWrongAttempt ? 0 : 0);
+      const baseScore = score + 10;
       setAnimatedTotal(0);
       setTimeout(() => setSummaryPhase(1), 400);
       setTimeout(() => setSummaryPhase(2), 900);
@@ -195,7 +195,7 @@ export function PracticeQuizBase({
     onClose();
   };
 
-  const basePoints = score + (answeredCorrectly ? 0 : 0);
+  const basePoints = score;
   const firstTryBonusTotal = firstTryCountLocal * 5;
   const worldBonus = wasFirstCompletion ? 50 : 0;
   const firstTryRatio = questions.length > 0 ? firstTryCountLocal / questions.length : 0;
