@@ -1332,7 +1332,7 @@ function ChemicalSludgePatch({
 }) {
   const isNearRef = useRef(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const glowRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (patch.cleaned) return;
@@ -1345,10 +1345,9 @@ function ChemicalSludgePatch({
       setShowPrompt(near);
     }
 
-    if (glowRef.current) {
+    if (groupRef.current) {
       const t = state.clock.elapsedTime;
-      const s = 1 + Math.sin(t * 0.3 + index) * 0.015;
-      glowRef.current.scale.set(s, 1, s);
+      groupRef.current.position.y = Math.sin(t * 0.4 + index) * 0.03;
     }
   });
 
@@ -1369,7 +1368,8 @@ function ChemicalSludgePatch({
 
   return (
     <group position={patch.position}>
-      <mesh ref={glowRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+      <group ref={groupRef}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
         <circleGeometry args={[5, 16]} />
         <meshStandardMaterial
           color="#39ff14"
@@ -1415,6 +1415,7 @@ function ChemicalSludgePatch({
           />
         </mesh>
       ))}
+      </group>
 
       {inBoat && showPrompt && (
         <Text
