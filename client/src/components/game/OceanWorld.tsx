@@ -1361,21 +1361,21 @@ function ChemicalSludgePatch({
 
   return (
     <group position={patch.position}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.3, 0]}>
         <circleGeometry args={[5, 16]} />
-        <meshBasicMaterial color="#39ff14" />
+        <meshBasicMaterial color="#39ff14" depthTest={false} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.06, 1.5]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2, 0.31, 1.5]}>
         <circleGeometry args={[3, 12]} />
-        <meshBasicMaterial color="#76ff03" />
+        <meshBasicMaterial color="#76ff03" depthTest={false} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.06, -1.2]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.8, 0.31, -1.2]}>
         <circleGeometry args={[2.5, 12]} />
-        <meshBasicMaterial color="#69f0ae" />
+        <meshBasicMaterial color="#69f0ae" depthTest={false} />
       </mesh>
 
       {BUBBLE_POSITIONS.map((pos, i) => (
-        <mesh key={`bubble-${i}`} position={[pos[0], pos[1], pos[2]]}>
+        <mesh key={`bubble-${i}`} position={[pos[0], pos[1] + 0.3, pos[2]]}>
           <sphereGeometry args={[0.25, 6, 4]} />
           <meshBasicMaterial color="#b9f6ca" />
         </mesh>
