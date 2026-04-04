@@ -1275,21 +1275,57 @@ function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
   );
 }
 
+function SludgeCleanedEffect({ position }: Readonly<{ position: [number, number, number] }>) {
+  const [visible, setVisible] = useState(true);
+  const groupRef = useRef<THREE.Group>(null);
+  const startTime = useRef(0);
+
+  useFrame((state) => {
+    if (!visible || !groupRef.current) return;
+    if (startTime.current === 0) startTime.current = state.clock.elapsedTime;
+    const elapsed = state.clock.elapsedTime - startTime.current;
+    if (elapsed > 2) {
+      setVisible(false);
+      return;
+    }
+    groupRef.current.position.y = position[1] + 1 + elapsed * 1.5;
+    const scale = elapsed < 0.3 ? elapsed / 0.3 : 1;
+    groupRef.current.scale.setScalar(scale);
+  });
+
+  if (!visible) return null;
+
+  return (
+    <group ref={groupRef} position={[position[0], position[1] + 1, position[2]]}>
+      <Text
+        fontSize={0.6}
+        color="#4ade80"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.04}
+        outlineColor="#000"
+      >
+        +5
+      </Text>
+    </group>
+  );
+}
+
 function ChemicalSludgePatch({
   patch,
   index,
   playerPosition,
   inBoat,
+  onCleaned,
 }: {
   patch: SludgePatch;
   index: number;
   playerPosition: THREE.Vector3;
   inBoat: boolean;
+  onCleaned: (index: number) => void;
 }) {
-  const [isNear, setIsNear] = useState(false);
-  const cleanSludge = useGame((s) => s.cleanSludge);
-  const world2Dialogue = useGame((s) => s.world2Dialogue);
-  const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
+  const isNearRef = useRef(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -1297,7 +1333,11 @@ function ChemicalSludgePatch({
     const dx = playerPosition.x - patch.position[0];
     const dz = playerPosition.z - patch.position[2];
     const dist = Math.sqrt(dx * dx + dz * dz);
-    setIsNear(dist < 5);
+    const near = dist < 5;
+    if (near !== isNearRef.current) {
+      isNearRef.current = near;
+      setShowPrompt(near);
+    }
 
     if (ref.current) {
       const t = state.clock.elapsedTime;
@@ -1315,18 +1355,15 @@ function ChemicalSludgePatch({
   useEffect(() => {
     if (patch.cleaned || !inBoat) return;
     const handleKey = (e: KeyboardEvent) => {
-      if ((e.key === "e" || e.key === "E") && isNear) {
+      if ((e.key === "e" || e.key === "E") && isNearRef.current) {
         const w2d = useGame.getState().world2Dialogue;
         if (w2d) return;
-        cleanSludge(index);
-        openWorld2Dialogue([
-          { speaker: "System", text: "Sludge vacuumed up! The ocean is a little cleaner now." },
-        ]);
+        onCleaned(index);
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, inBoat, patch.cleaned, index, cleanSludge, openWorld2Dialogue]);
+  }, [inBoat, patch.cleaned, index, onCleaned]);
 
   if (patch.cleaned) return null;
 
@@ -1393,7 +1430,7 @@ function ChemicalSludgePatch({
       <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
       <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
 
-      {inBoat && isNear && !world2Dialogue && (
+      {inBoat && showPrompt && (
         <Text
           position={[0, 2, 0]}
           fontSize={0.4}
@@ -1455,8 +1492,8 @@ function OceanPracticeBooth({
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      const w2d = useGame.getState().world2Dialogue;
-      if (e.code === "KeyE" && nearBooth && unlocked && !active && !w2d) {
+      const s = useGame.getState();
+      if (e.code === "KeyE" && nearBooth && unlocked && !active && !s.world2Dialogue) {
         onInteract();
       }
     };
@@ -1594,10 +1631,27 @@ export function OceanWorld() {
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
   const oceanPortalActive = useGame((s) => s.oceanPortalActive);
   const enterFactoryPortal = useGame((s) => s.enterFactoryPortal);
+  const cleanSludge = useGame((s) => s.cleanSludge);
+  const addTotalScore = useGame((s) => s.addTotalScore);
 
   const allSurveyed = ecosystems.every((e) => e.surveyed);
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
   const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
+
+  const [cleanedEffects, setCleanedEffects] = useState<{ id: number; position: [number, number, number] }[]>([]);
+  const cleanedEffectIdRef = useRef(0);
+
+  const handleSludgeCleaned = useCallback((index: number) => {
+    const patch = useGame.getState().sludgePatches[index];
+    cleanSludge(index);
+    addTotalScore(5);
+    cleanedEffectIdRef.current += 1;
+    const effectId = cleanedEffectIdRef.current;
+    setCleanedEffects((prev) => [...prev, { id: effectId, position: patch.position }]);
+    setTimeout(() => {
+      setCleanedEffects((prev) => prev.filter((e) => e.id !== effectId));
+    }, 2500);
+  }, [cleanSludge, addTotalScore]);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
@@ -1829,7 +1883,12 @@ export function OceanWorld() {
           index={i}
           playerPosition={playerPos}
           inBoat={inBoat}
+          onCleaned={handleSludgeCleaned}
         />
+      ))}
+
+      {cleanedEffects.map((effect) => (
+        <SludgeCleanedEffect key={`cleaned-${effect.id}`} position={effect.position} />
       ))}
 
       <OceanPracticeBooth

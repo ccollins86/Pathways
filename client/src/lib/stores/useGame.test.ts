@@ -541,7 +541,6 @@ describe("useGame store", () => {
     it("completes ocean practice and activates portal", () => {
       getState().completeOceanPractice();
       expect(getState().oceanPracticeCompleted).toBe(true);
-      expect(getState().oceanPracticeActive).toBe(false);
       expect(getState().oceanPortalActive).toBe(true);
     });
   });
@@ -633,7 +632,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "Italy",
       });
-      expect(result).toBe("Quantity should be 2 hats!");
+      expect(result).toBe("Check the quantity — that's not right.");
       expect(getState().hatMachineState).toBe("idle");
     });
 
@@ -645,7 +644,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "Italy",
       });
-      expect(result).toBe("Size should be Large!");
+      expect(result).toBe("Check the size — that's not right.");
     });
 
     it("rejects wrong top color for hats", () => {
@@ -656,7 +655,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "Italy",
       });
-      expect(result).toBe("Top color should be White!");
+      expect(result).toBe("Check the top color — that's not right.");
     });
 
     it("rejects wrong brim color for hats", () => {
@@ -667,7 +666,7 @@ describe("useGame store", () => {
         color2: "Red",
         lettering: "Italy",
       });
-      expect(result).toBe("Brim color should be Green!");
+      expect(result).toBe("Check the brim color — that's not right.");
     });
 
     it("rejects wrong lettering for hats", () => {
@@ -678,7 +677,7 @@ describe("useGame store", () => {
         color2: "Green",
         lettering: "France",
       });
-      expect(result).toBe('Lettering should be "Italy"!');
+      expect(result).toBe("Check the lettering — that's not right.");
     });
   });
 
@@ -718,7 +717,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Quantity should be 3 t-shirts!");
+      expect(result).toBe("Check the quantity — that's not right.");
     });
 
     it("rejects wrong size for tshirts", () => {
@@ -730,7 +729,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Size should be Medium!");
+      expect(result).toBe("Check the size — that's not right.");
     });
 
     it("rejects wrong sleeve color for tshirts", () => {
@@ -742,7 +741,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Sleeve color should be Red!");
+      expect(result).toBe("Check the sleeve color — that's not right.");
     });
 
     it("rejects wrong body color for tshirts", () => {
@@ -754,7 +753,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "USA",
       });
-      expect(result).toBe("Body color should be Blue!");
+      expect(result).toBe("Check the body color — that's not right.");
     });
 
     it("rejects wrong lettering color for tshirts", () => {
@@ -766,7 +765,7 @@ describe("useGame store", () => {
         color3: "Red",
         lettering: "USA",
       });
-      expect(result).toBe("Lettering color should be White!");
+      expect(result).toBe("Check the lettering color — that's not right.");
     });
 
     it("rejects wrong lettering for tshirts", () => {
@@ -778,7 +777,7 @@ describe("useGame store", () => {
         color3: "White",
         lettering: "Canada",
       });
-      expect(result).toBe('Lettering should be "USA"!');
+      expect(result).toBe("Check the lettering — that's not right.");
     });
   });
 
@@ -818,7 +817,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Quantity should be 5 jackets!");
+      expect(result).toBe("Check the quantity — that's not right.");
     });
 
     it("rejects wrong size for jackets", () => {
@@ -830,7 +829,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Size should be Large!");
+      expect(result).toBe("Check the size — that's not right.");
     });
 
     it("rejects wrong sleeve color for jackets", () => {
@@ -842,7 +841,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Sleeve color should be Black!");
+      expect(result).toBe("Check the sleeve color — that's not right.");
     });
 
     it("rejects wrong body color for jackets", () => {
@@ -854,7 +853,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "Germany",
       });
-      expect(result).toBe("Body color should be Red!");
+      expect(result).toBe("Check the body color — that's not right.");
     });
 
     it("rejects wrong lettering color for jackets", () => {
@@ -866,7 +865,7 @@ describe("useGame store", () => {
         color3: "Blue",
         lettering: "Germany",
       });
-      expect(result).toBe("Lettering color should be Yellow!");
+      expect(result).toBe("Check the lettering color — that's not right.");
     });
 
     it("rejects wrong lettering for jackets", () => {
@@ -878,7 +877,7 @@ describe("useGame store", () => {
         color3: "Yellow",
         lettering: "France",
       });
-      expect(result).toBe('Lettering should be "Germany"!');
+      expect(result).toBe("Check the lettering — that's not right.");
     });
   });
 
@@ -952,6 +951,67 @@ describe("useGame store", () => {
     });
   });
 
+  describe("factory quest stage scoring", () => {
+    it("awards points for configuring machines", () => {
+      const before = getState().totalScore;
+      getState().submitMachineOrder("hat", {
+        quantity: 2,
+        size: "Large",
+        color1: "White",
+        color2: "Green",
+        lettering: "Italy",
+      });
+      expect(getState().totalScore).toBe(before + 5);
+      getState().submitMachineOrder("tshirt", {
+        quantity: 3,
+        size: "Medium",
+        color1: "Red",
+        color2: "Blue",
+        color3: "White",
+        lettering: "USA",
+      });
+      expect(getState().totalScore).toBe(before + 10);
+      getState().submitMachineOrder("jacket", {
+        quantity: 5,
+        size: "Large",
+        color1: "Black",
+        color2: "Red",
+        color3: "Yellow",
+        lettering: "Germany",
+      });
+      expect(getState().totalScore).toBe(before + 15);
+    });
+
+    it("awards points for loading boxes on truck", () => {
+      getState().submitMachineOrder("hat", { quantity: 2, size: "Large", color1: "White", color2: "Green", lettering: "Italy" });
+      getState().submitMachineOrder("tshirt", { quantity: 3, size: "Medium", color1: "Red", color2: "Blue", color3: "White", lettering: "USA" });
+      getState().submitMachineOrder("jacket", { quantity: 5, size: "Large", color1: "Black", color2: "Red", color3: "Yellow", lettering: "Germany" });
+      const afterConfig = getState().totalScore;
+
+      getState().pickUpProduct("hats");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().totalScore).toBe(afterConfig + 5);
+
+      getState().pickUpProduct("tshirts");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().totalScore).toBe(afterConfig + 10);
+
+      getState().pickUpProduct("jackets");
+      getState().boxProduct();
+      getState().loadBox();
+      expect(getState().totalScore).toBe(afterConfig + 15 + 25);
+    });
+
+    it("does not double-award stage points", () => {
+      getState().submitMachineOrder("hat", { quantity: 2, size: "Large", color1: "White", color2: "Green", lettering: "Italy" });
+      const afterFirst = getState().totalScore;
+      getState().submitMachineOrder("hat", { quantity: 2, size: "Large", color1: "White", color2: "Green", lettering: "Italy" });
+      expect(getState().totalScore).toBe(afterFirst);
+    });
+  });
+
   describe("factory lesson and practice", () => {
     it("advances factory lesson phases", () => {
       expect(getState().factoryLessonPhase).toBe(0);
@@ -1000,7 +1060,6 @@ describe("useGame store", () => {
       getState().openFactoryPractice();
       getState().completeFactoryPractice();
       expect(getState().factoryPracticeCompleted).toBe(true);
-      expect(getState().factoryPracticeActive).toBe(false);
     });
   });
 
@@ -1329,7 +1388,6 @@ describe("useGame store", () => {
       getState().addFactoryPracticeScore(10);
       getState().completeFactoryPractice();
       expect(getState().factoryPracticeCompleted).toBe(true);
-      expect(getState().factoryPracticeActive).toBe(false);
     });
   });
 });

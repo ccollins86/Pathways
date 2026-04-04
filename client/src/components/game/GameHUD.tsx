@@ -95,6 +95,8 @@ export function GameHUD() {
   const unlockPractice = useGame((s) => s.unlockPractice);
   const practiceCompleted = useGame((s) => s.practiceCompleted);
   const portalActive = useGame((s) => s.portalActive);
+  const addTotalScore = useGame((s) => s.addTotalScore);
+  const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
   const [showLesson, setShowLesson] = useState(false);
   const [lessonQuizActive, setLessonQuizActive] = useState(false);
@@ -106,11 +108,23 @@ export function GameHUD() {
   const [viewingLessonFromQuiz, setViewingLessonFromQuiz] = useState(false);
   const [lessonQuizDone, setLessonQuizDone] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(true);
+  const [lessonQuizHadWrong, setLessonQuizHadWrong] = useState(false);
+  const [lessonQuizScore, setLessonQuizScore] = useState(0);
+  const [lessonQuizPopups, setLessonQuizPopups] = useState<{ id: number; text: string; color: string }[]>([]);
+  const lessonPopupIdRef = useRef(0);
+  const lessonBonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     successSoundRef.current = new Audio("/sounds/success.mp3");
     successSoundRef.current.volume = 0.5;
+  }, []);
+
+  const addLessonPopup = useCallback((text: string, color: string) => {
+    lessonPopupIdRef.current += 1;
+    const id = lessonPopupIdRef.current;
+    setLessonQuizPopups((prev) => [...prev, { id, text, color }]);
+    setTimeout(() => setLessonQuizPopups((prev) => prev.filter((p) => p.id !== id)), 1500);
   }, []);
 
   const handleLessonQuizAnswer = useCallback((index: number) => {
@@ -119,6 +133,14 @@ export function GameHUD() {
     setLessonQuizSelected(index);
     if (index === q.correctIndex) {
       setLessonQuizCorrect(true);
+      addTotalScore(10);
+      setLessonQuizScore((s) => s + 10);
+      addLessonPopup("+10", "#4ade80");
+      if (!lessonQuizHadWrong) {
+        setLessonQuizScore((s) => s + 5);
+        incrementFirstTry();
+        lessonBonusTimerRef.current = setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
+      }
       try {
         if (successSoundRef.current) {
           successSoundRef.current.currentTime = 0;
@@ -127,11 +149,17 @@ export function GameHUD() {
       } catch {}
     } else {
       setLessonQuizWrong(true);
+      setLessonQuizHadWrong(true);
       setTimeout(() => setLessonQuizSelected(null), 800);
     }
-  }, [lessonQuizCorrect, lessonQuizQ]);
+  }, [lessonQuizCorrect, lessonQuizQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
 
   const handleLessonQuizNext = useCallback(() => {
+    if (lessonBonusTimerRef.current) {
+      clearTimeout(lessonBonusTimerRef.current);
+      lessonBonusTimerRef.current = null;
+    }
+    setLessonQuizPopups([]);
     if (lessonQuizQ >= LESSON_QUESTIONS.length - 1) {
       setLessonQuizDone(true);
       setLessonQuizActive(false);
@@ -141,6 +169,7 @@ export function GameHUD() {
       setLessonQuizCorrect(false);
       setLessonQuizWrong(false);
       setLessonQuizHint(false);
+      setLessonQuizHadWrong(false);
     }
   }, [lessonQuizQ]);
 
@@ -176,7 +205,7 @@ export function GameHUD() {
   return (
     <>
       {/* Quest completed banner / lesson */}
-      {questCompleted && !showLesson && !practiceUnlocked && !lessonQuizActive && !lessonQuizDone && !viewingLessonFromQuiz && (
+      {questCompleted && !questFailed && !showLesson && !practiceUnlocked && !lessonQuizActive && !lessonQuizDone && !viewingLessonFromQuiz && (
         <div
           style={{
             position: "absolute",
@@ -190,8 +219,8 @@ export function GameHUD() {
             fontFamily: "'Inter', sans-serif",
             zIndex: 150,
             textAlign: "center",
-            border: "3px solid #66bb6a",
-            boxShadow: "0 0 40px rgba(102, 187, 106, 0.5)",
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
           }}
         >
           <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
@@ -323,56 +352,24 @@ export function GameHUD() {
           </div>
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            {viewingLessonFromQuiz ? (
-              <div
-                onClick={() => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }}
-                style={{
-                  padding: "10px 24px",
-                  background: "#4fc3f7",
-                  border: "none",
-                  borderRadius: 8,
-                  color: "#0d47a1",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Back to Quiz
-              </div>
-            ) : (
-              <>
-                <div
-                  onClick={() => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }}
-                  style={{
-                    padding: "10px 24px",
-                    background: "#4fc3f7",
-                    border: "none",
-                    borderRadius: 8,
-                    color: "#0d47a1",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Test Your Understanding
-                </div>
-                <div
-                  onClick={() => { setShowLesson(false); setLessonQuizActive(false); setLessonQuizDone(false); restart(); }}
-                  style={{
-                    padding: "10px 24px",
-                    background: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Play Again
-                </div>
-              </>
-            )}
+            <div
+              onClick={viewingLessonFromQuiz
+                ? () => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }
+                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
+              }
+              style={{
+                padding: "12px 32px",
+                background: "#4fc3f7",
+                border: "none",
+                borderRadius: 8,
+                color: "#0d47a1",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {viewingLessonFromQuiz ? "Back to Quiz" : "Test Your Understanding"}
+            </div>
           </div>
         </div>
       )}
@@ -476,14 +473,48 @@ export function GameHUD() {
                   border: "1px solid #66bb6a",
                   borderRadius: 8,
                   marginBottom: 16,
+                  position: "relative",
                 }}
               >
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#66bb6a" }}>
-                  Correct!
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#66bb6a" }}>
+                    Correct! +10 pts
+                  </div>
+                  {!lessonQuizHadWrong && (
+                    <div style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#fbbf24",
+                      background: "rgba(251, 191, 36, 0.15)",
+                      border: "1px solid rgba(251, 191, 36, 0.4)",
+                      borderRadius: 20,
+                      padding: "2px 10px",
+                    }}>
+                      ⭐ First Try +5
+                    </div>
+                  )}
                 </div>
                 <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
                   {q.explanation}
                 </div>
+                {lessonQuizPopups.map((p) => (
+                  <div
+                    key={p.id}
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      right: 16,
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: p.color,
+                      textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                      animation: "floatUp 1.5s ease-out forwards",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {p.text}
+                  </div>
+                ))}
               </div>
             )}
 
@@ -556,6 +587,14 @@ export function GameHUD() {
                 </div>
               )}
             </div>
+          <style>{`
+            @keyframes floatUp {
+              0% { opacity: 0; transform: translateY(0) scale(0.7); }
+              15% { opacity: 1; transform: translateY(-12px) scale(1.1); }
+              30% { transform: translateY(-18px) scale(1); }
+              100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+            }
+          `}</style>
           </div>
         );
       })()}
@@ -575,8 +614,8 @@ export function GameHUD() {
             fontFamily: "'Inter', sans-serif",
             zIndex: 150,
             textAlign: "center",
-            border: "3px solid #66bb6a",
-            boxShadow: "0 0 40px rgba(102, 187, 106, 0.5)",
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
             maxWidth: 440,
           }}
         >
@@ -586,36 +625,21 @@ export function GameHUD() {
           <div style={{ fontSize: 16, lineHeight: 1.6, opacity: 0.9, marginBottom: 20 }}>
             Great job! You've shown you understand how branching statements work.
           </div>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
             <div
               onClick={() => { setLessonQuizDone(false); unlockPractice(); }}
               style={{
-                padding: "10px 24px",
+                padding: "12px 32px",
                 background: "#4fc3f7",
                 border: "none",
                 borderRadius: 8,
                 color: "#0d47a1",
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: 700,
                 cursor: "pointer",
               }}
             >
               Continue Playing
-            </div>
-            <div
-              onClick={() => { setLessonQuizDone(false); setLessonQuizActive(false); setShowLesson(false); restart(); }}
-              style={{
-                padding: "10px 24px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                borderRadius: 8,
-                color: "white",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Play Again
             </div>
           </div>
         </div>
@@ -929,99 +953,3 @@ export function GameHUD() {
   );
 }
 
-export function DevPanel() {
-  const [open, setOpen] = useState(false);
-  const currentWorld = useGame((s) => s.currentWorld);
-  const enterPortal = useGame((s) => s.enterPortal);
-  const enterFactoryPortal = useGame((s) => s.enterFactoryPortal);
-  const restart = useGame((s) => s.restart);
-
-  if (!IS_DEV) return null;
-
-  const skipTo = (world: string) => {
-    setOpen(false);
-    if (world === "town") {
-      restart();
-    } else if (world === "ocean") {
-      enterPortal();
-    } else if (world === "factory") {
-      enterFactoryPortal();
-    }
-  };
-
-  const worlds = [
-    { id: "town", label: "Town (World 1)" },
-    { id: "ocean", label: "Ocean (World 2)" },
-    { id: "factory", label: "Factory (World 3)" },
-  ];
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 16,
-        left: 16,
-        zIndex: 100,
-        fontFamily: "'Inter', sans-serif",
-      }}
-    >
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          background: open ? "rgba(255, 60, 60, 0.85)" : "rgba(60, 60, 60, 0.7)",
-          border: "1px solid rgba(255,255,255,0.2)",
-          borderRadius: 6,
-          padding: "6px 12px",
-          color: "white",
-          fontSize: 11,
-          cursor: "pointer",
-          fontFamily: "'Inter', sans-serif",
-        }}
-      >
-        DEV
-      </button>
-      {open && (
-        <div
-          style={{
-            background: "rgba(20, 20, 30, 0.92)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: 8,
-            padding: 12,
-            marginBottom: 6,
-            position: "absolute",
-            bottom: 36,
-            left: 0,
-            minWidth: 160,
-          }}
-        >
-          <div style={{ color: "#aaa", fontSize: 10, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
-            Skip to World
-          </div>
-          {worlds.map((w) => (
-            <button
-              key={w.id}
-              onClick={() => skipTo(w.id)}
-              disabled={w.id === currentWorld}
-              style={{
-                display: "block",
-                width: "100%",
-                background: w.id === currentWorld ? "rgba(100, 200, 100, 0.3)" : "rgba(255,255,255,0.08)",
-                border: w.id === currentWorld ? "1px solid rgba(100, 200, 100, 0.5)" : "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 5,
-                padding: "7px 10px",
-                color: w.id === currentWorld ? "#8f8" : "white",
-                fontSize: 12,
-                cursor: w.id === currentWorld ? "default" : "pointer",
-                marginBottom: 4,
-                textAlign: "left",
-                fontFamily: "'Inter', sans-serif",
-              }}
-            >
-              {w.id === currentWorld ? `● ${w.label}` : w.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}

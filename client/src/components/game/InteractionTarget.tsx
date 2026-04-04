@@ -40,6 +40,9 @@ export function InteractionTarget({
     setIsNear(dist < interactRadius);
   });
 
+  const questCompleted = useGame((s) => s.questCompleted);
+  const questFailed = useGame((s) => s.questFailed);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (
@@ -47,7 +50,9 @@ export function InteractionTarget({
         isNear &&
         hasAnyItem &&
         !completed &&
-        !activeDialogue
+        !activeDialogue &&
+        !questCompleted &&
+        !questFailed
       ) {
         if (hasCorrectItem) {
           onUse();
@@ -58,7 +63,7 @@ export function InteractionTarget({
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, hasCorrectItem, hasAnyItem, completed, activeDialogue, onUse, onWrongUse]);
+  }, [isNear, hasCorrectItem, hasAnyItem, completed, activeDialogue, questCompleted, questFailed, onUse, onWrongUse]);
 
   const ringRadius = Math.min(interactRadius, 1.0);
 

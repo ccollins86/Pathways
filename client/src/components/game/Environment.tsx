@@ -443,16 +443,16 @@ function StoneWell({ position }: { position: [number, number, number] }) {
         );
       })}
       <mesh position={[0, 0.4, 0]} castShadow>
-        <cylinderGeometry args={[0.8, 0.9, 0.8, 12]} />
-        <meshStandardMaterial color="#7a7068" roughness={0.95} />
+        <cylinderGeometry args={[0.8, 0.9, 0.8, 12, 1, true]} />
+        <meshStandardMaterial color="#7a7068" roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
       <mesh position={[0, 0.82, 0]} castShadow>
-        <cylinderGeometry args={[0.85, 0.82, 0.06, 12]} />
+        <torusGeometry args={[0.83, 0.06, 8, 16]} />
         <meshStandardMaterial color="#6a5a4a" roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0.88, 0]}>
-        <torusGeometry args={[0.84, 0.04, 8, 16]} />
-        <meshStandardMaterial color="#5a4a3a" roughness={0.85} />
+      <mesh position={[0, 0.6, 0]}>
+        <cylinderGeometry args={[0.72, 0.72, 0.02, 16]} />
+        <meshStandardMaterial color="#2a8abf" roughness={0.05} metalness={0.4} transparent opacity={0.9} />
       </mesh>
       <mesh position={[0, 0.15, 0]}>
         <cylinderGeometry args={[0.65, 0.65, 0.5, 12]} />
@@ -474,8 +474,8 @@ function StoneWell({ position }: { position: [number, number, number] }) {
         <cylinderGeometry args={[0.1, 0.1, 0.12, 8]} />
         <meshStandardMaterial color="#6a5a4a" roughness={0.8} />
       </mesh>
-      <mesh position={[0.2, 1.7, 0]}>
-        <boxGeometry args={[0.02, 0.6, 0.02]} />
+      <mesh position={[0.2, 1.77, 0]}>
+        <boxGeometry args={[0.02, 0.7, 0.02]} />
         <meshStandardMaterial color="#8a7a5a" roughness={0.8} />
       </mesh>
       <mesh position={[0.2, 1.35, 0]}>
@@ -586,8 +586,8 @@ function Playground({ position }: { position: [number, number, number] }) {
         </mesh>
         {[-0.3, 0.3].map((sx, si) => (
           <group key={si}>
-            <mesh position={[sx, 1.65, 0]}>
-              <boxGeometry args={[0.02, 1.0, 0.02]} />
+            <mesh position={[sx, 1.85, 0]}>
+              <boxGeometry args={[0.02, 1.5, 0.02]} />
               <meshStandardMaterial color="#aaa" metalness={0.5} />
             </mesh>
             <mesh position={[sx, 1.1, 0]}>
