@@ -310,7 +310,7 @@ function World2HUD() {
               {objectiveText}
             </div>
             {oceanQuestStarted && !oceanQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 12 }}>
+              <div style={{ marginTop: 8, fontSize: 13 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                   <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
                     {hasDivingSuit ? "✓" : "○"}
@@ -329,7 +329,7 @@ function World2HUD() {
               </div>
             )}
             {cleanupQuestStarted && !cleanupQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 12 }}>
+              <div style={{ marginTop: 8, fontSize: 13 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
                   Chemical Spill Cleanup:
                 </div>
@@ -645,6 +645,23 @@ function World3HUD() {
       )}
 
       <div
+        style={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+          background: "rgba(40, 30, 10, 0.7)",
+          borderRadius: 8,
+          padding: "8px 14px",
+          color: "rgba(255,255,255,0.6)",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 12,
+          zIndex: 50,
+        }}
+      >
+        WASD / Arrows to move | E to interact
+      </div>
+
+      <div
         onClick={restart}
         style={{
           position: "absolute",
@@ -690,14 +707,14 @@ function OceanLessonUI() {
           color: "white",
           fontFamily: "'Inter', sans-serif",
           zIndex: 200,
-          border: "3px solid #4fc3f7",
-          boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
+          border: "3px solid #69f0ae",
+          boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
           maxWidth: 600,
           maxHeight: "85vh",
           overflowY: "auto",
         }}
       >
-        <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#4fc3f7" }}>
+        <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
           For Loops in Programming
         </div>
         <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
@@ -706,7 +723,7 @@ function OceanLessonUI() {
           environmental issue.
         </div>
         <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
-          This is exactly how a <strong style={{ color: "#4fc3f7" }}>for loop</strong> works in programming!
+          This is exactly how a <strong style={{ color: "#69f0ae" }}>for loop</strong> works in programming!
           A for loop repeats the same block of code <em>for each item</em> in a collection. You knew exactly
           how many ecosystems there were (4), and you did the same survey steps at each one.
         </div>
@@ -720,7 +737,7 @@ function OceanLessonUI() {
             fontSize: 13,
             lineHeight: 1.8,
             marginBottom: 16,
-            border: "1px solid rgba(79, 195, 247, 0.3)",
+            border: "1px solid rgba(105, 240, 174, 0.3)",
             whiteSpace: "pre-wrap",
           }}
         >
@@ -768,7 +785,7 @@ function OceanLessonUI() {
 
         <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
           Just like you visited each ecosystem one by one and performed the same survey tasks,
-          the <strong style={{ color: "#4fc3f7" }}>for loop</strong> goes through the array of ecosystems
+          the <strong style={{ color: "#69f0ae" }}>for loop</strong> goes through the array of ecosystems
           one by one and runs the same code block for each one. The loop body executes exactly
           <strong style={{ color: "#ffeb3b" }}> 4 times</strong> — once per ecosystem!
         </div>
@@ -782,10 +799,10 @@ function OceanLessonUI() {
             onClick={advanceOceanLesson}
             style={{
               padding: "12px 32px",
-              background: "#4fc3f7",
+              background: "#69f0ae",
               border: "none",
               borderRadius: 8,
-              color: "#0d47a1",
+              color: "#1b5e20",
               fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
@@ -1071,14 +1088,14 @@ function FactoryLessonUI() {
         color: "white",
         fontFamily: "'Inter', sans-serif",
         zIndex: 200,
-        border: "3px solid #69f0ae",
-        boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+        border: "3px solid #ff9800",
+        boxShadow: "0 0 40px rgba(255, 152, 0, 0.4)",
         maxWidth: 640,
         maxHeight: "85vh",
         overflowY: "auto",
       }}
     >
-      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#ff9800" }}>
         Functions Group Tasks Together
       </div>
       <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
@@ -1088,7 +1105,7 @@ function FactoryLessonUI() {
       <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
         But you didn't have to do each step manually. You just called the function with your inputs,
         and the machine handled all the complexity for you. That's the power of functions —
-        they <strong style={{ color: "#69f0ae" }}>cluster all the tasks needed</strong> to accomplish something,
+        they <strong style={{ color: "#ff9800" }}>cluster all the tasks needed</strong> to accomplish something,
         so you can just call the function and get what you want.
       </div>
 
@@ -1101,7 +1118,7 @@ function FactoryLessonUI() {
           fontSize: 13,
           lineHeight: 1.8,
           marginBottom: 16,
-          border: "1px solid rgba(105, 240, 174, 0.3)",
+          border: "1px solid rgba(255, 152, 0, 0.3)",
           whiteSpace: "pre-wrap",
         }}
       >
@@ -1157,7 +1174,7 @@ function FactoryLessonUI() {
 
       <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
         Each function took <strong style={{ color: "#4fc3f7" }}>different inputs</strong> and
-        produced <strong style={{ color: "#69f0ae" }}>different outputs</strong>, but they all
+        produced <strong style={{ color: "#ff9800" }}>different outputs</strong>, but they all
         followed the same pattern: <em>call the function, pass your inputs, get your result</em>.
       </div>
 
@@ -1170,10 +1187,10 @@ function FactoryLessonUI() {
           onClick={unlockFactoryPractice}
           style={{
             padding: "12px 32px",
-            background: "#69f0ae",
+            background: "#ff9800",
             border: "none",
             borderRadius: 8,
-            color: "#1a1a1a",
+            color: "white",
             fontSize: 16,
             fontWeight: 700,
             cursor: "pointer",
@@ -2017,6 +2034,7 @@ function App() {
       }}
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
+      {phase === "playing" && <ScoreHUD />}
 
       <KeyboardControls map={keyMap}>
         <Canvas

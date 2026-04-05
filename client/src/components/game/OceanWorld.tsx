@@ -106,8 +106,8 @@ function BeachBuilding() {
         <meshStandardMaterial map={woodTexture} color="#deb887" />
       </mesh>
 
-      <mesh position={[0, 3.5, 0]} castShadow>
-        <coneGeometry args={[4.5, 2, 4]} />
+      <mesh position={[0, 4.2, 0]} castShadow>
+        <coneGeometry args={[4.5, 2.8, 4]} />
         <meshStandardMaterial color="#8b4513" />
       </mesh>
 
@@ -217,7 +217,7 @@ function BeachDecor() {
 
     const rockPositions = Array.from({ length: 8 }, (_, i) => ({
       x: (Math.sin(i * 5.1) * 35),
-      z: -5 + (Math.cos(i * 3.7) * 5),
+      z: Math.max(-2, -5 + (Math.cos(i * 3.7) * 5)),
       scale: 0.3 + (Math.abs(Math.sin(i * 1.9)) * 0.5),
     }));
 
@@ -238,7 +238,7 @@ function BeachDecor() {
       ))}
 
       {items.rockPositions.map((rock, i) => (
-        <mesh key={`rock-${i}`} position={[rock.x, rock.scale * 0.4, rock.z]}>
+        <mesh key={`rock-${i}`} position={[rock.x, rock.scale * 0.3, Math.max(rock.z, -2)]}>
           <dodecahedronGeometry args={[rock.scale, 0]} />
           <meshStandardMaterial color="#808080" roughness={0.9} />
         </mesh>
@@ -246,6 +246,701 @@ function BeachDecor() {
     </group>
   );
 }
+
+function BeachUmbrella({ position, color, rotation = 0 }: { position: [number, number, number]; color: string; rotation?: number }) {
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 1.8, 0]} castShadow>
+        <cylinderGeometry args={[0.04, 0.04, 3.6, 6]} />
+        <meshStandardMaterial color="#deb887" />
+      </mesh>
+      <mesh position={[0, 3.2, 0]} rotation={[0.1, 0, 0]} castShadow>
+        <coneGeometry args={[1.5, 0.6, 8]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, 3.18, 0]} rotation={[0.1, Math.PI / 8, 0]}>
+        <coneGeometry args={[1.52, 0.05, 8]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.4} />
+      </mesh>
+      <mesh position={[0.6, 0.02, 0.3]} rotation={[-Math.PI / 2, 0, rotation + 0.3]}>
+        <planeGeometry args={[1.6, 2.2]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.9} />
+      </mesh>
+    </group>
+  );
+}
+
+function BeachChair({ position, rotation = 0, fabricColor = "#1565c0" }: { position: [number, number, number]; rotation?: number; fabricColor?: string }) {
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      {[-0.28, 0.28].map((x, i) => (
+        <group key={`frame-${i}`}>
+          <mesh position={[x, 0.22, -0.15]} rotation={[-0.15, 0, 0]} castShadow>
+            <boxGeometry args={[0.04, 0.04, 1.5]} />
+            <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
+          </mesh>
+          <mesh position={[x, 0.22, 0.55]} castShadow>
+            <cylinderGeometry args={[0.02, 0.02, 0.44, 6]} />
+            <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
+          </mesh>
+          <mesh position={[x, 0.22, -0.65]} castShadow>
+            <cylinderGeometry args={[0.02, 0.02, 0.44, 6]} />
+            <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
+          </mesh>
+          <mesh position={[x, 0.55, 0.55]} rotation={[-1.0, 0, 0]} castShadow>
+            <boxGeometry args={[0.04, 0.04, 0.7]} />
+            <meshStandardMaterial color="#c0c0c0" metalness={0.6} roughness={0.3} />
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0, 0.25, -0.15]} rotation={[-0.15, 0, 0]} castShadow>
+        <boxGeometry args={[0.52, 0.02, 1.4]} />
+        <meshStandardMaterial color={fabricColor} roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0.6, 0.5]} rotation={[-1.0, 0, 0]} castShadow>
+        <boxGeometry args={[0.52, 0.02, 0.65]} />
+        <meshStandardMaterial color={fabricColor} roughness={0.9} />
+      </mesh>
+      {[-0.28, 0.28].map((x, i) => (
+        <mesh key={`arm-${i}`} position={[x, 0.38, 0]} castShadow>
+          <boxGeometry args={[0.06, 0.03, 0.8]} />
+          <meshStandardMaterial color="#c0c0c0" metalness={0.5} roughness={0.3} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function LifeguardTower() {
+  const woodTexture = useTexture("/textures/wood.jpg");
+  return (
+    <group position={[25, 0, 8]}>
+      {[[-1, 0, -1], [-1, 0, 1], [1, 0, -1], [1, 0, 1]].map((pos, i) => (
+        <mesh key={i} position={[pos[0], 2, pos[2]]} castShadow>
+          <cylinderGeometry args={[0.1, 0.12, 4, 6]} />
+          <meshStandardMaterial map={woodTexture} color="#c19a6b" />
+        </mesh>
+      ))}
+      <mesh position={[0, 3.5, 0]} castShadow>
+        <boxGeometry args={[2.5, 0.15, 2.5]} />
+        <meshStandardMaterial map={woodTexture} color="#deb887" />
+      </mesh>
+      <mesh position={[0, 4.2, 0]} castShadow>
+        <boxGeometry args={[2.2, 1.2, 2.2]} />
+        <meshStandardMaterial map={woodTexture} color="#f5deb3" />
+      </mesh>
+      <mesh position={[0, 5.2, 0]} castShadow>
+        <coneGeometry args={[1.8, 1, 4]} />
+        <meshStandardMaterial color="#cc3333" />
+      </mesh>
+      <mesh position={[0, 4.2, 1.12]}>
+        <boxGeometry args={[1.4, 0.8, 0.05]} />
+        <meshStandardMaterial color="#87ceeb" transparent opacity={0.5} />
+      </mesh>
+      <mesh position={[0, 3.5, 1.4]} rotation={[-0.3, 0, 0]}>
+        <boxGeometry args={[1.8, 0.08, 0.6]} />
+        <meshStandardMaterial map={woodTexture} color="#deb887" />
+      </mesh>
+      <mesh position={[1.3, 2, 0]} rotation={[0, 0, -0.3]}>
+        <boxGeometry args={[0.12, 3.5, 0.5]} />
+        <meshStandardMaterial map={woodTexture} color="#deb887" />
+      </mesh>
+      <Text
+        position={[0, 5.8, 0]}
+        fontSize={0.2}
+        color="#cc3333"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#000"
+      >
+        LIFEGUARD
+      </Text>
+    </group>
+  );
+}
+
+function Sandcastle() {
+  return (
+    <group position={[-3, 0, 3]}>
+      <mesh position={[0, 0.25, 0]} castShadow>
+        <cylinderGeometry args={[0.6, 0.7, 0.5, 12]} />
+        <meshStandardMaterial color="#e8d5a3" roughness={0.95} />
+      </mesh>
+      {[0, 90, 180, 270].map((angle, i) => {
+        const rad = (angle * Math.PI) / 180;
+        return (
+          <group key={i}>
+            <mesh position={[Math.sin(rad) * 0.5, 0.6, Math.cos(rad) * 0.5]} castShadow>
+              <cylinderGeometry args={[0.12, 0.15, 0.4, 8]} />
+              <meshStandardMaterial color="#dcc68e" roughness={0.95} />
+            </mesh>
+            <mesh position={[Math.sin(rad) * 0.5, 0.82, Math.cos(rad) * 0.5]} castShadow>
+              <coneGeometry args={[0.14, 0.12, 8]} />
+              <meshStandardMaterial color="#d4bc7a" roughness={0.95} />
+            </mesh>
+          </group>
+        );
+      })}
+      <mesh position={[0, 0.55, 0]} castShadow>
+        <cylinderGeometry args={[0.25, 0.3, 0.3, 8]} />
+        <meshStandardMaterial color="#dcc68e" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.72, 0]} castShadow>
+        <coneGeometry args={[0.27, 0.2, 8]} />
+        <meshStandardMaterial color="#d4bc7a" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+}
+
+function DuneGrass() {
+  const tufts = useMemo(() => {
+    return Array.from({ length: 60 }, (_, i) => ({
+      x: -65 + (Math.sin(i * 8.7) + 1) * 65,
+      z: 22 + Math.abs(Math.sin(i * 3.2)) * 18,
+      scale: 0.4 + Math.abs(Math.sin(i * 5.1)) * 0.6,
+      rotation: Math.sin(i * 2.3) * 0.3,
+    }));
+  }, []);
+
+  return (
+    <group>
+      {tufts.map((t, i) => (
+        <group key={i} position={[t.x, 0, t.z]} rotation={[0, t.rotation, 0]}>
+          {[0, 0.4, -0.3, 0.2, -0.5].map((offset, j) => (
+            <mesh key={j} position={[offset * t.scale * 0.5, t.scale * 0.4, j * 0.06]} rotation={[offset * 0.15, 0, offset * 0.2]}>
+              <boxGeometry args={[0.04, t.scale * 0.8, 0.02]} />
+              <meshStandardMaterial color={j % 2 === 0 ? "#7caa2d" : "#9ab857"} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function Pier() {
+  const woodTexture = useTexture("/textures/wood.jpg");
+  return (
+    <group position={[-20, 0, 2]}>
+      {Array.from({ length: 10 }, (_, i) => (
+        <group key={i}>
+          <mesh position={[0, 0.6, -i * 2.5]} castShadow>
+            <boxGeometry args={[3, 0.15, 2.2]} />
+            <meshStandardMaterial map={woodTexture} color="#c19a6b" />
+          </mesh>
+          {[-1.3, 1.3].map((x, j) => (
+            <mesh key={j} position={[x, 0.1, -i * 2.5]}>
+              <cylinderGeometry args={[0.08, 0.1, 1.2, 6]} />
+              <meshStandardMaterial map={woodTexture} color="#8b7355" />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {[-1.4, 1.4].map((x, i) => (
+        <mesh key={`rail-${i}`} position={[x, 1.0, -11]}>
+          <boxGeometry args={[0.08, 0.6, 24]} />
+          <meshStandardMaterial map={woodTexture} color="#a08060" />
+        </mesh>
+      ))}
+      {[-1.4, 1.4].map((x, si) =>
+        Array.from({ length: 12 }, (_, i) => (
+          <mesh key={`post-${si}-${i}`} position={[x, 0.85, 1 - i * 2]}>
+            <cylinderGeometry args={[0.04, 0.04, 0.5, 6]} />
+            <meshStandardMaterial map={woodTexture} color="#8b7355" />
+          </mesh>
+        ))
+      )}
+    </group>
+  );
+}
+
+function Buoy({ position, color }: { position: [number, number, number]; color: string }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.position.y = position[1] + Math.sin(t * 0.8 + position[0]) * 0.15;
+      ref.current.rotation.z = Math.sin(t * 0.6 + position[2]) * 0.1;
+      ref.current.rotation.x = Math.sin(t * 0.5 + position[0] * 0.5) * 0.08;
+    }
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      <mesh castShadow>
+        <cylinderGeometry args={[0.3, 0.4, 0.8, 8]} />
+        <meshStandardMaterial color={color} roughness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.4, 0]}>
+        <sphereGeometry args={[0.15, 8, 6]} />
+        <meshStandardMaterial color={color} roughness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.55, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.4, 4]} />
+        <meshStandardMaterial color="#333" />
+      </mesh>
+    </group>
+  );
+}
+
+function FloatingBuoys() {
+  const buoys = useMemo(() => [
+    { pos: [-15, -0.1, -6] as [number, number, number], color: "#ff4444" },
+    { pos: [20, -0.1, -8] as [number, number, number], color: "#ffaa00" },
+    { pos: [-25, -0.1, -12] as [number, number, number], color: "#ff4444" },
+    { pos: [35, -0.1, -10] as [number, number, number], color: "#ffaa00" },
+    { pos: [5, -0.1, -5] as [number, number, number], color: "#ffffff" },
+  ], []);
+
+  return (
+    <group>
+      {buoys.map((b, i) => (
+        <Buoy key={i} position={b.pos} color={b.color} />
+      ))}
+    </group>
+  );
+}
+
+function Seagull({ position, radius, speed }: { position: [number, number, number]; radius: number; speed: number }) {
+  const ref = useRef<THREE.Group>(null);
+  const wingRef1 = useRef<THREE.Mesh>(null);
+  const wingRef2 = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (ref.current) {
+      const t = state.clock.elapsedTime * speed;
+      ref.current.position.x = position[0] + Math.sin(t) * radius;
+      ref.current.position.z = position[2] + Math.cos(t) * radius;
+      ref.current.position.y = position[1] + Math.sin(t * 1.5) * 0.5;
+      ref.current.rotation.y = Math.atan2(Math.cos(t), -Math.sin(t));
+    }
+    if (wingRef1.current && wingRef2.current) {
+      const flapAngle = Math.sin(state.clock.elapsedTime * 6 * speed) * 0.4;
+      wingRef1.current.rotation.z = flapAngle;
+      wingRef2.current.rotation.z = -flapAngle;
+    }
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      <mesh>
+        <sphereGeometry args={[0.15, 8, 6]} />
+        <meshStandardMaterial color="#f5f5f5" />
+      </mesh>
+      <mesh position={[-0.18, 0.02, 0]}>
+        <sphereGeometry args={[0.08, 6, 4]} />
+        <meshStandardMaterial color="#f5f5f5" />
+      </mesh>
+      <mesh position={[-0.25, 0, 0]} rotation={[0, 0.3, 0]}>
+        <coneGeometry args={[0.03, 0.12, 4]} />
+        <meshStandardMaterial color="#ff8c00" />
+      </mesh>
+      <mesh ref={wingRef1} position={[0, 0.05, 0.15]} rotation={[0.2, 0, 0]}>
+        <boxGeometry args={[0.35, 0.02, 0.4]} />
+        <meshStandardMaterial color="#e8e8e8" />
+      </mesh>
+      <mesh ref={wingRef2} position={[0, 0.05, -0.15]} rotation={[-0.2, 0, 0]}>
+        <boxGeometry args={[0.35, 0.02, 0.4]} />
+        <meshStandardMaterial color="#e8e8e8" />
+      </mesh>
+      <mesh position={[0.2, 0.02, 0]} rotation={[0, 0, 0.3]}>
+        <boxGeometry args={[0.02, 0.12, 0.15]} />
+        <meshStandardMaterial color="#e0e0e0" />
+      </mesh>
+    </group>
+  );
+}
+
+function Seagulls() {
+  const birds = useMemo(() => [
+    { pos: [10, 12, 5] as [number, number, number], radius: 8, speed: 0.4 },
+    { pos: [-5, 14, 0] as [number, number, number], radius: 12, speed: 0.3 },
+    { pos: [20, 11, 10] as [number, number, number], radius: 6, speed: 0.5 },
+    { pos: [-15, 13, 8] as [number, number, number], radius: 10, speed: 0.35 },
+    { pos: [0, 15, -5] as [number, number, number], radius: 15, speed: 0.25 },
+    { pos: [30, 12, 3] as [number, number, number], radius: 7, speed: 0.45 },
+  ], []);
+
+  return (
+    <group>
+      {birds.map((b, i) => (
+        <Seagull key={i} position={b.pos} radius={b.radius} speed={b.speed} />
+      ))}
+    </group>
+  );
+}
+
+function ShorelineFoam() {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.position.z = -6 + Math.sin(t * 0.6) * 1.5;
+    }
+  });
+
+  const patches = useMemo(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      x: -40 + i * 4 + Math.sin(i * 3.1) * 1.5,
+      scale: 0.8 + Math.abs(Math.sin(i * 2.3)) * 1.2,
+    })), []);
+
+  return (
+    <group ref={ref}>
+      {patches.map((p, i) => (
+        <mesh key={i} position={[p.x, 0.02, 0]} rotation={[-Math.PI / 2, 0, i * 0.7]}>
+          <circleGeometry args={[p.scale, 12]} />
+          <meshStandardMaterial
+            color="#ffffff"
+            transparent
+            opacity={0.25}
+            roughness={0.1}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+const ECOSYSTEM_ZONES: [number, number][] = [
+  [-30, -30], [35, -25], [-35, -60], [-30, -75],
+];
+const ECO_EXCLUSION_RADIUS = 12;
+
+function isNearEcosystem(x: number, z: number): boolean {
+  return ECOSYSTEM_ZONES.some(([ex, ez]) => {
+    const dx = x - ex;
+    const dz = z - ez;
+    return dx * dx + dz * dz < ECO_EXCLUSION_RADIUS * ECO_EXCLUSION_RADIUS;
+  });
+}
+
+function UnderwaterDecor() {
+  return (
+    <group>
+      <BubbleColumns />
+    </group>
+  );
+}
+
+
+function BubbleColumns() {
+  const columns = useMemo(() =>
+    Array.from({ length: 8 }, (_, i) => ({
+      x: -25 + Math.sin(i * 5.7) * 25,
+      z: -25 - Math.abs(Math.sin(i * 3.3)) * 30,
+    })).filter(c => !isNearEcosystem(c.x, c.z)), []);
+
+  return (
+    <group>
+      {columns.map((col, ci) => (
+        <BubbleColumn key={ci} position={[col.x, -0.5, col.z]} />
+      ))}
+    </group>
+  );
+}
+
+function BubbleColumn({ position }: { position: [number, number, number] }) {
+  const refs = useRef<THREE.Mesh[]>([]);
+  const speeds = useMemo(() => Array.from({ length: 6 }, () => 0.5 + Math.random() * 1), []);
+  const offsets = useMemo(() => Array.from({ length: 6 }, () => Math.random() * Math.PI * 2), []);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    refs.current.forEach((mesh, i) => {
+      if (mesh) {
+        const y = ((t * speeds[i] + offsets[i]) % 4);
+        mesh.position.y = y;
+        mesh.position.x = Math.sin(t * 0.5 + offsets[i]) * 0.15;
+        const mat = mesh.material as THREE.MeshStandardMaterial;
+        mat.opacity = 0.6 - y * 0.12;
+      }
+    });
+  });
+
+  return (
+    <group position={position}>
+      {Array.from({ length: 6 }, (_, i) => (
+        <mesh
+          key={i}
+          ref={(el) => { if (el) refs.current[i] = el; }}
+        >
+          <sphereGeometry args={[0.05 + i * 0.01, 8, 6]} />
+          <meshStandardMaterial
+            color="#b3e5fc"
+            emissive="#4fc3f7"
+            emissiveIntensity={0.3}
+            transparent
+            opacity={0.5}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function Driftwood() {
+  const pieces = useMemo(() => [
+    { x: -10, z: 1, rot: 0.8, scale: 1 },
+    { x: 15, z: 3, rot: -0.4, scale: 0.7 },
+    { x: -25, z: 2, rot: 1.5, scale: 1.2 },
+    { x: 32, z: 0.5, rot: 0.2, scale: 0.9 },
+  ], []);
+
+  return (
+    <group>
+      {pieces.map((d, i) => (
+        <group key={i} position={[d.x, 0.08, d.z]} rotation={[0.1, d.rot, 0.05]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.05 * d.scale, 0.08 * d.scale, 1.5 * d.scale, 6]} />
+            <meshStandardMaterial color="#8b7355" roughness={0.95} />
+          </mesh>
+          {i % 2 === 0 && (
+            <mesh position={[0.3 * d.scale, 0.03, 0.1]} rotation={[0, 0.8, 0.2]}>
+              <cylinderGeometry args={[0.02 * d.scale, 0.04 * d.scale, 0.5 * d.scale, 4]} />
+              <meshStandardMaterial color="#7a6548" roughness={0.95} />
+            </mesh>
+          )}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function TidePool({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+        <circleGeometry args={[1.2, 16]} />
+        <meshStandardMaterial color="#2196f3" transparent opacity={0.5} roughness={0.1} />
+      </mesh>
+      {Array.from({ length: 8 }, (_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        return (
+          <mesh key={i} position={[Math.cos(angle) * 1.1, 0.08, Math.sin(angle) * 1.1]}>
+            <dodecahedronGeometry args={[0.15 + (i % 3) * 0.06, 0]} />
+            <meshStandardMaterial color={i % 2 === 0 ? "#78909c" : "#90a4ae"} roughness={0.95} />
+          </mesh>
+        );
+      })}
+      {[[-0.3, "#ff7043"], [0.4, "#66bb6a"], [-0.5, "#ab47bc"]].map(([x, color], i) => (
+        <mesh key={`star-${i}`} position={[Number(x), 0.03, i * 0.3 - 0.3]} rotation={[-Math.PI / 2, 0, i * 1.5]}>
+          <circleGeometry args={[0.08, 5]} />
+          <meshStandardMaterial color={color as string} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function BeachVolleyballNet({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      {[-2.5, 2.5].map((x, i) => (
+        <mesh key={i} position={[x, 1, 0]} castShadow>
+          <cylinderGeometry args={[0.04, 0.04, 2, 6]} />
+          <meshStandardMaterial color="#5d4037" />
+        </mesh>
+      ))}
+      <mesh position={[0, 1.7, 0]}>
+        <boxGeometry args={[5, 1.2, 0.02]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.4} wireframe />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <planeGeometry args={[7, 5]} />
+        <meshStandardMaterial color="#f0d9a0" transparent opacity={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
+
+function Cooler({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.15, 0]} castShadow>
+        <boxGeometry args={[0.5, 0.3, 0.35]} />
+        <meshStandardMaterial color="#e53935" roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.32, 0]} castShadow>
+        <boxGeometry args={[0.52, 0.04, 0.37]} />
+        <meshStandardMaterial color="#c62828" roughness={0.5} />
+      </mesh>
+      <mesh position={[0.22, 0.22, 0]}>
+        <boxGeometry args={[0.04, 0.08, 0.2]} />
+        <meshStandardMaterial color="#bdbdbd" metalness={0.5} />
+      </mesh>
+    </group>
+  );
+}
+
+function Jellyfish({ position }: { position: [number, number, number] }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.position.y = position[1] + Math.sin(t * 0.4 + position[0]) * 1;
+      ref.current.position.x = position[0] + Math.sin(t * 0.2 + position[2]) * 0.5;
+    }
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      <mesh>
+        <sphereGeometry args={[0.3, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#e1bee7" transparent opacity={0.6} emissive="#ce93d8" emissiveIntensity={0.3} side={THREE.DoubleSide} />
+      </mesh>
+      {Array.from({ length: 6 }, (_, i) => {
+        const angle = (i / 6) * Math.PI * 2;
+        return (
+          <mesh key={i} position={[Math.cos(angle) * 0.15, -0.3, Math.sin(angle) * 0.15]}>
+            <cylinderGeometry args={[0.01, 0.01, 0.6 + (i % 3) * 0.15, 4]} />
+            <meshStandardMaterial color="#ce93d8" transparent opacity={0.4} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+
+function SchoolOfFish({ position, count, color }: { position: [number, number, number]; count: number; color: string }) {
+  const ref = useRef<THREE.Group>(null);
+  const fishData = useMemo(() =>
+    Array.from({ length: count }, (_, i) => ({
+      offset: [(Math.sin(i * 2.3) * 2), (Math.sin(i * 3.7) * 0.5), (Math.cos(i * 1.9) * 2)],
+      scale: 0.15 + Math.abs(Math.sin(i * 1.1)) * 0.1,
+    })), [count]);
+
+  useFrame((state) => {
+    if (ref.current) {
+      const t = state.clock.elapsedTime * 0.3;
+      ref.current.position.x = position[0] + Math.sin(t) * 8;
+      ref.current.position.z = position[2] + Math.cos(t * 0.7) * 5;
+      ref.current.rotation.y = Math.atan2(Math.cos(t), -Math.sin(t) * 0.7);
+    }
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      {fishData.map((f, i) => (
+        <mesh key={i} position={[f.offset[0], f.offset[1], f.offset[2]]} scale={f.scale}>
+          <sphereGeometry args={[1, 6, 4]} />
+          <meshStandardMaterial color={color} roughness={0.3} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function BeachExtras() {
+  return (
+    <group>
+      <BeachUmbrella position={[-16, 0, 16]} color="#e53935" rotation={0.5} />
+      <BeachUmbrella position={[15, 0, 18]} color="#1e88e5" rotation={-0.3} />
+      <BeachUmbrella position={[30, 0, 22]} color="#ffb300" rotation={0.8} />
+      <BeachUmbrella position={[-35, 0, 20]} color="#43a047" rotation={0.2} />
+      <BeachUmbrella position={[45, 0, 15]} color="#e91e63" rotation={-0.6} />
+      <BeachUmbrella position={[-50, 0, 25]} color="#ff7043" rotation={1.1} />
+      <BeachUmbrella position={[55, 0, 20]} color="#7b1fa2" rotation={0.4} />
+
+      <BeachChair position={[-15, 0, 17]} rotation={0.6} fabricColor="#1565c0" />
+      <BeachChair position={[16, 0, 19]} rotation={-0.2} fabricColor="#e53935" />
+      <BeachChair position={[31, 0, 23]} rotation={0.9} fabricColor="#ff8f00" />
+      <BeachChair position={[-34, 0, 21]} rotation={0.3} fabricColor="#2e7d32" />
+      <BeachChair position={[46, 0, 16]} rotation={-0.5} fabricColor="#6a1b9a" />
+      <BeachChair position={[-49, 0, 26]} rotation={1.0} fabricColor="#0097a7" />
+
+      <LifeguardTower />
+      <Sandcastle />
+      <DuneGrass />
+      <Pier />
+      <FloatingBuoys />
+      <Seagulls />
+      <ShorelineFoam />
+      <UnderwaterDecor />
+      <Driftwood />
+
+      <TidePool position={[-28, 0, -2]} />
+      <TidePool position={[35, 0, -4]} />
+
+      <BeachVolleyballNet position={[-30, 0, 18]} />
+
+
+      <Cooler position={[-14, 0, 16]} />
+      <Cooler position={[32, 0, 21]} />
+
+      <Jellyfish position={[-20, -3, -30]} />
+      <Jellyfish position={[15, -4, -45]} />
+      <Jellyfish position={[-10, -2, -55]} />
+      <Jellyfish position={[25, -5, -35]} />
+
+      <SchoolOfFish position={[0, -2, -20]} count={12} color="#64b5f6" />
+      <SchoolOfFish position={[-20, -3, -40]} count={8} color="#ffb74d" />
+      <SchoolOfFish position={[25, -4, -55]} count={15} color="#81c784" />
+
+      <ExtraBeachDecor />
+    </group>
+  );
+}
+
+function ExtraBeachDecor() {
+  const extraPalms = useMemo(() => [
+    [-35, 0, 15] as [number, number, number],
+    [-40, 0, 28] as [number, number, number],
+    [35, 0, 12] as [number, number, number],
+    [40, 0, 25] as [number, number, number],
+    [45, 0, 30] as [number, number, number],
+    [-45, 0, 10] as [number, number, number],
+    [-50, 0, 20] as [number, number, number],
+    [50, 0, 15] as [number, number, number],
+    [55, 0, 28] as [number, number, number],
+    [-55, 0, 30] as [number, number, number],
+    [-60, 0, 18] as [number, number, number],
+    [60, 0, 22] as [number, number, number],
+    [65, 0, 10] as [number, number, number],
+    [-65, 0, 14] as [number, number, number],
+  ], []);
+
+  const extraShells = useMemo(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      x: -50 + Math.sin(i * 9.1) * 50,
+      z: -2 + Math.cos(i * 5.3) * 6,
+      scale: 0.08 + Math.abs(Math.sin(i * 3.7)) * 0.12,
+      color: ["#fff5ee", "#ffe4c4", "#ffdab9", "#f5deb3", "#ffe0b2"][i % 5],
+    })), []);
+
+  const extraRocks = useMemo(() =>
+    Array.from({ length: 15 }, (_, i) => ({
+      x: -55 + Math.sin(i * 6.7) * 55,
+      z: Math.max(-2, -6 + Math.cos(i * 4.3) * 8),
+      scale: 0.2 + Math.abs(Math.sin(i * 2.3)) * 0.6,
+    })), []);
+
+  return (
+    <group>
+      {extraPalms.map((pos, i) => (
+        <PalmTree key={`ep-${i}`} position={pos} />
+      ))}
+      {extraShells.map((s, i) => (
+        <mesh key={`es-${i}`} position={[s.x, 0.04, s.z]} rotation={[0, i * 1.7, 0]}>
+          <sphereGeometry args={[s.scale, 6, 4]} />
+          <meshStandardMaterial color={s.color} />
+        </mesh>
+      ))}
+      {extraRocks.map((r, i) => (
+        <mesh key={`er-${i}`} position={[r.x, r.scale * 0.35, r.z]}>
+          <dodecahedronGeometry args={[r.scale, 0]} />
+          <meshStandardMaterial color={i % 3 === 0 ? "#9e9e9e" : i % 3 === 1 ? "#78909c" : "#8d6e63"} roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 
 function OceanSky() {
   return (
@@ -580,21 +1275,57 @@ function BoatDock({ playerPosition }: { playerPosition: THREE.Vector3 }) {
   );
 }
 
+function SludgeCleanedEffect({ position }: Readonly<{ position: [number, number, number] }>) {
+  const [visible, setVisible] = useState(true);
+  const groupRef = useRef<THREE.Group>(null);
+  const startTime = useRef(0);
+
+  useFrame((state) => {
+    if (!visible || !groupRef.current) return;
+    if (startTime.current === 0) startTime.current = state.clock.elapsedTime;
+    const elapsed = state.clock.elapsedTime - startTime.current;
+    if (elapsed > 2) {
+      setVisible(false);
+      return;
+    }
+    groupRef.current.position.y = position[1] + 1 + elapsed * 1.5;
+    const scale = elapsed < 0.3 ? elapsed / 0.3 : 1;
+    groupRef.current.scale.setScalar(scale);
+  });
+
+  if (!visible) return null;
+
+  return (
+    <group ref={groupRef} position={[position[0], position[1] + 1, position[2]]}>
+      <Text
+        fontSize={0.6}
+        color="#4ade80"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.04}
+        outlineColor="#000"
+      >
+        +5
+      </Text>
+    </group>
+  );
+}
+
 function ChemicalSludgePatch({
   patch,
   index,
   playerPosition,
   inBoat,
+  onCleaned,
 }: {
   patch: SludgePatch;
   index: number;
   playerPosition: THREE.Vector3;
   inBoat: boolean;
+  onCleaned: (index: number) => void;
 }) {
-  const [isNear, setIsNear] = useState(false);
-  const cleanSludge = useGame((s) => s.cleanSludge);
-  const world2Dialogue = useGame((s) => s.world2Dialogue);
-  const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
+  const isNearRef = useRef(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -602,7 +1333,11 @@ function ChemicalSludgePatch({
     const dx = playerPosition.x - patch.position[0];
     const dz = playerPosition.z - patch.position[2];
     const dist = Math.sqrt(dx * dx + dz * dz);
-    setIsNear(dist < 5);
+    const near = dist < 5;
+    if (near !== isNearRef.current) {
+      isNearRef.current = near;
+      setShowPrompt(near);
+    }
 
     if (ref.current) {
       const t = state.clock.elapsedTime;
@@ -620,18 +1355,15 @@ function ChemicalSludgePatch({
   useEffect(() => {
     if (patch.cleaned || !inBoat) return;
     const handleKey = (e: KeyboardEvent) => {
-      if ((e.key === "e" || e.key === "E") && isNear) {
+      if ((e.key === "e" || e.key === "E") && isNearRef.current) {
         const w2d = useGame.getState().world2Dialogue;
         if (w2d) return;
-        cleanSludge(index);
-        openWorld2Dialogue([
-          { speaker: "System", text: "Sludge vacuumed up! The ocean is a little cleaner now." },
-        ]);
+        onCleaned(index);
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, inBoat, patch.cleaned, index, cleanSludge, openWorld2Dialogue]);
+  }, [inBoat, patch.cleaned, index, onCleaned]);
 
   if (patch.cleaned) return null;
 
@@ -698,7 +1430,7 @@ function ChemicalSludgePatch({
       <pointLight position={[0, 2, 0]} color="#39ff14" intensity={8} distance={20} />
       <pointLight position={[0, 0.5, 0]} color="#76ff03" intensity={5} distance={15} />
 
-      {inBoat && isNear && !world2Dialogue && (
+      {inBoat && showPrompt && (
         <Text
           position={[0, 2, 0]}
           fontSize={0.4}
@@ -760,8 +1492,8 @@ function OceanPracticeBooth({
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      const w2d = useGame.getState().world2Dialogue;
-      if (e.code === "KeyE" && nearBooth && unlocked && !active && !w2d) {
+      const s = useGame.getState();
+      if (e.code === "KeyE" && nearBooth && unlocked && !active && !s.world2Dialogue) {
         onInteract();
       }
     };
@@ -899,10 +1631,27 @@ export function OceanWorld() {
   const oceanLessonPhase = useGame((s) => s.oceanLessonPhase);
   const oceanPortalActive = useGame((s) => s.oceanPortalActive);
   const enterFactoryPortal = useGame((s) => s.enterFactoryPortal);
+  const cleanSludge = useGame((s) => s.cleanSludge);
+  const addTotalScore = useGame((s) => s.addTotalScore);
 
   const allSurveyed = ecosystems.every((e) => e.surveyed);
   const allSludgeCleaned = sludgePatches.every((p) => p.cleaned);
   const sludgeCleanedCount = sludgePatches.filter((p) => p.cleaned).length;
+
+  const [cleanedEffects, setCleanedEffects] = useState<{ id: number; position: [number, number, number] }[]>([]);
+  const cleanedEffectIdRef = useRef(0);
+
+  const handleSludgeCleaned = useCallback((index: number) => {
+    const patch = useGame.getState().sludgePatches[index];
+    cleanSludge(index);
+    addTotalScore(5);
+    cleanedEffectIdRef.current += 1;
+    const effectId = cleanedEffectIdRef.current;
+    setCleanedEffects((prev) => [...prev, { id: effectId, position: patch.position }]);
+    setTimeout(() => {
+      setCleanedEffects((prev) => prev.filter((e) => e.id !== effectId));
+    }, 2500);
+  }, [cleanSludge, addTotalScore]);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos);
@@ -1095,6 +1844,7 @@ export function OceanWorld() {
       <BeachBuilding />
       <BeachSign />
       <BeachDecor />
+      <BeachExtras />
 
       <Player onPositionUpdate={handlePositionUpdate} />
       <FollowCamera playerPosition={playerPos} />
@@ -1133,7 +1883,12 @@ export function OceanWorld() {
           index={i}
           playerPosition={playerPos}
           inBoat={inBoat}
+          onCleaned={handleSludgeCleaned}
         />
+      ))}
+
+      {cleanedEffects.map((effect) => (
+        <SludgeCleanedEffect key={`cleaned-${effect.id}`} position={effect.position} />
       ))}
 
       <OceanPracticeBooth

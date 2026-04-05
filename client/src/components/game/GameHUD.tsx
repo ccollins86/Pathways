@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
 
 const ITEM_LABELS: Record<string, string> = {
@@ -9,6 +9,68 @@ const ITEM_LABELS: Record<string, string> = {
   safety_strap: "Safety Strap",
   wrench: "Wrench",
 };
+
+interface LessonQuestion {
+  code: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  hint: string;
+}
+
+const LESSON_QUESTIONS: LessonQuestion[] = [
+  {
+    code: `let disaster = "wildfire";
+
+if (disaster === "hurricane") {
+  sandBagDoors();
+} else if (disaster === "wildfire") {
+  sprayRetardant();
+} else if (disaster === "earthquake") {
+  strapFurniture();
+}`,
+    question: "Which function gets called?",
+    options: ["sandBagDoors()", "sprayRetardant()", "strapFurniture()", "All three"],
+    correctIndex: 1,
+    explanation: 'Since disaster is "wildfire", only the matching else-if branch runs. The hurricane and earthquake branches are skipped entirely.',
+    hint: "Look at the value of disaster and find the condition that matches it.",
+  },
+  {
+    code: `let disaster = "earthquake";
+
+if (disaster === "hurricane") {
+  prepareType = "board windows";
+} else if (disaster === "wildfire") {
+  prepareType = "clear brush";
+} else {
+  prepareType = "secure items";
+}`,
+    question: "What is prepareType set to?",
+    options: ['"board windows"', '"clear brush"', '"secure items"', "Nothing — it's undefined"],
+    correctIndex: 2,
+    explanation: '"earthquake" doesn\'t match "hurricane" or "wildfire", so neither if nor else-if is true. The else block catches everything else, setting prepareType to "secure items".',
+    hint: "When none of the if/else-if conditions are true, which block runs?",
+  },
+  {
+    code: `let danger = "flood";
+
+if (danger === "flood") {
+  action = "evacuate";
+} else if (danger === "flood") {
+  action = "sandBag";
+} else {
+  action = "stay";
+}`,
+    question: 'There are two conditions checking for "flood". What is action?',
+    options: ['"evacuate"', '"sandBag"', '"stay"', '"evacuate" and "sandBag"'],
+    correctIndex: 0,
+    explanation: 'Even though both conditions check for "flood", only the FIRST matching branch runs. Once "evacuate" is assigned, all remaining branches are skipped.',
+    hint: "When multiple conditions could match, think about which one the computer checks first.",
+  },
+];
+
+const IS_DEV = import.meta.env.DEV;
 
 export function GameHUD() {
   const talkedToDan = useGame((s) => s.talkedToDan);
@@ -26,15 +88,90 @@ export function GameHUD() {
   const failReason = useGame((s) => s.failReason);
   const dropItem = useGame((s) => s.dropItem);
   const restart = useGame((s) => s.restart);
+  const retryQuest = useGame((s) => s.retryQuest);
   const practiceUnlocked = useGame((s) => s.practiceUnlocked);
   const practiceActive = useGame((s) => s.practiceActive);
   const practiceScore = useGame((s) => s.practiceScore);
   const unlockPractice = useGame((s) => s.unlockPractice);
   const practiceCompleted = useGame((s) => s.practiceCompleted);
   const portalActive = useGame((s) => s.portalActive);
+  const addTotalScore = useGame((s) => s.addTotalScore);
+  const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
   const [showLesson, setShowLesson] = useState(false);
+  const [lessonQuizActive, setLessonQuizActive] = useState(false);
+  const [lessonQuizQ, setLessonQuizQ] = useState(0);
+  const [lessonQuizSelected, setLessonQuizSelected] = useState<number | null>(null);
+  const [lessonQuizCorrect, setLessonQuizCorrect] = useState(false);
+  const [lessonQuizWrong, setLessonQuizWrong] = useState(false);
+  const [lessonQuizHint, setLessonQuizHint] = useState(false);
+  const [viewingLessonFromQuiz, setViewingLessonFromQuiz] = useState(false);
+  const [lessonQuizDone, setLessonQuizDone] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(true);
+  const [lessonQuizHadWrong, setLessonQuizHadWrong] = useState(false);
+  const [lessonQuizScore, setLessonQuizScore] = useState(0);
+  const [lessonQuizPopups, setLessonQuizPopups] = useState<{ id: number; text: string; color: string }[]>([]);
+  const lessonPopupIdRef = useRef(0);
+  const lessonBonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const successSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    successSoundRef.current = new Audio("/sounds/success.mp3");
+    successSoundRef.current.volume = 0.5;
+  }, []);
+
+  const addLessonPopup = useCallback((text: string, color: string) => {
+    lessonPopupIdRef.current += 1;
+    const id = lessonPopupIdRef.current;
+    setLessonQuizPopups((prev) => [...prev, { id, text, color }]);
+    setTimeout(() => setLessonQuizPopups((prev) => prev.filter((p) => p.id !== id)), 1500);
+  }, []);
+
+  const handleLessonQuizAnswer = useCallback((index: number) => {
+    if (lessonQuizCorrect) return;
+    const q = LESSON_QUESTIONS[lessonQuizQ];
+    setLessonQuizSelected(index);
+    if (index === q.correctIndex) {
+      setLessonQuizCorrect(true);
+      addTotalScore(10);
+      setLessonQuizScore((s) => s + 10);
+      addLessonPopup("+10", "#4ade80");
+      if (!lessonQuizHadWrong) {
+        setLessonQuizScore((s) => s + 5);
+        incrementFirstTry();
+        lessonBonusTimerRef.current = setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
+      }
+      try {
+        if (successSoundRef.current) {
+          successSoundRef.current.currentTime = 0;
+          successSoundRef.current.play().catch(() => {});
+        }
+      } catch {}
+    } else {
+      setLessonQuizWrong(true);
+      setLessonQuizHadWrong(true);
+      setTimeout(() => setLessonQuizSelected(null), 800);
+    }
+  }, [lessonQuizCorrect, lessonQuizQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
+
+  const handleLessonQuizNext = useCallback(() => {
+    if (lessonBonusTimerRef.current) {
+      clearTimeout(lessonBonusTimerRef.current);
+      lessonBonusTimerRef.current = null;
+    }
+    setLessonQuizPopups([]);
+    if (lessonQuizQ >= LESSON_QUESTIONS.length - 1) {
+      setLessonQuizDone(true);
+      setLessonQuizActive(false);
+    } else {
+      setLessonQuizQ((q) => q + 1);
+      setLessonQuizSelected(null);
+      setLessonQuizCorrect(false);
+      setLessonQuizWrong(false);
+      setLessonQuizHint(false);
+      setLessonQuizHadWrong(false);
+    }
+  }, [lessonQuizQ]);
 
   if (activeDialogue) return null;
 
@@ -68,7 +205,7 @@ export function GameHUD() {
   return (
     <>
       {/* Quest completed banner / lesson */}
-      {questCompleted && !showLesson && !practiceUnlocked && (
+      {questCompleted && !questFailed && !showLesson && !practiceUnlocked && !lessonQuizActive && !lessonQuizDone && !viewingLessonFromQuiz && (
         <div
           style={{
             position: "absolute",
@@ -82,8 +219,8 @@ export function GameHUD() {
             fontFamily: "'Inter', sans-serif",
             zIndex: 150,
             textAlign: "center",
-            border: "3px solid #66bb6a",
-            boxShadow: "0 0 40px rgba(102, 187, 106, 0.5)",
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
           }}
         >
           <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
@@ -116,7 +253,7 @@ export function GameHUD() {
         </div>
       )}
 
-      {questCompleted && showLesson && (
+      {questCompleted && (showLesson || viewingLessonFromQuiz) && (
         <div
           style={{
             position: "absolute",
@@ -216,34 +353,293 @@ export function GameHUD() {
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <div
-              onClick={() => { setShowLesson(false); unlockPractice(); }}
+              onClick={viewingLessonFromQuiz
+                ? () => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }
+                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
+              }
               style={{
-                padding: "10px 24px",
+                padding: "12px 32px",
                 background: "#4fc3f7",
                 border: "none",
                 borderRadius: 8,
                 color: "#0d47a1",
-                fontSize: 14,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {viewingLessonFromQuiz ? "Back to Quiz" : "Test Your Understanding"}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lesson quiz */}
+      {questCompleted && lessonQuizActive && !viewingLessonFromQuiz && (() => {
+        const q = LESSON_QUESTIONS[lessonQuizQ];
+        return (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              background: "rgba(13, 25, 48, 0.97)",
+              borderRadius: 16,
+              padding: "24px 32px",
+              color: "white",
+              fontFamily: "'Inter', sans-serif",
+              zIndex: 150,
+              border: "3px solid #4fc3f7",
+              boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
+              width: 560,
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#4fc3f7" }}>
+                Lesson Quiz
+              </div>
+              <div style={{ fontSize: 13, opacity: 0.6 }}>
+                {lessonQuizQ + 1} / {LESSON_QUESTIONS.length}
+              </div>
+            </div>
+
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#b0bec5" }}>
+              {q.question}
+            </div>
+
+            <div
+              style={{
+                background: "rgba(0, 0, 0, 0.5)",
+                borderRadius: 8,
+                padding: "14px 18px",
+                fontFamily: "'Courier New', monospace",
+                fontSize: 13,
+                lineHeight: 1.7,
+                marginBottom: 16,
+                border: "1px solid rgba(79, 195, 247, 0.2)",
+                whiteSpace: "pre-wrap",
+                color: "#e0e0e0",
+              }}
+            >
+              {q.code}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+              {q.options.map((option, i) => {
+                let bg = "rgba(255,255,255,0.05)";
+                let border = "1px solid rgba(255,255,255,0.15)";
+                let textColor = "white";
+
+                if (lessonQuizCorrect && i === q.correctIndex) {
+                  bg = "rgba(76, 175, 80, 0.3)";
+                  border = "2px solid #66bb6a";
+                  textColor = "#66bb6a";
+                } else if (lessonQuizSelected === i && !lessonQuizCorrect) {
+                  bg = "rgba(244, 67, 54, 0.3)";
+                  border = "2px solid #ef5350";
+                  textColor = "#ef5350";
+                }
+
+                return (
+                  <div
+                    key={i}
+                    onClick={() => handleLessonQuizAnswer(i)}
+                    style={{
+                      padding: "10px 16px",
+                      background: bg,
+                      border,
+                      borderRadius: 8,
+                      cursor: lessonQuizCorrect ? "default" : "pointer",
+                      fontSize: 14,
+                      color: textColor,
+                      fontWeight: (lessonQuizCorrect && i === q.correctIndex) || lessonQuizSelected === i ? 600 : 400,
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {String.fromCharCode(65 + i)}) {option}
+                  </div>
+                );
+              })}
+            </div>
+
+            {lessonQuizCorrect && (
+              <div
+                style={{
+                  padding: "12px 16px",
+                  background: "rgba(76, 175, 80, 0.15)",
+                  border: "1px solid #66bb6a",
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  position: "relative",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#66bb6a" }}>
+                    Correct! +10 pts
+                  </div>
+                  {!lessonQuizHadWrong && (
+                    <div style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#fbbf24",
+                      background: "rgba(251, 191, 36, 0.15)",
+                      border: "1px solid rgba(251, 191, 36, 0.4)",
+                      borderRadius: 20,
+                      padding: "2px 10px",
+                    }}>
+                      ⭐ First Try +5
+                    </div>
+                  )}
+                </div>
+                <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
+                  {q.explanation}
+                </div>
+                {lessonQuizPopups.map((p) => (
+                  <div
+                    key={p.id}
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      right: 16,
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: p.color,
+                      textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                      animation: "floatUp 1.5s ease-out forwards",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {p.text}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!lessonQuizCorrect && lessonQuizWrong && (
+              <div
+                style={{
+                  padding: "12px 16px",
+                  background: "rgba(244, 67, 54, 0.15)",
+                  border: "1px solid #ef5350",
+                  borderRadius: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#ef5350" }}>
+                  Not quite! Try again.
+                </div>
+                <div
+                  onClick={() => setLessonQuizHint(!lessonQuizHint)}
+                  style={{
+                    fontSize: 13,
+                    color: "#4fc3f7",
+                    cursor: "pointer",
+                    marginTop: 6,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <span style={{ fontSize: 10 }}>{lessonQuizHint ? "\u25BC" : "\u25B6"}</span>
+                  {lessonQuizHint ? "Hide Hint" : "Show Hint"}
+                </div>
+                {lessonQuizHint && (
+                  <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(79, 195, 247, 0.4)" }}>
+                    {q.hint}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div
+                onClick={() => { setLessonQuizActive(false); setViewingLessonFromQuiz(true); }}
+                style={{
+                  padding: "8px 20px",
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  borderRadius: 8,
+                  color: "white",
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                View Lesson
+              </div>
+              {lessonQuizCorrect && (
+                <div
+                  onClick={handleLessonQuizNext}
+                  style={{
+                    padding: "10px 24px",
+                    background: "#4fc3f7",
+                    border: "none",
+                    borderRadius: 8,
+                    color: "#0d47a1",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {lessonQuizQ >= LESSON_QUESTIONS.length - 1 ? "Finish Quiz" : "Next Question"}
+                </div>
+              )}
+            </div>
+          <style>{`
+            @keyframes floatUp {
+              0% { opacity: 0; transform: translateY(0) scale(0.7); }
+              15% { opacity: 1; transform: translateY(-12px) scale(1.1); }
+              30% { transform: translateY(-18px) scale(1); }
+              100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+            }
+          `}</style>
+          </div>
+        );
+      })()}
+
+      {/* Lesson quiz complete */}
+      {questCompleted && lessonQuizDone && !practiceUnlocked && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0, 80, 0, 0.95)",
+            borderRadius: 16,
+            padding: "32px 48px",
+            color: "white",
+            fontFamily: "'Inter', sans-serif",
+            zIndex: 150,
+            textAlign: "center",
+            border: "3px solid #4fc3f7",
+            boxShadow: "0 0 40px rgba(79, 195, 247, 0.4)",
+            maxWidth: 440,
+          }}
+        >
+          <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>
+            Quiz Complete!
+          </div>
+          <div style={{ fontSize: 16, lineHeight: 1.6, opacity: 0.9, marginBottom: 20 }}>
+            Great job! You've shown you understand how branching statements work.
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div
+              onClick={() => { setLessonQuizDone(false); unlockPractice(); }}
+              style={{
+                padding: "12px 32px",
+                background: "#4fc3f7",
+                border: "none",
+                borderRadius: 8,
+                color: "#0d47a1",
+                fontSize: 16,
                 fontWeight: 700,
                 cursor: "pointer",
               }}
             >
               Continue Playing
-            </div>
-            <div
-              onClick={() => { setShowLesson(false); restart(); }}
-              style={{
-                padding: "10px 24px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                borderRadius: 8,
-                color: "white",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Play Again
             </div>
           </div>
         </div>
@@ -279,7 +675,7 @@ export function GameHUD() {
             Remember: match your preparations to the specific disaster that's coming!
           </div>
           <div
-            onClick={restart}
+            onClick={retryQuest}
             style={{
               marginTop: 20,
               padding: "10px 28px",
@@ -552,6 +948,8 @@ export function GameHUD() {
       >
         WASD / Arrows to move | E to interact{carriedItemInfo ? " | Q to drop" : ""}
       </div>
+
     </>
   );
 }
+

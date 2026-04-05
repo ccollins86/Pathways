@@ -180,6 +180,16 @@ interface GameState {
   psychicPracticeScore: number;
   psychicPracticeCompleted: boolean;
 
+  totalScore: number;
+  firstTryCount: number;
+  townQuestBonusAwarded: boolean;
+  oceanQuestBonusAwarded: boolean;
+  factoryQuestBonusAwarded: boolean;
+  factoryStagePointsAwarded: Set<string>;
+  townWorldBonusAwarded: boolean;
+  oceanWorldBonusAwarded: boolean;
+  factoryWorldBonusAwarded: boolean;
+
   start: () => void;
   restart: () => void;
   end: () => void;
@@ -199,6 +209,8 @@ interface GameState {
   completeWildfireTask: (task: keyof WildfireTasks) => void;
   completeEarthquakeTask: (task: keyof EarthquakeTasks) => void;
   failQuest: (reason: string) => void;
+  retryQuest: () => void;
+  respawnTrigger: number;
   activateTasks: () => void;
   checkQuestCompletion: () => void;
   unlockPractice: () => void;
@@ -300,6 +312,7 @@ export const useGame = create<GameState>()(
     questCompleted: false,
     questFailed: false,
     failReason: null,
+    respawnTrigger: 0,
     tasksActive: false,
     practiceUnlocked: false,
     practiceActive: false,
@@ -360,6 +373,16 @@ export const useGame = create<GameState>()(
     psychicPracticeActive: false,
     psychicPracticeScore: 0,
     psychicPracticeCompleted: false,
+
+    totalScore: 0,
+    firstTryCount: 0,
+    townQuestBonusAwarded: false,
+    oceanQuestBonusAwarded: false,
+    factoryQuestBonusAwarded: false,
+    factoryStagePointsAwarded: new Set<string>(),
+    townWorldBonusAwarded: false,
+    oceanWorldBonusAwarded: false,
+    factoryWorldBonusAwarded: false,
 
     start: () => {
       set((state) => {
@@ -543,10 +566,35 @@ export const useGame = create<GameState>()(
       if (carriedItem) newConsumed.add(carriedItem.id);
       set({
         questFailed: true,
+        questCompleted: false,
         failReason: reason,
         carriedItem: null,
         consumedItems: newConsumed,
       });
+    },
+
+    retryQuest: () => {
+      set((state) => ({
+        questFailed: false,
+        failReason: null,
+        carriedItem: null,
+        consumedItems: new Set<string>(),
+        hurricaneTasks: {
+          frontDoorSandbagged: false,
+          backDoorSandbagged: false,
+          window1Boarded: false,
+          window2Boarded: false,
+        },
+        wildfireTasks: {
+          houseSprayed: false,
+          vegetationCleared: false,
+        },
+        earthquakeTasks: {
+          furnitureStrapped: false,
+          gasShutOff: false,
+        },
+        respawnTrigger: state.respawnTrigger + 1,
+      }));
     },
 
     activateTasks: () => set({ tasksActive: true }),
@@ -554,14 +602,17 @@ export const useGame = create<GameState>()(
     unlockPractice: () => set({ practiceUnlocked: true }),
     openPractice: () => set({ practiceActive: true }),
     closePractice: () => set({ practiceActive: false }),
-    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points })),
+    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points })),
     resetPracticeScore: () => set({ practiceScore: 0 }),
     completePractice: () => {
-      const { questCompleted } = get();
-      set({
+      const { questCompleted, townWorldBonusAwarded } = get();
+      const bonus = townWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
         practiceCompleted: true,
         portalActive: questCompleted,
-      });
+        townWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
     },
     enterPortal: () => {
       set({
@@ -598,7 +649,15 @@ export const useGame = create<GameState>()(
       );
       set({ ecosystems: updated, currentSurveyIndex: null });
     },
-    completeOceanQuest: () => set({ oceanQuestCompleted: true }),
+    completeOceanQuest: () => {
+      const { oceanQuestBonusAwarded } = get();
+      const bonus = oceanQuestBonusAwarded ? 0 : 25;
+      set((state) => ({
+        oceanQuestCompleted: true,
+        oceanQuestBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
     equipDivingSuit: () => set({ hasDivingSuit: true }),
 
     startCleanupQuest: () => set({ cleanupQuestStarted: true }),
@@ -622,9 +681,18 @@ export const useGame = create<GameState>()(
     unlockOceanPractice: () => set({ oceanPracticeUnlocked: true }),
     openOceanPractice: () => set({ oceanPracticeActive: true }),
     closeOceanPractice: () => set({ oceanPracticeActive: false }),
-    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points })),
+    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points, totalScore: state.totalScore + points })),
     resetOceanPracticeScore: () => set({ oceanPracticeScore: 0 }),
-    completeOceanPractice: () => set({ oceanPracticeCompleted: true, oceanPracticeActive: false, oceanPortalActive: true }),
+    completeOceanPractice: () => {
+      const { oceanWorldBonusAwarded } = get();
+      const bonus = oceanWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
+        oceanPracticeCompleted: true,
+        oceanPortalActive: true,
+        oceanWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
 
     enterFactoryPortal: () => {
       set({
@@ -657,30 +725,39 @@ export const useGame = create<GameState>()(
     submitMachineOrder: (machine, settings) => {
       const normalize = (s: string) => s.trim().toLowerCase();
       if (machine === "hat") {
-        if (settings.quantity !== 2) return "Quantity should be 2 hats!";
-        if (normalize(settings.size) !== "large") return "Size should be Large!";
-        if (normalize(settings.color1) !== "white") return "Top color should be White!";
-        if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Brim color should be Green!";
-        if (normalize(settings.lettering) !== "italy") return 'Lettering should be "Italy"!';
-        set({ hatMachineState: "produced", activeMachine: null });
+        if (settings.quantity !== 2) return "Check the quantity — that's not right.";
+        if (normalize(settings.size) !== "large") return "Check the size — that's not right.";
+        if (normalize(settings.color1) !== "white") return "Check the top color — that's not right.";
+        if (normalize(settings.color2) !== "#43a047" && normalize(settings.color2) !== "green") return "Check the brim color — that's not right.";
+        if (normalize(settings.lettering) !== "italy") return "Check the lettering — that's not right.";
+        const key = "config-hat";
+        const awarded = get().factoryStagePointsAwarded;
+        const bonus = awarded.has(key) ? 0 : 5;
+        set((s) => ({ hatMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
         return null;
       } else if (machine === "tshirt") {
-        if (settings.quantity !== 3) return "Quantity should be 3 t-shirts!";
-        if (normalize(settings.size) !== "medium") return "Size should be Medium!";
-        if (normalize(settings.color1) !== "#e53935" && normalize(settings.color1) !== "red") return "Sleeve color should be Red!";
-        if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Body color should be Blue!";
-        if (normalize(settings.color3 || "") !== "white") return "Lettering color should be White!";
-        if (normalize(settings.lettering) !== "usa") return 'Lettering should be "USA"!';
-        set({ tshirtMachineState: "produced", activeMachine: null });
+        if (settings.quantity !== 3) return "Check the quantity — that's not right.";
+        if (normalize(settings.size) !== "medium") return "Check the size — that's not right.";
+        if (normalize(settings.color1) !== "#e53935" && normalize(settings.color1) !== "red") return "Check the sleeve color — that's not right.";
+        if (normalize(settings.color2) !== "#1e88e5" && normalize(settings.color2) !== "blue") return "Check the body color — that's not right.";
+        if (normalize(settings.color3 || "") !== "white") return "Check the lettering color — that's not right.";
+        if (normalize(settings.lettering) !== "usa") return "Check the lettering — that's not right.";
+        const key = "config-tshirt";
+        const awarded = get().factoryStagePointsAwarded;
+        const bonus = awarded.has(key) ? 0 : 5;
+        set((s) => ({ tshirtMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
         return null;
       } else if (machine === "jacket") {
-        if (settings.quantity !== 5) return "Quantity should be 5 jackets!";
-        if (normalize(settings.size) !== "large") return "Size should be Large!";
-        if (normalize(settings.color1) !== "black") return "Sleeve color should be Black!";
-        if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Body color should be Red!";
-        if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Lettering color should be Yellow!";
-        if (normalize(settings.lettering) !== "germany") return 'Lettering should be "Germany"!';
-        set({ jacketMachineState: "produced", activeMachine: null });
+        if (settings.quantity !== 5) return "Check the quantity — that's not right.";
+        if (normalize(settings.size) !== "large") return "Check the size — that's not right.";
+        if (normalize(settings.color1) !== "black") return "Check the sleeve color — that's not right.";
+        if (normalize(settings.color2) !== "#e53935" && normalize(settings.color2) !== "red") return "Check the body color — that's not right.";
+        if (normalize(settings.color3 || "") !== "#fdd835" && normalize(settings.color3 || "") !== "yellow") return "Check the lettering color — that's not right.";
+        if (normalize(settings.lettering) !== "germany") return "Check the lettering — that's not right.";
+        const key = "config-jacket";
+        const awarded = get().factoryStagePointsAwarded;
+        const bonus = awarded.has(key) ? 0 : 5;
+        set((s) => ({ jacketMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
         return null;
       }
       return null;
@@ -700,18 +777,23 @@ export const useGame = create<GameState>()(
     loadBox: () => {
       const { carryingBox } = get();
       if (!carryingBox) return;
-      if (carryingBox === "hats") set({ hatMachineState: "loaded", carryingBox: null });
-      else if (carryingBox === "tshirts") set({ tshirtMachineState: "loaded", carryingBox: null });
-      else if (carryingBox === "jackets") set({ jacketMachineState: "loaded", carryingBox: null });
+      const loadKey = `load-${carryingBox}`;
+      const loadAwarded = get().factoryStagePointsAwarded;
+      const loadBonus = loadAwarded.has(loadKey) ? 0 : 5;
+      if (carryingBox === "hats") set((s) => ({ hatMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
+      else if (carryingBox === "tshirts") set((s) => ({ tshirtMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
+      else if (carryingBox === "jackets") set((s) => ({ jacketMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
       const state = get();
       if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
-        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
+        const bonus = state.factoryQuestBonusAwarded ? 0 : 25;
+        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
       }
     },
     checkFactoryComplete: () => {
-      const { hatMachineState, tshirtMachineState, jacketMachineState } = get();
+      const { hatMachineState, tshirtMachineState, jacketMachineState, factoryQuestBonusAwarded } = get();
       if (hatMachineState === "loaded" && tshirtMachineState === "loaded" && jacketMachineState === "loaded") {
-        set({ factoryOrderComplete: true, factoryLessonPhase: 1 });
+        const bonus = factoryQuestBonusAwarded ? 0 : 25;
+        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
       }
     },
     advanceFactoryLesson: () => {
@@ -727,7 +809,7 @@ export const useGame = create<GameState>()(
     closeFactoryPractice: () =>
       set({ factoryPracticeActive: false }),
     addFactoryPracticeScore: (points) =>
-      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points })),
+      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points })),
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
     completeFactoryPractice: () =>
@@ -919,7 +1001,8 @@ export const useGame = create<GameState>()(
       set({ psychicPracticeCompleted: true, psychicPracticeActive: false }),
 
     checkQuestCompletion: () => {
-      const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks } = get();
+      const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks, questFailed } = get();
+      if (questFailed) return;
       let completed = false;
       if (knownDisaster === "hurricane") {
         completed =
@@ -935,11 +1018,14 @@ export const useGame = create<GameState>()(
           earthquakeTasks.furnitureStrapped && earthquakeTasks.gasShutOff;
       }
       if (completed) {
-        const { practiceCompleted } = get();
-        set({
+        const { practiceCompleted, townQuestBonusAwarded } = get();
+        const bonus = townQuestBonusAwarded ? 0 : 25;
+        set((state) => ({
           questCompleted: true,
           portalActive: practiceCompleted,
-        });
+          townQuestBonusAwarded: true,
+          totalScore: state.totalScore + bonus,
+        }));
       }
     },
   }))
