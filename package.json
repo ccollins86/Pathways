@@ -11,7 +11,7 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
-    "@fontsource/inter": "^5.2.5",
+    "@fontsource/inter": "^5.2.8",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.1",
@@ -53,9 +53,9 @@
     "connect-pg-simple": "^10.0.0",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.39.3",
-    "drizzle-zod": "^0.7.0",
+    "drizzle-zod": "^0.7.1",
     "embla-carousel-react": "^8.3.0",
-    "express": "^5.0.1",
+    "express": "^5.2.1",
     "express-session": "^1.19.0",
     "framer-motion": "^11.13.1",
     "gl-matrix": "^3.4.3",
@@ -70,7 +70,7 @@
     "ogl": "^1.0.11",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.16.3",
+    "pg": "^8.20.0",
     "pixi.js": "^8.8.1",
     "postprocessing": "^6.36.0",
     "r3f-perf": "^7.2.3",
@@ -99,9 +99,9 @@
     "vitest": "^4.0.18",
     "wouter": "^3.3.5",
     "ws": "^8.18.0",
-    "zod": "^3.23.8",
+    "zod": "^3.25.76",
     "zod-validation-error": "^3.4.0",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
@@ -115,7 +115,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.5.13",
-    "@vitejs/plugin-react": "^4.3.2",
+    "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.30.6",
     "esbuild": "^0.25.0",
@@ -123,7 +123,7 @@
     "tailwindcss": "^3.4.14",
     "tsx": "^4.19.1",
     "typescript": "5.6.3",
-    "vite": "^5.4.19"
+    "vite": "^5.4.21"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"

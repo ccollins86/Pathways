@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "ready" | "playing" | "ended";
-export type GameWorld = "town" | "ocean" | "factory";
+export type GameWorld = "town" | "ocean" | "factory" | "psychic";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
 
@@ -162,6 +162,23 @@ interface GameState {
   factoryPracticeActive: boolean;
   factoryPracticeScore: number;
   factoryPracticeCompleted: boolean;
+  factoryPortalActive: boolean;
+
+  psychicBalance: number;
+  psychicCustomer: { name: string; color: string; favoriteNumber: number } | null;
+  psychicGuesses: { guess: number; result: "high" | "low" | "correct" }[];
+  psychicGuessesRemaining: number;
+  psychicGamePhase: "instructions" | "waiting" | "entering" | "guessing" | "won" | "lost" | "round_win" | "round_lose" | "transition" | "lesson";
+  psychicCustomersServed: number;
+  psychicRound: 1 | 2 | 3;
+  psychicSequentialStart: number | null;
+  psychicLastGuess: number | null;
+  psychicBinaryMin: number;
+  psychicBinaryMax: number;
+  psychicGuessHint: string | null;
+  psychicPracticeActive: boolean;
+  psychicPracticeScore: number;
+  psychicPracticeCompleted: boolean;
 
   totalScore: number;
   firstTryCount: number;
@@ -247,9 +264,19 @@ interface GameState {
   addFactoryPracticeScore: (points: number) => void;
   resetFactoryPracticeScore: () => void;
   completeFactoryPractice: () => void;
+  enterPsychicPortal: () => void;
 
-  addTotalScore: (points: number) => void;
-  incrementFirstTry: () => void;
+  dismissPsychicInstructions: () => void;
+  summonPsychicCustomer: () => void;
+  seatPsychicCustomer: () => void;
+  submitPsychicGuess: (guess: number) => void;
+  psychicCustomerEnd: () => void;
+  psychicAdvanceRound: () => void;
+  psychicRetryRound: () => void;
+  psychicStartLesson: () => void;
+  openPsychicPractice: () => void;
+  addPsychicPracticeScore: (points: number) => void;
+  completePsychicPractice: () => void;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -329,6 +356,23 @@ export const useGame = create<GameState>()(
     factoryPracticeActive: false,
     factoryPracticeScore: 0,
     factoryPracticeCompleted: false,
+    factoryPortalActive: false,
+
+    psychicBalance: 0,
+    psychicCustomer: null,
+    psychicGuesses: [],
+    psychicGuessesRemaining: 10,
+    psychicGamePhase: "instructions",
+    psychicCustomersServed: 0,
+    psychicRound: 1,
+    psychicSequentialStart: null,
+    psychicLastGuess: null,
+    psychicBinaryMin: 1,
+    psychicBinaryMax: 100,
+    psychicGuessHint: null,
+    psychicPracticeActive: false,
+    psychicPracticeScore: 0,
+    psychicPracticeCompleted: false,
 
     totalScore: 0,
     firstTryCount: 0,
@@ -418,15 +462,22 @@ export const useGame = create<GameState>()(
         factoryPracticeActive: false,
         factoryPracticeScore: 0,
         factoryPracticeCompleted: false,
-        totalScore: 0,
-        firstTryCount: 0,
-        townQuestBonusAwarded: false,
-        oceanQuestBonusAwarded: false,
-        factoryQuestBonusAwarded: false,
-        factoryStagePointsAwarded: new Set<string>(),
-        townWorldBonusAwarded: false,
-        oceanWorldBonusAwarded: false,
-        factoryWorldBonusAwarded: false,
+        factoryPortalActive: false,
+        psychicBalance: 0,
+        psychicCustomer: null,
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicGamePhase: "instructions",
+        psychicCustomersServed: 0,
+        psychicRound: 1,
+        psychicSequentialStart: null,
+        psychicLastGuess: null,
+        psychicBinaryMin: 1,
+        psychicBinaryMax: 100,
+        psychicGuessHint: null,
+        psychicPracticeActive: false,
+        psychicPracticeScore: 0,
+        psychicPracticeCompleted: false,
       }));
     },
 
@@ -761,18 +812,193 @@ export const useGame = create<GameState>()(
       set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points })),
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
-    completeFactoryPractice: () => {
-      const { factoryWorldBonusAwarded } = get();
-      const bonus = factoryWorldBonusAwarded ? 0 : 50;
-      set((state) => ({
-        factoryPracticeCompleted: true,
-        factoryWorldBonusAwarded: true,
-        totalScore: state.totalScore + bonus,
-      }));
+    completeFactoryPractice: () =>
+      set({ factoryPracticeCompleted: true, factoryPracticeActive: false, factoryPortalActive: true }),
+
+    enterPsychicPortal: () => {
+      set({
+        currentWorld: "psychic" as GameWorld,
+        phase: "playing" as GamePhase,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+        factoryPracticeActive: false,
+        psychicGamePhase: "instructions",
+        psychicCustomer: null,
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicBalance: 0,
+        psychicCustomersServed: 0,
+        psychicRound: 1,
+        psychicSequentialStart: null,
+        psychicLastGuess: null,
+        psychicBinaryMin: 1,
+        psychicBinaryMax: 100,
+        psychicGuessHint: null,
+      });
     },
 
-    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
-    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
+    dismissPsychicInstructions: () => set({ psychicGamePhase: "waiting" }),
+
+    summonPsychicCustomer: () => {
+      const names = ["Alex", "Jamie", "Morgan", "Casey", "Riley", "Jordan", "Taylor", "Quinn", "Avery", "Skyler", "Dakota", "Reese", "Parker", "Sage", "Finley", "Emery", "Rowan", "Phoenix", "Blair", "Drew"];
+      const colors = ["#e53935", "#1e88e5", "#43a047", "#8e24aa", "#f4511e", "#00897b", "#d81b60", "#5e35b1", "#fb8c00", "#3949ab"];
+      const name = names[Math.floor(Math.random() * names.length)];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const favoriteNumber = Math.floor(Math.random() * 100) + 1;
+      set({
+        psychicCustomer: { name, color, favoriteNumber },
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicGamePhase: "entering",
+        psychicSequentialStart: null,
+        psychicLastGuess: null,
+        psychicBinaryMin: 1,
+        psychicBinaryMax: 100,
+        psychicGuessHint: null,
+      });
+    },
+
+    seatPsychicCustomer: () => set({ psychicGamePhase: "guessing" }),
+
+    submitPsychicGuess: (guess: number) => {
+      const { psychicCustomer, psychicGuesses, psychicGuessesRemaining, psychicGamePhase, psychicRound, psychicLastGuess, psychicBinaryMin, psychicBinaryMax } = get();
+      if (!psychicCustomer || psychicGuessesRemaining <= 0 || psychicGamePhase !== "guessing") return;
+
+      if (psychicRound === 2 && psychicLastGuess !== null) {
+        const expectedNext = psychicLastGuess + 1;
+        if (expectedNext <= 100 && guess !== expectedNext) {
+          set({ psychicGuessHint: `Remember, guess sequentially! Your next guess should be ${expectedNext}.` });
+          return;
+        }
+      }
+
+      if (psychicRound === 3) {
+        const expectedGuess = Math.floor((psychicBinaryMin + psychicBinaryMax) / 2);
+        if (guess !== expectedGuess) {
+          set({ psychicGuessHint: `Use binary search! The range is ${psychicBinaryMin}-${psychicBinaryMax}, so guess the middle: ${expectedGuess}` });
+          return;
+        }
+      }
+
+      const target = psychicCustomer.favoriteNumber;
+      let result: "high" | "low" | "correct";
+      if (guess === target) result = "correct";
+      else if (guess > target) result = "high";
+      else result = "low";
+
+      const newGuesses = [...psychicGuesses, { guess, result }];
+      const remaining = psychicGuessesRemaining - 1;
+
+      let newBinaryMin = psychicBinaryMin;
+      let newBinaryMax = psychicBinaryMax;
+      if (psychicRound === 3 && result !== "correct") {
+        if (result === "low") newBinaryMin = guess + 1;
+        if (result === "high") newBinaryMax = guess - 1;
+      }
+
+      if (result === "correct") {
+        set((s) => ({
+          psychicGuesses: newGuesses,
+          psychicGuessesRemaining: remaining,
+          psychicGamePhase: "won" as const,
+          psychicBalance: s.psychicBalance + 100,
+          psychicCustomersServed: s.psychicCustomersServed + 1,
+          psychicLastGuess: guess,
+          psychicBinaryMin: newBinaryMin,
+          psychicBinaryMax: newBinaryMax,
+          psychicGuessHint: null,
+        }));
+      } else if (remaining <= 0) {
+        set((s) => ({
+          psychicGuesses: newGuesses,
+          psychicGuessesRemaining: 0,
+          psychicGamePhase: "lost" as const,
+          psychicBalance: s.psychicBalance - 100,
+          psychicCustomersServed: s.psychicCustomersServed + 1,
+          psychicLastGuess: guess,
+          psychicBinaryMin: newBinaryMin,
+          psychicBinaryMax: newBinaryMax,
+          psychicGuessHint: null,
+        }));
+      } else {
+        set({
+          psychicGuesses: newGuesses,
+          psychicGuessesRemaining: remaining,
+          psychicLastGuess: guess,
+          psychicBinaryMin: newBinaryMin,
+          psychicBinaryMax: newBinaryMax,
+          psychicGuessHint: null,
+        });
+      }
+    },
+
+    psychicCustomerEnd: () => {
+      const { psychicBalance, psychicRound } = get();
+      const winThreshold = psychicRound === 3 ? 300 : 200;
+      const loseThreshold = -200;
+
+      if (psychicBalance >= winThreshold) {
+        set({ psychicGamePhase: "round_win" });
+      } else if (psychicBalance <= loseThreshold) {
+        set({ psychicGamePhase: "round_lose" });
+      } else {
+        set({
+          psychicGamePhase: "waiting",
+          psychicCustomer: null,
+          psychicGuesses: [],
+          psychicGuessesRemaining: 10,
+          psychicGuessHint: null,
+          psychicSequentialStart: null,
+          psychicLastGuess: null,
+          psychicBinaryMin: 1,
+          psychicBinaryMax: 100,
+        });
+      }
+    },
+
+    psychicAdvanceRound: () => {
+      const { psychicRound } = get();
+      const nextRound = (psychicRound + 1) as 1 | 2 | 3;
+      set({
+        psychicGamePhase: "transition",
+        psychicRound: nextRound,
+        psychicBalance: 0,
+        psychicCustomer: null,
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicCustomersServed: 0,
+        psychicSequentialStart: null,
+        psychicLastGuess: null,
+        psychicBinaryMin: 1,
+        psychicBinaryMax: 100,
+        psychicGuessHint: null,
+      });
+    },
+
+    psychicRetryRound: () => {
+      set({
+        psychicGamePhase: "waiting",
+        psychicBalance: 0,
+        psychicCustomer: null,
+        psychicGuesses: [],
+        psychicGuessesRemaining: 10,
+        psychicCustomersServed: 0,
+        psychicSequentialStart: null,
+        psychicLastGuess: null,
+        psychicBinaryMin: 1,
+        psychicBinaryMax: 100,
+        psychicGuessHint: null,
+      });
+    },
+
+    psychicStartLesson: () => set({ psychicGamePhase: "lesson" }),
+
+    openPsychicPractice: () =>
+      set({ psychicPracticeActive: true, psychicPracticeScore: 0 }),
+    addPsychicPracticeScore: (points) =>
+      set((s) => ({ psychicPracticeScore: s.psychicPracticeScore + points })),
+    completePsychicPractice: () =>
+      set({ psychicPracticeCompleted: true, psychicPracticeActive: false }),
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks, questFailed } = get();

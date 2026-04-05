@@ -5,6 +5,7 @@ import { Text } from "@react-three/drei";
 import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
+import { Portal } from "./Portal";
 import { useGame } from "@/lib/stores/useGame";
 
 function FactoryFloor() {
@@ -1209,6 +1210,8 @@ export function FactoryWorld() {
   const tshirtMachineState = useGame((s) => s.tshirtMachineState);
   const jacketMachineState = useGame((s) => s.jacketMachineState);
   const factoryOrderComplete = useGame((s) => s.factoryOrderComplete);
+  const factoryPortalActive = useGame((s) => s.factoryPortalActive);
+  const enterPsychicPortal = useGame((s) => s.enterPsychicPortal);
 
   const handlePositionUpdate = useCallback((pos: THREE.Vector3) => {
     setPlayerPos(pos.clone());
@@ -1235,6 +1238,7 @@ export function FactoryWorld() {
         { speaker: "George", text: "Outstanding work! All three shipments are loaded and ready to go!" },
         { speaker: "George", text: "The Olympic Village in Italy is going to be thrilled with their hats, t-shirts, and jackets." },
         { speaker: "George", text: "You're a natural at this. Great job fulfilling the order!" },
+        { speaker: "George", text: "Now head over to the Practice Station to test what you've learned about functions!" },
       ]);
     } else {
       openWorld3Dialogue([
@@ -1338,6 +1342,14 @@ export function FactoryWorld() {
       <PackingTable position={[0, 0, 10]} playerPosition={playerPos} />
       <ShippingTruck position={[20, 0, 25]} playerPosition={playerPos} />
       <FactoryPracticeBooth position={[-15, 0, 20]} playerPosition={playerPos} />
+
+      {factoryPortalActive && (
+        <Portal
+          position={[0, 0, -25]}
+          playerPosition={playerPos}
+          onEnter={enterPsychicPortal}
+        />
+      )}
     </>
   );
 }
