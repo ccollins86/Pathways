@@ -223,6 +223,8 @@ interface GameState {
   closePractice: () => void;
   addPracticeScore: (points: number) => void;
   resetPracticeScore: () => void;
+  incrementFirstTry: () => void;
+  addTotalScore: (points: number) => void;
   completePractice: () => void;
   enterPortal: () => void;
   openWorld2Dialogue: (lines: { speaker: string; text: string }[]) => void;
@@ -612,6 +614,8 @@ export const useGame = create<GameState>()(
     closePractice: () => set({ practiceActive: false }),
     addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points })),
     resetPracticeScore: () => set({ practiceScore: 0 }),
+    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
+    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
     completePractice: () => {
       const { questCompleted, townWorldBonusAwarded } = get();
       const bonus = townWorldBonusAwarded ? 0 : 50;
