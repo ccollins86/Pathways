@@ -15,6 +15,7 @@ import { PsychicPracticeQuizUI } from "./components/game/PsychicPracticeQuizUI";
 import { AuthScreen } from "./components/AuthScreen";
 import { AdminPanel } from "./components/AdminPanel";
 import { PsychicWorld } from "./components/game/PsychicWorld";
+import { ScoreHUD } from "./components/game/ScoreHUD";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
