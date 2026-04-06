@@ -350,18 +350,19 @@ export function PsychicWorld() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const psychicCustomer = useGame((s) => s.psychicCustomer);
   const summonPsychicCustomer = useGame((s) => s.summonPsychicCustomer);
+  const psychicPracticeActive = useGame((s) => s.psychicPracticeActive);
 
   const isDoorOpen = psychicGamePhase === "entering";
 
   useEffect(() => {
-    if (psychicGamePhase === "waiting") {
+    if (psychicGamePhase === "waiting" && !psychicPracticeActive) {
       const delay = 1500 + Math.random() * 2000;
       const timer = setTimeout(() => {
         summonPsychicCustomer();
       }, delay);
       return () => clearTimeout(timer);
     }
-  }, [psychicGamePhase, summonPsychicCustomer]);
+  }, [psychicGamePhase, psychicPracticeActive, summonPsychicCustomer]);
 
   return (
     <>
