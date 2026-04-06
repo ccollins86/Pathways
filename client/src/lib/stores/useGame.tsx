@@ -182,6 +182,8 @@ interface GameState {
 
   totalScore: number;
   firstTryCount: number;
+  addTotalScore: (points: number) => void;
+  incrementFirstTry: () => void;
   townQuestBonusAwarded: boolean;
   oceanQuestBonusAwarded: boolean;
   factoryQuestBonusAwarded: boolean;
@@ -814,6 +816,9 @@ export const useGame = create<GameState>()(
       set({ factoryPracticeScore: 0 }),
     completeFactoryPractice: () =>
       set({ factoryPracticeCompleted: true, factoryPracticeActive: false, factoryPortalActive: true }),
+
+    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
+    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
 
     enterPsychicPortal: () => {
       set({
