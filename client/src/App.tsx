@@ -14,6 +14,7 @@ import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
 import { PsychicPracticeQuizUI } from "./components/game/PsychicPracticeQuizUI";
 import { AuthScreen } from "./components/AuthScreen";
 import { PsychicWorld } from "./components/game/PsychicWorld";
+import { ScoreHUD } from "./components/game/ScoreHUD";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
