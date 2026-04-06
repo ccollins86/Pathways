@@ -108,7 +108,7 @@ CRITICAL RULES:
 6. Make the code snippets realistic and educational
 7. Vary the correct answer positions across questions (don't always use the same index)
 
-Return ONLY a valid JSON array of question objects with no markdown formatting. Each object must have: id (number), code (string), question (string), options (array of 4 distinct strings), correctIndex (0-3), explanation (string), hint (string).`;
+Return a JSON object with a "questions" key containing an array of question objects. Each object must have: id (number), code (string), question (string), options (array of 4 distinct strings), correctIndex (0-3), explanation (string), hint (string). Do not include any markdown formatting.`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-5-mini",
@@ -117,6 +117,7 @@ Return ONLY a valid JSON array of question objects with no markdown formatting. 
       { role: "user", content: prompt },
     ],
     max_completion_tokens: 8192,
+    response_format: { type: "json_object" },
   });
 
   const content = response.choices[0]?.message?.content || "";
@@ -132,7 +133,56 @@ Return ONLY a valid JSON array of question objects with no markdown formatting. 
   }
   cleaned = cleaned.trim();
 
-  const parsed = JSON.parse(cleaned);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch (_firstErr) {
+    let repaired = cleaned
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/\t/g, "\\t")
+      .replace(/(?<!\\)\\(?!["\\\/bfnrtu])/g, "\\\\");
+
+    const arrayStart = repaired.indexOf("[");
+    const arrayEnd = repaired.lastIndexOf("]");
+    if (arrayStart !== -1 && arrayEnd > arrayStart) {
+      repaired = repaired.slice(arrayStart, arrayEnd + 1);
+    }
+
+    try {
+      parsed = JSON.parse(repaired);
+    } catch (_secondErr) {
+      const objects: unknown[] = [];
+      const objRegex = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
+      let match;
+      while ((match = objRegex.exec(repaired)) !== null) {
+        try {
+          objects.push(JSON.parse(match[0]));
+        } catch {
+          // skip unparseable individual objects
+        }
+      }
+      if (objects.length > 0) {
+        parsed = objects;
+      } else {
+        throw new Error("Could not parse LLM response as valid JSON after repair attempts");
+      }
+    }
+  }
+
+  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+    const obj = parsed as Record<string, unknown>;
+    if (Array.isArray(obj.questions)) {
+      parsed = obj.questions;
+    } else {
+      const firstArray = Object.values(obj).find(Array.isArray);
+      if (firstArray) {
+        parsed = firstArray;
+      } else {
+        throw new Error("Response object contains no question array");
+      }
+    }
+  }
 
   if (!Array.isArray(parsed)) {
     throw new Error("Response is not an array");
