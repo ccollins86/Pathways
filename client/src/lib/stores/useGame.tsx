@@ -818,8 +818,16 @@ export const useGame = create<GameState>()(
       set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points })),
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
-    completeFactoryPractice: () =>
-      set({ factoryPracticeCompleted: true, factoryPracticeActive: false, factoryPortalActive: true }),
+    completeFactoryPractice: () => {
+      const { factoryWorldBonusAwarded } = get();
+      const bonus = factoryWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
+        factoryPracticeCompleted: true,
+        factoryPortalActive: true,
+        factoryWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
 
     addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
     incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
@@ -1015,9 +1023,7 @@ export const useGame = create<GameState>()(
       const bonus = s.psychicWorldBonusAwarded ? 0 : 50;
       set({
         psychicPracticeCompleted: true,
-        psychicPracticeActive: false,
         psychicWorldBonusAwarded: true,
-        psychicGamePhase: "lesson",
         totalScore: s.totalScore + bonus,
       });
     },
