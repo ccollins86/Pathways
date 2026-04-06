@@ -2099,9 +2099,62 @@ function App() {
             <PsychicPracticeQuizWrapper />
           </>
         )}
+        {/* TEMPORARY: Quick world toggle for dev/testing — remove later */}
+        {phase === "playing" && <TempWorldToggle />}
       </KeyboardControls>
     </div>
   );
 }
 
+function TempWorldToggle() {
+  const currentWorld = useGame((s) => s.currentWorld);
+  const set = useGame.setState;
+  const worlds: { key: "town" | "ocean" | "factory" | "psychic"; label: string; color: string }[] = [
+    { key: "town", label: "Town", color: "#4fc3f7" },
+    { key: "ocean", label: "Ocean", color: "#69f0ae" },
+    { key: "factory", label: "Factory", color: "#ff9800" },
+    { key: "psychic", label: "Psychic", color: "#9b59b6" },
+  ];
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 16,
+        left: 16,
+        zIndex: 300,
+        display: "flex",
+        gap: 6,
+        background: "rgba(0,0,0,0.7)",
+        borderRadius: 8,
+        padding: "6px 10px",
+        border: "1px solid rgba(255,255,255,0.15)",
+      }}
+    >
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", alignSelf: "center", marginRight: 4, textTransform: "uppercase", letterSpacing: 1 }}>
+        TEMP
+      </div>
+      {worlds.map((w) => (
+        <div
+          key={w.key}
+          onClick={() => set({ currentWorld: w.key })}
+          style={{
+            padding: "4px 10px",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: "pointer",
+            fontFamily: "'Inter', sans-serif",
+            background: currentWorld === w.key ? w.color : "rgba(255,255,255,0.08)",
+            color: currentWorld === w.key ? "#111" : "rgba(255,255,255,0.6)",
+            transition: "all 0.15s",
+          }}
+        >
+          {w.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default App;
+
