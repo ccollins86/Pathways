@@ -1,5 +1,1 @@
-export const ADMIN_USERNAMES: string[] = [
-  "admin",
-  "teacher",
-  "dev",
-];
+export const ADMIN_USERNAMES: string[] = ["admin", "nestor"];
