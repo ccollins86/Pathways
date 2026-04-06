@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { useQuestionPrefetch } from "./useQuestionPrefetch";
+import { TOWN_QUESTIONS, TOWN_LESSON_QUESTIONS } from "../../components/game/townQuestions";
+import { FACTORY_QUESTIONS } from "../../components/game/factoryQuestions";
+import { OCEAN_QUESTIONS } from "../../components/game/oceanQuestions";
+import { PSYCHIC_QUESTIONS } from "../../components/game/psychicQuestions";
 
 export type GamePhase = "ready" | "playing" | "ended";
 export type GameWorld = "town" | "ocean" | "factory" | "psychic";
@@ -387,6 +392,9 @@ export const useGame = create<GameState>()(
     start: () => {
       set((state) => {
         if (state.phase === "ready") {
+          const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+          prefetch("town", TOWN_QUESTIONS);
+          prefetch("town-lesson", TOWN_LESSON_QUESTIONS);
           return { phase: "playing" };
         }
         return {};
@@ -615,6 +623,8 @@ export const useGame = create<GameState>()(
       }));
     },
     enterPortal: () => {
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      prefetch("ocean", OCEAN_QUESTIONS);
       set({
         currentWorld: "ocean" as GameWorld,
         phase: "playing" as GamePhase,
@@ -695,6 +705,8 @@ export const useGame = create<GameState>()(
     },
 
     enterFactoryPortal: () => {
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      prefetch("factory", FACTORY_QUESTIONS);
       set({
         currentWorld: "factory" as GameWorld,
         phase: "playing" as GamePhase,
@@ -816,6 +828,8 @@ export const useGame = create<GameState>()(
       set({ factoryPracticeCompleted: true, factoryPracticeActive: false, factoryPortalActive: true }),
 
     enterPsychicPortal: () => {
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      prefetch("psychic", PSYCHIC_QUESTIONS);
       set({
         currentWorld: "psychic" as GameWorld,
         phase: "playing" as GamePhase,

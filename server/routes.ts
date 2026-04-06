@@ -2,6 +2,26 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import path from "path";
+import { generateQuestions } from "./questionGenerator";
+
+const VALID_WORLD_IDS = ["town", "town-lesson", "factory", "ocean", "psychic"];
+const MAX_QUESTION_COUNT = 12;
+const MIN_QUESTION_COUNT = 1;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 10;
+
+const rateLimitMap = new Map<number, { count: number; resetAt: number }>();
+
+function isRateLimited(userId: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX_REQUESTS;
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -17,6 +37,33 @@ export async function registerRoutes(
   app.get("/api/download-full-project", (_req, res) => {
     const zipPath = path.resolve("client/public/full-project.zip");
     res.download(zipPath, "disaster-prep-quest.zip");
+  });
+
+  app.post("/api/generate-questions", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      if (isRateLimited(req.session.userId)) {
+        return res.status(429).json({ error: "Too many requests" });
+      }
+      const { worldId, count } = req.body;
+      if (!worldId || typeof worldId !== "string") {
+        return res.status(400).json({ error: "worldId is required" });
+      }
+      if (!VALID_WORLD_IDS.includes(worldId)) {
+        return res.status(400).json({ error: "Invalid worldId" });
+      }
+      const clampedCount = Math.max(
+        MIN_QUESTION_COUNT,
+        Math.min(MAX_QUESTION_COUNT, typeof count === "number" ? Math.floor(count) : 8)
+      );
+      const questions = await generateQuestions(worldId, clampedCount);
+      res.json({ questions });
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      res.status(500).json({ error: "Failed to generate questions" });
+    }
   });
 
   return httpServer;
