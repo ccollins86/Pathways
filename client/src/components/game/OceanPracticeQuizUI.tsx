@@ -25,7 +25,8 @@ export function OceanPracticeQuizUI() {
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
   const oceanWorldBonusAwarded = useGame((s) => s.oceanWorldBonusAwarded);
 
-  const questions = useQuestionPrefetch((s) => s.getQuestions("ocean", OCEAN_QUESTIONS));
+  const prefetched = useQuestionPrefetch((s) => s.questions["ocean"]);
+  const questions = prefetched && prefetched.length > 0 ? prefetched : OCEAN_QUESTIONS;
 
   return (
     <PracticeQuizBase

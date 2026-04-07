@@ -33,9 +33,8 @@ export function PsychicPracticeQuizUI() {
   const totalScore = useGame((s) => s.totalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
   const psychicWorldBonusAwarded = useGame((s) => s.psychicWorldBonusAwarded);
-  const questions = useQuestionPrefetch((s) =>
-    s.getQuestions("psychic", PSYCHIC_QUESTIONS),
-  );
+  const prefetched = useQuestionPrefetch((s) => s.questions["psychic"]);
+  const questions = prefetched && prefetched.length > 0 ? prefetched : PSYCHIC_QUESTIONS;
 
   return (
     <PracticeQuizBase

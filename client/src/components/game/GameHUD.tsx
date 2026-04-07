@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
 import { useQuestionPrefetch } from "@/lib/stores/useQuestionPrefetch";
 import { TOWN_LESSON_QUESTIONS } from "./townQuestions";
@@ -41,7 +41,8 @@ export function GameHUD() {
   const addTotalScore = useGame((s) => s.addTotalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
-  const lessonQuestions = useQuestionPrefetch((s) => s.getQuestions("town-lesson", TOWN_LESSON_QUESTIONS));
+  const prefetchedLesson = useQuestionPrefetch((s) => s.questions["town-lesson"]);
+  const lessonQuestions = prefetchedLesson && prefetchedLesson.length > 0 ? prefetchedLesson : TOWN_LESSON_QUESTIONS;
 
   const [showLesson, setShowLesson] = useState(false);
   const [lessonQuizActive, setLessonQuizActive] = useState(false);
@@ -59,6 +60,9 @@ export function GameHUD() {
   const lessonPopupIdRef = useRef(0);
   const lessonBonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
+  const lessonQuestionsRef = useRef(lessonQuestions);
+  lessonQuestionsRef.current = lessonQuestions;
+  const [lockedLessonQ, setLockedLessonQ] = useState(lessonQuestions[0]);
 
   useEffect(() => {
     successSoundRef.current = new Audio("/sounds/success.mp3");
@@ -74,7 +78,7 @@ export function GameHUD() {
 
   const handleLessonQuizAnswer = useCallback((index: number) => {
     if (lessonQuizCorrect) return;
-    const q = lessonQuestions[lessonQuizQ];
+    const q = lockedLessonQ;
     setLessonQuizSelected(index);
     if (index === q.correctIndex) {
       setLessonQuizCorrect(true);
@@ -97,7 +101,7 @@ export function GameHUD() {
       setLessonQuizHadWrong(true);
       setTimeout(() => setLessonQuizSelected(null), 800);
     }
-  }, [lessonQuizCorrect, lessonQuizQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup, lessonQuestions]);
+  }, [lessonQuizCorrect, lockedLessonQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
 
   const handleLessonQuizNext = useCallback(() => {
     if (lessonBonusTimerRef.current) {
@@ -105,18 +109,20 @@ export function GameHUD() {
       lessonBonusTimerRef.current = null;
     }
     setLessonQuizPopups([]);
-    if (lessonQuizQ >= lessonQuestions.length - 1) {
+    if (lessonQuizQ >= lessonQuestionsRef.current.length - 1) {
       setLessonQuizDone(true);
       setLessonQuizActive(false);
     } else {
-      setLessonQuizQ((q) => q + 1);
+      const nextIndex = lessonQuizQ + 1;
+      setLessonQuizQ(nextIndex);
+      setLockedLessonQ(lessonQuestionsRef.current[nextIndex]);
       setLessonQuizSelected(null);
       setLessonQuizCorrect(false);
       setLessonQuizWrong(false);
       setLessonQuizHint(false);
       setLessonQuizHadWrong(false);
     }
-  }, [lessonQuizQ, lessonQuestions]);
+  }, [lessonQuizQ]);
 
   if (activeDialogue) return null;
 
@@ -300,7 +306,7 @@ export function GameHUD() {
             <div
               onClick={viewingLessonFromQuiz
                 ? () => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }
-                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
+                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLockedLessonQ(lessonQuestionsRef.current[0]); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
               }
               style={{
                 padding: "12px 32px",
@@ -321,7 +327,7 @@ export function GameHUD() {
 
       {/* Lesson quiz */}
       {questCompleted && lessonQuizActive && !viewingLessonFromQuiz && (() => {
-        const q = lessonQuestions[lessonQuizQ];
+        const q = lockedLessonQ;
         return (
           <div
             style={{

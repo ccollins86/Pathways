@@ -25,7 +25,8 @@ export function PracticeQuizUI() {
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
   const townWorldBonusAwarded = useGame((s) => s.townWorldBonusAwarded);
 
-  const questions = useQuestionPrefetch((s) => s.getQuestions("town", TOWN_QUESTIONS));
+  const prefetched = useQuestionPrefetch((s) => s.questions["town"]);
+  const questions = prefetched && prefetched.length > 0 ? prefetched : TOWN_QUESTIONS;
 
   return (
     <PracticeQuizBase

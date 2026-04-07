@@ -25,7 +25,8 @@ export function FactoryPracticeQuizUI() {
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
   const factoryWorldBonusAwarded = useGame((s) => s.factoryWorldBonusAwarded);
 
-  const questions = useQuestionPrefetch((s) => s.getQuestions("factory", FACTORY_QUESTIONS));
+  const prefetched = useQuestionPrefetch((s) => s.questions["factory"]);
+  const questions = prefetched && prefetched.length > 0 ? prefetched : FACTORY_QUESTIONS;
 
   return (
     <PracticeQuizBase
