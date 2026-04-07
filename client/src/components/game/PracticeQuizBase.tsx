@@ -138,7 +138,17 @@ export function PracticeQuizBase({
     setTimeout(() => setShowConfetti(false), 1200);
   }, [theme.confettiColors]);
 
-  const question = questions[currentQ];
+  const questionsRef = useRef(questions);
+  questionsRef.current = questions;
+
+  const [lockedQuestion, setLockedQuestion] = useState<Question | null>(questions[0] ?? null);
+
+  useEffect(() => {
+    setLockedQuestion(questionsRef.current[0] ?? null);
+  }, []);
+
+  const question = lockedQuestion ?? questions[currentQ] ?? questions[0];
+  if (!question) return null;
   const isLastQuestion = currentQ >= questions.length - 1;
 
   const handleAnswer = (index: number) => {
@@ -183,7 +193,9 @@ export function PracticeQuizBase({
       bonusTimerRef.current = null;
     }
     setScorePopups([]);
-    setCurrentQ((q) => q + 1);
+    const nextIndex = currentQ + 1;
+    setCurrentQ(nextIndex);
+    setLockedQuestion(questionsRef.current[nextIndex]);
     setSelectedAnswer(null);
     setAnsweredCorrectly(false);
     setWrongAttempt(false);

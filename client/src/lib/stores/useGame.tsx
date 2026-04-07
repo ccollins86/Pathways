@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { useQuestionPrefetch } from "./useQuestionPrefetch";
+import { TOWN_QUESTIONS, TOWN_LESSON_QUESTIONS } from "../../components/game/townQuestions";
+import { FACTORY_QUESTIONS } from "../../components/game/factoryQuestions";
+import { OCEAN_QUESTIONS } from "../../components/game/oceanQuestions";
+import { PSYCHIC_QUESTIONS } from "../../components/game/psychicQuestions";
 
 export type GamePhase = "ready" | "playing" | "ended";
 export type GameWorld = "town" | "ocean" | "factory" | "psychic";
@@ -183,8 +188,6 @@ interface GameState {
 
   totalScore: number;
   firstTryCount: number;
-  addTotalScore: (points: number) => void;
-  incrementFirstTry: () => void;
   townQuestBonusAwarded: boolean;
   oceanQuestBonusAwarded: boolean;
   factoryQuestBonusAwarded: boolean;
@@ -221,6 +224,8 @@ interface GameState {
   closePractice: () => void;
   addPracticeScore: (points: number) => void;
   resetPracticeScore: () => void;
+  addTotalScore: (points: number) => void;
+  incrementFirstTry: () => void;
   completePractice: () => void;
   enterPortal: () => void;
   openWorld2Dialogue: (lines: { speaker: string; text: string }[]) => void;
@@ -393,6 +398,9 @@ export const useGame = create<GameState>()(
     start: () => {
       set((state) => {
         if (state.phase === "ready") {
+          const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+          prefetch("town", TOWN_QUESTIONS);
+          prefetch("town-lesson", TOWN_LESSON_QUESTIONS);
           return { phase: "playing" };
         }
         return {};
@@ -610,6 +618,8 @@ export const useGame = create<GameState>()(
     closePractice: () => set({ practiceActive: false }),
     addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points })),
     resetPracticeScore: () => set({ practiceScore: 0 }),
+    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
+    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
     completePractice: () => {
       const { questCompleted, townWorldBonusAwarded } = get();
       const bonus = townWorldBonusAwarded ? 0 : 50;
@@ -621,6 +631,8 @@ export const useGame = create<GameState>()(
       }));
     },
     enterPortal: () => {
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      prefetch("ocean", OCEAN_QUESTIONS);
       set({
         currentWorld: "ocean" as GameWorld,
         phase: "playing" as GamePhase,
@@ -701,6 +713,8 @@ export const useGame = create<GameState>()(
     },
 
     enterFactoryPortal: () => {
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      prefetch("factory", FACTORY_QUESTIONS);
       set({
         currentWorld: "factory" as GameWorld,
         phase: "playing" as GamePhase,
@@ -829,10 +843,9 @@ export const useGame = create<GameState>()(
       }));
     },
 
-    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
-    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
-
     enterPsychicPortal: () => {
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      prefetch("psychic", PSYCHIC_QUESTIONS);
       set({
         currentWorld: "psychic" as GameWorld,
         phase: "playing" as GamePhase,

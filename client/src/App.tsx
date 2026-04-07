@@ -13,6 +13,7 @@ import { MachineSettingsUI } from "./components/game/MachineSettingsUI";
 import { FactoryPracticeQuizUI } from "./components/game/FactoryPracticeQuizUI";
 import { PsychicPracticeQuizUI } from "./components/game/PsychicPracticeQuizUI";
 import { AuthScreen } from "./components/AuthScreen";
+import { AdminPanel } from "./components/AdminPanel";
 import { PsychicWorld } from "./components/game/PsychicWorld";
 import { ScoreHUD } from "./components/game/ScoreHUD";
 import { useGame } from "./lib/stores/useGame";
@@ -2037,6 +2038,7 @@ function App() {
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
       {phase === "playing" && <ScoreHUD />}
+      {phase === "playing" && <AdminPanel username={user.username} />}
 
       <KeyboardControls map={keyMap}>
         <Canvas

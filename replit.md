@@ -31,6 +31,16 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 3. **Factory Order Fulfillment (World 3 - Factory):** Operate machines to fulfill a manufacturing order, learning about functions. Followed by a functions practice quiz.
 4. **Search Algorithm Game (World 4 - Psychic Shop):** Engage in a guessing game across three rounds (random, linear, binary search) to learn about algorithm efficiency. Concludes with a lesson and 8-question practice quiz on binary search using PracticeQuizBase (same layout/scoring as other worlds, purple theme). Lesson UI shows "Test Your Understanding" button; quiz replaces the lesson UI while active. After quiz completion, lesson returns with "Back to Town" button.
 
+## LLM-Generated Quiz Questions
+The game dynamically generates quiz questions using OpenAI (via Replit AI Integrations) with hardcoded fallback.
+
+**Architecture:**
+- **Server:** `server/questionGenerator.ts` generates questions via OpenAI `gpt-5-mini` model with world-specific prompts. Endpoint at `POST /api/generate-questions` accepts `worldId` and `count`.
+- **Client Store:** `client/src/lib/stores/useQuestionPrefetch.ts` (Zustand) manages prefetched questions per world/quiz-type. Validates each question (distinct options, proper schema) and replaces invalid ones with random hardcoded fallbacks.
+- **Prefetch Triggers:** Questions are prefetched on world entry (Town on game start, Ocean/Factory/Psychic via portal actions in `useGame.tsx`).
+- **Hardcoded Questions:** Extracted to separate files (`townQuestions.ts`, `factoryQuestions.ts`, `oceanQuestions.ts`, `psychicQuestions.ts`) and serve as fallback when LLM generation hasn't completed or fails.
+- **Quiz Components:** `PracticeQuizUI`, `FactoryPracticeQuizUI`, `OceanPracticeQuizUI`, `PsychicPracticeQuizUI`, and GameHUD lesson quiz all read from the prefetch store, falling back to hardcoded arrays seamlessly.
+
 ## External Dependencies
 - **React:** Frontend library.
 - **TypeScript:** For type-safe JavaScript.
@@ -42,3 +52,4 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 - **Bcrypt:** Password hashing library.
 - **Express-session:** Middleware for managing user sessions.
 - **Connect-pg-simple:** PostgreSQL session store for express-session.
+- **OpenAI SDK:** (via Replit AI Integrations) for LLM-generated quiz questions.

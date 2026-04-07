@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
+import { useQuestionPrefetch } from "@/lib/stores/useQuestionPrefetch";
+import { TOWN_LESSON_QUESTIONS } from "./townQuestions";
 
 const ITEM_LABELS: Record<string, string> = {
   sandbag: "Sandbag",
@@ -10,65 +12,6 @@ const ITEM_LABELS: Record<string, string> = {
   wrench: "Wrench",
 };
 
-interface LessonQuestion {
-  code: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  hint: string;
-}
-
-const LESSON_QUESTIONS: LessonQuestion[] = [
-  {
-    code: `let disaster = "wildfire";
-
-if (disaster === "hurricane") {
-  sandBagDoors();
-} else if (disaster === "wildfire") {
-  sprayRetardant();
-} else if (disaster === "earthquake") {
-  strapFurniture();
-}`,
-    question: "Which function gets called?",
-    options: ["sandBagDoors()", "sprayRetardant()", "strapFurniture()", "All three"],
-    correctIndex: 1,
-    explanation: 'Since disaster is "wildfire", only the matching else-if branch runs. The hurricane and earthquake branches are skipped entirely.',
-    hint: "Look at the value of disaster and find the condition that matches it.",
-  },
-  {
-    code: `let disaster = "earthquake";
-
-if (disaster === "hurricane") {
-  prepareType = "board windows";
-} else if (disaster === "wildfire") {
-  prepareType = "clear brush";
-} else {
-  prepareType = "secure items";
-}`,
-    question: "What is prepareType set to?",
-    options: ['"board windows"', '"clear brush"', '"secure items"', "Nothing — it's undefined"],
-    correctIndex: 2,
-    explanation: '"earthquake" doesn\'t match "hurricane" or "wildfire", so neither if nor else-if is true. The else block catches everything else, setting prepareType to "secure items".',
-    hint: "When none of the if/else-if conditions are true, which block runs?",
-  },
-  {
-    code: `let danger = "flood";
-
-if (danger === "flood") {
-  action = "evacuate";
-} else if (danger === "flood") {
-  action = "sandBag";
-} else {
-  action = "stay";
-}`,
-    question: 'There are two conditions checking for "flood". What is action?',
-    options: ['"evacuate"', '"sandBag"', '"stay"', '"evacuate" and "sandBag"'],
-    correctIndex: 0,
-    explanation: 'Even though both conditions check for "flood", only the FIRST matching branch runs. Once "evacuate" is assigned, all remaining branches are skipped.',
-    hint: "When multiple conditions could match, think about which one the computer checks first.",
-  },
-];
 
 const IS_DEV = import.meta.env.DEV;
 
@@ -98,6 +41,9 @@ export function GameHUD() {
   const addTotalScore = useGame((s) => s.addTotalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
+  const prefetchedLesson = useQuestionPrefetch((s) => s.questions["town-lesson"]);
+  const lessonQuestions = prefetchedLesson && prefetchedLesson.length > 0 ? prefetchedLesson : TOWN_LESSON_QUESTIONS;
+
   const [showLesson, setShowLesson] = useState(false);
   const [lessonQuizActive, setLessonQuizActive] = useState(false);
   const [lessonQuizQ, setLessonQuizQ] = useState(0);
@@ -114,6 +60,9 @@ export function GameHUD() {
   const lessonPopupIdRef = useRef(0);
   const lessonBonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
+  const lessonQuestionsRef = useRef(lessonQuestions);
+  lessonQuestionsRef.current = lessonQuestions;
+  const [lockedLessonQ, setLockedLessonQ] = useState(lessonQuestions[0]);
 
   useEffect(() => {
     successSoundRef.current = new Audio("/sounds/success.mp3");
@@ -129,7 +78,7 @@ export function GameHUD() {
 
   const handleLessonQuizAnswer = useCallback((index: number) => {
     if (lessonQuizCorrect) return;
-    const q = LESSON_QUESTIONS[lessonQuizQ];
+    const q = lockedLessonQ;
     setLessonQuizSelected(index);
     if (index === q.correctIndex) {
       setLessonQuizCorrect(true);
@@ -152,7 +101,7 @@ export function GameHUD() {
       setLessonQuizHadWrong(true);
       setTimeout(() => setLessonQuizSelected(null), 800);
     }
-  }, [lessonQuizCorrect, lessonQuizQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
+  }, [lessonQuizCorrect, lockedLessonQ, lessonQuizHadWrong, addTotalScore, incrementFirstTry, addLessonPopup]);
 
   const handleLessonQuizNext = useCallback(() => {
     if (lessonBonusTimerRef.current) {
@@ -160,11 +109,13 @@ export function GameHUD() {
       lessonBonusTimerRef.current = null;
     }
     setLessonQuizPopups([]);
-    if (lessonQuizQ >= LESSON_QUESTIONS.length - 1) {
+    if (lessonQuizQ >= lessonQuestionsRef.current.length - 1) {
       setLessonQuizDone(true);
       setLessonQuizActive(false);
     } else {
-      setLessonQuizQ((q) => q + 1);
+      const nextIndex = lessonQuizQ + 1;
+      setLessonQuizQ(nextIndex);
+      setLockedLessonQ(lessonQuestionsRef.current[nextIndex]);
       setLessonQuizSelected(null);
       setLessonQuizCorrect(false);
       setLessonQuizWrong(false);
@@ -355,7 +306,7 @@ export function GameHUD() {
             <div
               onClick={viewingLessonFromQuiz
                 ? () => { setViewingLessonFromQuiz(false); setLessonQuizActive(true); }
-                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
+                : () => { setShowLesson(false); setLessonQuizActive(true); setLessonQuizQ(0); setLockedLessonQ(lessonQuestionsRef.current[0]); setLessonQuizSelected(null); setLessonQuizCorrect(false); setLessonQuizWrong(false); setLessonQuizHint(false); setLessonQuizDone(false); }
               }
               style={{
                 padding: "12px 32px",
@@ -376,7 +327,7 @@ export function GameHUD() {
 
       {/* Lesson quiz */}
       {questCompleted && lessonQuizActive && !viewingLessonFromQuiz && (() => {
-        const q = LESSON_QUESTIONS[lessonQuizQ];
+        const q = lockedLessonQ;
         return (
           <div
             style={{
@@ -402,7 +353,7 @@ export function GameHUD() {
                 Lesson Quiz
               </div>
               <div style={{ fontSize: 13, opacity: 0.6 }}>
-                {lessonQuizQ + 1} / {LESSON_QUESTIONS.length}
+                {lessonQuizQ + 1} / {lessonQuestions.length}
               </div>
             </div>
 
@@ -583,7 +534,7 @@ export function GameHUD() {
                     cursor: "pointer",
                   }}
                 >
-                  {lessonQuizQ >= LESSON_QUESTIONS.length - 1 ? "Finish Quiz" : "Next Question"}
+                  {lessonQuizQ >= lessonQuestions.length - 1 ? "Finish Quiz" : "Next Question"}
                 </div>
               )}
             </div>
