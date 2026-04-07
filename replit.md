@@ -24,6 +24,7 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 - **Programming Lessons:** Integrated lessons on control flow (if/else), loops (for/while), functions, and search algorithms (random, linear, binary search), followed by interactive practice quizzes.
 - **Item Interaction:** Pickupable items, correct/wrong item handling for disaster prep, and machine interaction for manufacturing.
 - **Authentication System:** User registration/login with PostgreSQL, bcrypt for password hashing, and express-session for persistent sessions.
+- **Progress Persistence:** Server-side PostgreSQL storage of player progress at meaningful checkpoints (quest completion, practice quiz completion, world transitions, lesson phase completion). Progress is saved as a JSON blob in `user_progress` table using atomic upserts. Loaded automatically on login. Logout triggers full page reload to prevent cross-user state leakage. Key files: `server/storage.ts`, `server/routes.ts` (GET/POST `/api/progress`), `shared/schema.ts` (`userProgress` table + `progressDataSchema`).
 
 **Core Game Flow:**
 1. **Disaster Prep (World 1 - Town):** Learn about disaster types, gather correct items, and perform prep tasks. Concludes with a lesson and quiz on if/else statements.
@@ -48,7 +49,7 @@ The game dynamically generates quiz questions using OpenAI (via Replit AI Integr
 - **@react-three/drei:** Collection of useful helpers for React Three Fiber.
 - **Zustand:** State management library.
 - **Express:** Backend server framework.
-- **PostgreSQL:** Database for user authentication.
+- **PostgreSQL:** Database for user authentication and progress persistence.
 - **Bcrypt:** Password hashing library.
 - **Express-session:** Middleware for managing user sessions.
 - **Connect-pg-simple:** PostgreSQL session store for express-session.

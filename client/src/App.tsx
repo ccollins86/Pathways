@@ -1987,8 +1987,10 @@ function App() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {}
-    setUser(null);
+    window.location.reload();
   }, []);
+
+  const loadProgress = useGame((s) => s.loadProgress);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -2002,6 +2004,12 @@ function App() {
       })
       .catch(() => setAuthChecked(true));
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadProgress();
+    }
+  }, [user, loadProgress]);
 
   if (!authChecked) {
     return (
