@@ -110,6 +110,21 @@ function processGeneratedQuestion(
   result.push(sanitizeQuestion(q));
 }
 
+function fillWithFallbacks(
+  fallbackQuestions: Question[],
+  usedSignatures: Set<string>,
+  usedFallbackIndices: Set<number>,
+  result: Question[],
+  targetCount: number
+): void {
+  while (result.length < targetCount) {
+    const replacement = getRandomFallback(fallbackQuestions, usedSignatures, usedFallbackIndices);
+    if (!replacement) break;
+    usedSignatures.add(questionSignature(replacement));
+    result.push(replacement);
+  }
+}
+
 function validateAndReplace(
   generated: Question[],
   fallbackQuestions: Question[],
@@ -123,12 +138,7 @@ function validateAndReplace(
     processGeneratedQuestion(q, fallbackQuestions, usedSignatures, usedFallbackIndices, result);
   }
 
-  while (result.length < targetCount) {
-    const replacement = getRandomFallback(fallbackQuestions, usedSignatures, usedFallbackIndices);
-    if (!replacement) break;
-    usedSignatures.add(questionSignature(replacement));
-    result.push(replacement);
-  }
+  fillWithFallbacks(fallbackQuestions, usedSignatures, usedFallbackIndices, result, targetCount);
 
   return result.slice(0, targetCount);
 }
