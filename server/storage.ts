@@ -8,6 +8,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getProgress(userId: number): Promise<UserProgressData | null>;
   saveProgress(userId: number, progress: UserProgressData): Promise<void>;
+  deleteProgress(userId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -39,6 +40,10 @@ export class DatabaseStorage implements IStorage {
         target: userProgress.userId,
         set: { progress, updatedAt: new Date() },
       });
+  }
+
+  async deleteProgress(userId: number): Promise<void> {
+    await db.delete(userProgress).where(eq(userProgress.userId, userId));
   }
 }
 

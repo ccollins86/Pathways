@@ -16,6 +16,7 @@ import { AuthScreen } from "./components/AuthScreen";
 import { AdminPanel } from "./components/AdminPanel";
 import { PsychicWorld } from "./components/game/PsychicWorld";
 import { ScoreHUD } from "./components/game/ScoreHUD";
+import { SettingsMenu } from "./components/game/SettingsMenu";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -1990,6 +1991,13 @@ function App() {
     window.location.reload();
   }, []);
 
+  const handleResetProgress = useCallback(async () => {
+    try {
+      await fetch("/api/progress", { method: "DELETE" });
+    } catch {}
+    window.location.reload();
+  }, []);
+
   const loadProgress = useGame((s) => s.loadProgress);
 
   useEffect(() => {
@@ -2046,6 +2054,7 @@ function App() {
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
       {phase === "playing" && <ScoreHUD />}
+      {phase === "playing" && <SettingsMenu onLogout={handleLogout} onResetProgress={handleResetProgress} />}
       {phase === "playing" && <AdminPanel username={user.username} />}
 
       <KeyboardControls map={keyMap}>

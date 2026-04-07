@@ -81,6 +81,19 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/progress", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      await storage.deleteProgress(req.session.userId);
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting progress:", error);
+      return res.status(500).json({ error: "Failed to delete progress" });
+    }
+  });
+
   app.post("/api/progress", async (req, res) => {
     try {
       if (!req.session?.userId) {
