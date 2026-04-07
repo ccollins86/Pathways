@@ -296,29 +296,46 @@ interface ProgressData {
   totalScore: number;
   firstTryCount: number;
   currentWorld: GameWorld;
+  phase: "ready" | "playing";
+
+  townTalkedToDan: boolean;
+  townTalkedToBob: boolean;
+  townReportedToDan: boolean;
+  townTasksActive: boolean;
   townQuestCompleted: boolean;
   townDisaster: string | null;
   townKnownDisaster: string | null;
+  townPracticeUnlocked: boolean;
   townPracticeCompleted: boolean;
   townPortalActive: boolean;
   townQuestBonusAwarded: boolean;
   townWorldBonusAwarded: boolean;
+
+  oceanQuestStarted: boolean;
   oceanQuestCompleted: boolean;
+  oceanHasDivingSuit: boolean;
+  oceanCleanupQuestStarted: boolean;
   oceanCleanupQuestCompleted: boolean;
   oceanLessonPhase: number;
+  oceanPracticeUnlocked: boolean;
   oceanPracticeCompleted: boolean;
   oceanPortalActive: boolean;
   oceanQuestBonusAwarded: boolean;
   oceanWorldBonusAwarded: boolean;
+
   factoryQuestStarted: boolean;
   factoryOrderComplete: boolean;
   factoryLessonPhase: number;
+  factoryPracticeUnlocked: boolean;
   factoryPracticeCompleted: boolean;
   factoryPortalActive: boolean;
   factoryQuestBonusAwarded: boolean;
   factoryWorldBonusAwarded: boolean;
   factoryStagePointsAwarded: string[];
+
   psychicRound: number;
+  psychicCustomersServed: number;
+  psychicGamePhase: string;
   psychicPracticeCompleted: boolean;
   psychicWorldBonusAwarded: boolean;
 }
@@ -328,62 +345,87 @@ function extractProgress(s: GameState): ProgressData {
     totalScore: s.totalScore,
     firstTryCount: s.firstTryCount,
     currentWorld: s.currentWorld,
+    phase: s.phase === "playing" ? "playing" : "ready",
+
+    townTalkedToDan: s.talkedToDan,
+    townTalkedToBob: s.talkedToBob,
+    townReportedToDan: s.reportedToDan,
+    townTasksActive: s.tasksActive,
     townQuestCompleted: s.questCompleted,
     townDisaster: s.disaster,
     townKnownDisaster: s.knownDisaster,
+    townPracticeUnlocked: s.practiceUnlocked,
     townPracticeCompleted: s.practiceCompleted,
     townPortalActive: s.portalActive,
     townQuestBonusAwarded: s.townQuestBonusAwarded,
     townWorldBonusAwarded: s.townWorldBonusAwarded,
+
+    oceanQuestStarted: s.oceanQuestStarted,
     oceanQuestCompleted: s.oceanQuestCompleted,
+    oceanHasDivingSuit: s.hasDivingSuit,
+    oceanCleanupQuestStarted: s.cleanupQuestStarted,
     oceanCleanupQuestCompleted: s.cleanupQuestCompleted,
     oceanLessonPhase: s.oceanLessonPhase,
+    oceanPracticeUnlocked: s.oceanPracticeUnlocked,
     oceanPracticeCompleted: s.oceanPracticeCompleted,
     oceanPortalActive: s.oceanPortalActive,
     oceanQuestBonusAwarded: s.oceanQuestBonusAwarded,
     oceanWorldBonusAwarded: s.oceanWorldBonusAwarded,
+
     factoryQuestStarted: s.factoryQuestStarted,
     factoryOrderComplete: s.factoryOrderComplete,
     factoryLessonPhase: s.factoryLessonPhase,
+    factoryPracticeUnlocked: s.factoryPracticeUnlocked,
     factoryPracticeCompleted: s.factoryPracticeCompleted,
     factoryPortalActive: s.factoryPortalActive,
     factoryQuestBonusAwarded: s.factoryQuestBonusAwarded,
     factoryWorldBonusAwarded: s.factoryWorldBonusAwarded,
     factoryStagePointsAwarded: Array.from(s.factoryStagePointsAwarded),
+
     psychicRound: s.psychicRound,
+    psychicCustomersServed: s.psychicCustomersServed,
+    psychicGamePhase: s.psychicGamePhase,
     psychicPracticeCompleted: s.psychicPracticeCompleted,
     psychicWorldBonusAwarded: s.psychicWorldBonusAwarded,
   };
 }
 
 function applyProgress(p: ProgressData): Partial<GameState> {
-  return {
+  const updates: Partial<GameState> = {
     totalScore: p.totalScore,
     firstTryCount: p.firstTryCount,
     currentWorld: p.currentWorld,
+    phase: p.phase as GamePhase,
+
+    talkedToDan: p.townTalkedToDan,
+    talkedToBob: p.townTalkedToBob,
+    reportedToDan: p.townReportedToDan,
+    tasksActive: p.townTasksActive,
+    questCompleted: p.townQuestCompleted,
     disaster: p.townDisaster as DisasterType | null,
     knownDisaster: p.townKnownDisaster as DisasterType | null,
-    questCompleted: p.townQuestCompleted,
+    practiceUnlocked: p.townPracticeUnlocked,
     practiceCompleted: p.townPracticeCompleted,
-    practiceUnlocked: p.townPracticeCompleted || p.townQuestCompleted,
     portalActive: p.townPortalActive,
     townQuestBonusAwarded: p.townQuestBonusAwarded,
     townWorldBonusAwarded: p.townWorldBonusAwarded,
-    tasksActive: p.townQuestCompleted,
-    oceanQuestStarted: p.oceanQuestCompleted,
+
+    oceanQuestStarted: p.oceanQuestStarted,
     oceanQuestCompleted: p.oceanQuestCompleted,
-    cleanupQuestStarted: p.oceanCleanupQuestCompleted,
+    hasDivingSuit: p.oceanHasDivingSuit,
+    cleanupQuestStarted: p.oceanCleanupQuestStarted,
     cleanupQuestCompleted: p.oceanCleanupQuestCompleted,
     oceanLessonPhase: p.oceanLessonPhase,
-    oceanPracticeUnlocked: p.oceanPracticeCompleted || p.oceanLessonPhase >= 3,
+    oceanPracticeUnlocked: p.oceanPracticeUnlocked,
     oceanPracticeCompleted: p.oceanPracticeCompleted,
     oceanPortalActive: p.oceanPortalActive,
     oceanQuestBonusAwarded: p.oceanQuestBonusAwarded,
     oceanWorldBonusAwarded: p.oceanWorldBonusAwarded,
-    factoryQuestStarted: p.factoryQuestStarted || p.factoryOrderComplete,
+
+    factoryQuestStarted: p.factoryQuestStarted,
     factoryOrderComplete: p.factoryOrderComplete,
     factoryLessonPhase: p.factoryLessonPhase,
-    factoryPracticeUnlocked: p.factoryPracticeCompleted || p.factoryLessonPhase >= 3,
+    factoryPracticeUnlocked: p.factoryPracticeUnlocked,
     factoryPracticeCompleted: p.factoryPracticeCompleted,
     factoryPortalActive: p.factoryPortalActive,
     factoryQuestBonusAwarded: p.factoryQuestBonusAwarded,
@@ -392,11 +434,22 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     hatMachineState: p.factoryOrderComplete ? "loaded" as const : "idle" as const,
     tshirtMachineState: p.factoryOrderComplete ? "loaded" as const : "idle" as const,
     jacketMachineState: p.factoryOrderComplete ? "loaded" as const : "idle" as const,
+
     psychicRound: p.psychicRound as 1 | 2 | 3,
+    psychicCustomersServed: p.psychicCustomersServed,
+    psychicGamePhase: p.psychicGamePhase as GameState["psychicGamePhase"],
     psychicPracticeCompleted: p.psychicPracticeCompleted,
     psychicWorldBonusAwarded: p.psychicWorldBonusAwarded,
-    psychicGamePhase: p.psychicPracticeCompleted ? "lesson" : "instructions",
   };
+
+  if (p.oceanQuestCompleted) {
+    updates.ecosystems = generateEcosystems().map((e) => ({ ...e, surveyed: true }));
+  }
+  if (p.oceanCleanupQuestCompleted) {
+    updates.sludgePatches = generateSludgePatches().map((sp) => ({ ...sp, cleaned: true }));
+  }
+
+  return updates;
 }
 
 const DISASTERS: DisasterType[] = ["hurricane", "wildfire", "earthquake"];
@@ -1145,7 +1198,10 @@ export const useGame = create<GameState>()(
       });
     },
 
-    psychicStartLesson: () => set({ psychicGamePhase: "lesson" }),
+    psychicStartLesson: () => {
+      set({ psychicGamePhase: "lesson" });
+      setTimeout(() => get().saveProgress(), 0);
+    },
 
     openPsychicPractice: () =>
       set({ psychicPracticeActive: true, psychicPracticeScore: 0, psychicGamePhase: "practice" }),
@@ -1188,8 +1244,8 @@ export const useGame = create<GameState>()(
         const res = await fetch("/api/progress");
         if (!res.ok) return;
         const data = await res.json();
-        if (data.progress) {
-          const updates = applyProgress(data.progress);
+        if (data.progress && typeof data.progress === "object" && "phase" in data.progress) {
+          const updates = applyProgress(data.progress as ProgressData);
           set(updates);
         }
       } catch (err) {
