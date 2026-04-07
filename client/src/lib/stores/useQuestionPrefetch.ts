@@ -46,6 +46,12 @@ function questionSignature(q: Question): string {
   return q.question.trim().toLowerCase();
 }
 
+function cryptoRandomIndex(length: number): number {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] % length;
+}
+
 function getRandomFallback(
   fallbackQuestions: Question[],
   usedSignatures: Set<string>,
@@ -58,7 +64,7 @@ function getRandomFallback(
     }
   }
   if (available.length === 0) return null;
-  const idx = available[Math.floor(Math.random() * available.length)];
+  const idx = available[cryptoRandomIndex(available.length)];
   usedFallbackIndices.add(idx);
   return fallbackQuestions[idx];
 }
