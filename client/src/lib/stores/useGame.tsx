@@ -173,7 +173,7 @@ interface GameState {
   psychicCustomer: { name: string; color: string; favoriteNumber: number } | null;
   psychicGuesses: { guess: number; result: "high" | "low" | "correct" }[];
   psychicGuessesRemaining: number;
-  psychicGamePhase: "instructions" | "waiting" | "entering" | "guessing" | "won" | "lost" | "round_win" | "round_lose" | "transition" | "lesson";
+  psychicGamePhase: "instructions" | "waiting" | "entering" | "guessing" | "won" | "lost" | "round_win" | "round_lose" | "transition" | "lesson" | "practice";
   psychicCustomersServed: number;
   psychicRound: 1 | 2 | 3;
   psychicSequentialStart: number | null;
@@ -184,9 +184,12 @@ interface GameState {
   psychicPracticeActive: boolean;
   psychicPracticeScore: number;
   psychicPracticeCompleted: boolean;
+  psychicWorldBonusAwarded: boolean;
 
   totalScore: number;
   firstTryCount: number;
+  addTotalScore: (points: number) => void;
+  incrementFirstTry: () => void;
   townQuestBonusAwarded: boolean;
   oceanQuestBonusAwarded: boolean;
   factoryQuestBonusAwarded: boolean;
@@ -282,7 +285,9 @@ interface GameState {
   psychicRetryRound: () => void;
   psychicStartLesson: () => void;
   openPsychicPractice: () => void;
+  closePsychicPractice: () => void;
   addPsychicPracticeScore: (points: number) => void;
+  resetPsychicPracticeScore: () => void;
   completePsychicPractice: () => void;
 }
 
@@ -380,6 +385,7 @@ export const useGame = create<GameState>()(
     psychicPracticeActive: false,
     psychicPracticeScore: 0,
     psychicPracticeCompleted: false,
+    psychicWorldBonusAwarded: false,
 
     totalScore: 0,
     firstTryCount: 0,
@@ -828,8 +834,19 @@ export const useGame = create<GameState>()(
       set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points })),
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
-    completeFactoryPractice: () =>
-      set({ factoryPracticeCompleted: true, factoryPracticeActive: false, factoryPortalActive: true }),
+    completeFactoryPractice: () => {
+      const { factoryWorldBonusAwarded } = get();
+      const bonus = factoryWorldBonusAwarded ? 0 : 50;
+      set((state) => ({
+        factoryPracticeCompleted: true,
+        factoryPortalActive: true,
+        factoryWorldBonusAwarded: true,
+        totalScore: state.totalScore + bonus,
+      }));
+    },
+
+    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
+    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
 
     enterPsychicPortal: () => {
       const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
@@ -1012,11 +1029,22 @@ export const useGame = create<GameState>()(
     psychicStartLesson: () => set({ psychicGamePhase: "lesson" }),
 
     openPsychicPractice: () =>
-      set({ psychicPracticeActive: true, psychicPracticeScore: 0 }),
+      set({ psychicPracticeActive: true, psychicPracticeScore: 0, psychicGamePhase: "practice" }),
+    closePsychicPractice: () =>
+      set({ psychicPracticeActive: false, psychicGamePhase: "lesson" }),
     addPsychicPracticeScore: (points) =>
-      set((s) => ({ psychicPracticeScore: s.psychicPracticeScore + points })),
-    completePsychicPractice: () =>
-      set({ psychicPracticeCompleted: true, psychicPracticeActive: false }),
+      set((s) => ({ psychicPracticeScore: s.psychicPracticeScore + points, totalScore: s.totalScore + points })),
+    resetPsychicPracticeScore: () =>
+      set({ psychicPracticeScore: 0 }),
+    completePsychicPractice: () => {
+      const s = get();
+      const bonus = s.psychicWorldBonusAwarded ? 0 : 50;
+      set({
+        psychicPracticeCompleted: true,
+        psychicWorldBonusAwarded: true,
+        totalScore: s.totalScore + bonus,
+      });
+    },
 
     checkQuestCompletion: () => {
       const { knownDisaster, hurricaneTasks, wildfireTasks, earthquakeTasks, questFailed } = get();

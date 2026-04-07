@@ -1638,7 +1638,7 @@ function PsychicLessonUI() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-        {!psychicPracticeCompleted && (
+        {!psychicPracticeCompleted ? (
           <div
             onClick={openPsychicPractice}
             style={{
@@ -1654,26 +1654,27 @@ function PsychicLessonUI() {
               letterSpacing: 1,
             }}
           >
-            Practice
+            Test Your Understanding
+          </div>
+        ) : (
+          <div
+            onClick={restart}
+            style={{
+              padding: "12px 32px",
+              background: "#69f0ae",
+              border: "none",
+              borderRadius: 8,
+              color: "#1a1a1a",
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: "pointer",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Back to Town
           </div>
         )}
-        <div
-          onClick={restart}
-          style={{
-            padding: "12px 32px",
-            background: "#69f0ae",
-            border: "none",
-            borderRadius: 8,
-            color: "#1a1a1a",
-            fontSize: 16,
-            fontWeight: 700,
-            cursor: "pointer",
-            textTransform: "uppercase",
-            letterSpacing: 1,
-          }}
-        >
-          Back to Town
-        </div>
       </div>
     </div>
   );
@@ -1894,7 +1895,7 @@ function PsychicHUD() {
   const psychicRound = useGame((s) => s.psychicRound);
   const restart = useGame((s) => s.restart);
 
-  if (psychicGamePhase === "instructions" || psychicGamePhase === "transition" || psychicGamePhase === "round_win" || psychicGamePhase === "round_lose" || psychicGamePhase === "lesson") return null;
+  if (psychicGamePhase === "instructions" || psychicGamePhase === "transition" || psychicGamePhase === "round_win" || psychicGamePhase === "round_lose" || psychicGamePhase === "lesson" || psychicGamePhase === "practice") return null;
 
   const roundLabel = psychicRound === 1 ? "Round 1: Random" : psychicRound === 2 ? "Round 2: Sequential" : "Round 3: Binary Search";
   const winTarget = psychicRound === 3 ? 300 : 200;
@@ -2106,3 +2107,4 @@ function App() {
 }
 
 export default App;
+

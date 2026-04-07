@@ -12,7 +12,7 @@ let guess = Math.floor((min + max) / 2); // guess = ?`,
     correctIndex: 2,
     explanation:
       "Binary search always starts with the middle of the range. Math.floor((1 + 100) / 2) = Math.floor(50.5) = 50. Starting in the middle eliminates half the possibilities with every guess!",
-    hint: "Binary search starts in the middle to eliminate half the possibilities.",
+    hint: "Binary search always starts in the middle. What's the midpoint of 1 and 100?",
   },
   {
     id: 2,
@@ -25,7 +25,7 @@ let guess = Math.floor((min + max) / 2); // guess = ?`,
     correctIndex: 1,
     explanation:
       "Since 50 was too low, the target must be between 51 and 100. The new guess is Math.floor((51 + 100) / 2) = Math.floor(75.5) = 75. We just eliminated half the remaining numbers!",
-    hint: "Calculate the midpoint of the new range after eliminating the lower half.",
+    hint: "When the guess is too low, we update the minimum. Then find the new midpoint between the updated min and max.",
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ let guess = Math.floor((min + max) / 2); // guess = ?`,
     correctIndex: 2,
     explanation:
       "Since 50 was too high, the target must be between 1 and 49. The new guess is Math.floor((1 + 49) / 2) = Math.floor(25) = 25. Again, we cut the search space in half!",
-    hint: "Calculate the midpoint of the new range after eliminating the upper half.",
+    hint: "When the guess is too high, we update the maximum. Then find the new midpoint between min and the updated max.",
   },
   {
     id: 4,
@@ -51,7 +51,7 @@ let guess = Math.floor((min + max) / 2); // guess = ?`,
     correctIndex: 0,
     explanation:
       "Binary search cuts the range in half each time: 100 → 50 → 25 → 13 → 7 → 4 → 2 → 1. That's only 7 steps! This is called O(log n) — logarithmic time. Compare that to linear search which could take up to 100 guesses!",
-    hint: "Think about how many times you can divide 100 by 2 before reaching 1.",
+    hint: "Think about how many times you can divide 100 in half before reaching 1. Count the steps.",
   },
   {
     id: 5,
@@ -70,7 +70,7 @@ let guess = Math.floor((min + max) / 2); // guess = ?`,
     correctIndex: 2,
     explanation:
       "When min exceeds max, the while loop ends and the function returns -1, which is the conventional way to indicate 'not found' in search algorithms. The loop condition (min <= max) guarantees we stop when there's nothing left to search.",
-    hint: "Look at what happens after the while loop ends — what value is returned?",
+    hint: "Look at the very last line of the function — what gets returned if the while loop finishes without finding the target?",
   },
   {
     id: 6,
@@ -85,7 +85,7 @@ let guess = Math.floor((min + max) / 2); // guess = ?`,
     correctIndex: 2,
     explanation:
       "Binary search needs at most log₂(1,000,000) ≈ 20 guesses! Each guess halves the search space: 1M → 500K → 250K → ... → 1. That's the power of logarithmic time — even a million items only needs about 20 steps!",
-    hint: "Each guess cuts the search space in half. How many halvings to get from 1,000,000 to 1?",
+    hint: "Each guess cuts the possibilities in half. How many times do you need to halve 1,000,000 to reach 1?",
   },
   {
     id: 7,
@@ -104,7 +104,7 @@ let words = ["banana", "grape", "apple", "cherry"];
     correctIndex: 1,
     explanation:
       "Binary search only works on SORTED data! The numbers array [3, 7, 11, 15, 22, 34, 50, 68, 91] is in order, so binary search works. The words array is NOT sorted alphabetically (apple should come before banana), so binary search would give wrong results.",
-    hint: "What prerequisite does binary search have about the data it searches through?",
+    hint: "Binary search relies on one key property of the data. Look at whether each array's elements are in order.",
   },
   {
     id: 8,
@@ -120,6 +120,6 @@ let words = ["banana", "grape", "apple", "cherry"];
     correctIndex: 2,
     explanation:
       "It took exactly 6 guesses to find 73. Each guess narrowed the range: 100 → 50 → 24 → 12 → 6 → 3 → found! That's way better than random guessing (could take up to 100) or linear search (would take 73 if starting from 1).",
-    hint: "Count the number of steps listed in the trace above.",
+    hint: "Count each step listed in the code. Each 'guess' line is one guess attempt.",
   },
 ];
