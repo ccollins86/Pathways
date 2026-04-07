@@ -63,6 +63,53 @@ function getRandomFallback(
   return fallbackQuestions[idx];
 }
 
+function sanitizeQuestion(q: Question): Question {
+  return {
+    id: q.id,
+    code: q.code,
+    question: q.question,
+    options: q.options.map(String),
+    correctIndex: q.correctIndex,
+    explanation: q.explanation,
+    hint: typeof q.hint === "string" ? q.hint : "Think carefully about the code.",
+  };
+}
+
+function pushFallback(
+  fallbackQuestions: Question[],
+  usedSignatures: Set<string>,
+  usedFallbackIndices: Set<number>,
+  result: Question[]
+): void {
+  const replacement = getRandomFallback(fallbackQuestions, usedSignatures, usedFallbackIndices);
+  if (replacement) {
+    usedSignatures.add(questionSignature(replacement));
+    result.push(replacement);
+  }
+}
+
+function processGeneratedQuestion(
+  q: Question,
+  fallbackQuestions: Question[],
+  usedSignatures: Set<string>,
+  usedFallbackIndices: Set<number>,
+  result: Question[]
+): void {
+  if (!isValidQuestion(q) || !hasDistinctOptions(q)) {
+    pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
+    return;
+  }
+
+  const sig = questionSignature(q);
+  if (usedSignatures.has(sig)) {
+    pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
+    return;
+  }
+
+  usedSignatures.add(sig);
+  result.push(sanitizeQuestion(q));
+}
+
 function validateAndReplace(
   generated: Question[],
   fallbackQuestions: Question[],
@@ -73,34 +120,7 @@ function validateAndReplace(
   const result: Question[] = [];
 
   for (const q of generated) {
-    if (isValidQuestion(q) && hasDistinctOptions(q)) {
-      const sig = questionSignature(q);
-      if (usedSignatures.has(sig)) {
-        const replacement = getRandomFallback(fallbackQuestions, usedSignatures, usedFallbackIndices);
-        if (replacement) {
-          usedSignatures.add(questionSignature(replacement));
-          result.push(replacement);
-        }
-      } else {
-        const validated: Question = {
-          id: q.id,
-          code: q.code,
-          question: q.question,
-          options: q.options.map(String),
-          correctIndex: q.correctIndex,
-          explanation: q.explanation,
-          hint: typeof q.hint === "string" ? q.hint : "Think carefully about the code.",
-        };
-        usedSignatures.add(sig);
-        result.push(validated);
-      }
-    } else {
-      const replacement = getRandomFallback(fallbackQuestions, usedSignatures, usedFallbackIndices);
-      if (replacement) {
-        usedSignatures.add(questionSignature(replacement));
-        result.push(replacement);
-      }
-    }
+    processGeneratedQuestion(q, fallbackQuestions, usedSignatures, usedFallbackIndices, result);
   }
 
   while (result.length < targetCount) {

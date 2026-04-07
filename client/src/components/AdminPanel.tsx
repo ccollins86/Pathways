@@ -18,7 +18,7 @@ const WORLDS: { label: string; world: GameWorld }[] = [
   { label: "Psychic", world: "psychic" },
 ];
 
-export function AdminPanel({ username }: AdminPanelProps) {
+export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
   const [collapsed, setCollapsed] = useState(true);
 
   const isAdmin = ADMIN_USERNAMES.some(

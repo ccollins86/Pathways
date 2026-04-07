@@ -16,55 +16,55 @@ interface GeneratedQuestion {
 }
 
 const WORLD_PROMPTS: Record<string, string> = {
-  town: `Generate JavaScript quiz questions about if/else and else-if conditionals.
+  town: String.raw`Generate JavaScript quiz questions about if/else and else-if conditionals.
 Topics: comparing values with ===, <, >, <=, >=, using if/else if/else chains, understanding which branch executes, the || and && operators in conditions.
 
 Example question format:
 {
   "id": 1,
-  "code": "let weather = \\"rainy\\";\\n\\nif (weather === \\"sunny\\") {\\n  goToBeach();\\n} else if (weather === \\"rainy\\") {\\n  bringUmbrella();\\n} else {\\n  stayHome();\\n}",
+  "code": "let weather = \"rainy\";\n\nif (weather === \"sunny\") {\n  goToBeach();\n} else if (weather === \"rainy\") {\n  bringUmbrella();\n} else {\n  stayHome();\n}",
   "question": "Which function gets called?",
   "options": ["goToBeach()", "bringUmbrella()", "stayHome()", "All three"],
   "correctIndex": 1,
-  "explanation": "Since weather is \\"rainy\\", the else-if condition is true, so bringUmbrella() runs.",
+  "explanation": "Since weather is \"rainy\", the else-if condition is true, so bringUmbrella() runs.",
   "hint": "Look at the value of weather and check which condition matches it exactly."
 }`,
 
-  "town-lesson": `Generate JavaScript quiz questions about if/else conditionals themed around disaster preparedness (hurricanes, wildfires, earthquakes, floods).
+  "town-lesson": String.raw`Generate JavaScript quiz questions about if/else conditionals themed around disaster preparedness (hurricanes, wildfires, earthquakes, floods).
 Topics: if/else if/else chains for choosing disaster responses, comparing disaster severity levels, choosing the right preparation action based on conditions.
 
 Example question format:
 {
   "id": 1,
-  "code": "let disaster = \\"wildfire\\";\\n\\nif (disaster === \\"hurricane\\") {\\n  sandBagDoors();\\n} else if (disaster === \\"wildfire\\") {\\n  sprayRetardant();\\n} else if (disaster === \\"earthquake\\") {\\n  strapFurniture();\\n}",
+  "code": "let disaster = \"wildfire\";\n\nif (disaster === \"hurricane\") {\n  sandBagDoors();\n} else if (disaster === \"wildfire\") {\n  sprayRetardant();\n} else if (disaster === \"earthquake\") {\n  strapFurniture();\n}",
   "question": "Which function gets called?",
   "options": ["sandBagDoors()", "sprayRetardant()", "strapFurniture()", "All three"],
   "correctIndex": 1,
-  "explanation": "Since disaster is \\"wildfire\\", only the matching else-if branch runs.",
+  "explanation": "Since disaster is \"wildfire\", only the matching else-if branch runs.",
   "hint": "Look at the value of disaster and find the condition that matches it."
 }`,
 
-  factory: `Generate JavaScript quiz questions about functions, parameters, arguments, and return values.
+  factory: String.raw`Generate JavaScript quiz questions about functions, parameters, arguments, and return values.
 Topics: identifying parameters vs arguments, understanding return values, function calls, tracing function execution, counting function calls, correct argument ordering.
 
 Example question format:
 {
   "id": 1,
-  "code": "function makeHat(size, topColor, brimColor, lettering) {\\n  // assemble the hat\\n  return finishedHat;\\n}\\n\\nlet myHat = makeHat(\\"large\\", \\"white\\", \\"green\\", \\"Italy\\");",
+  "code": "function makeHat(size, topColor, brimColor, lettering) {\n  // assemble the hat\n  return finishedHat;\n}\n\nlet myHat = makeHat(\"large\", \"white\", \"green\", \"Italy\");",
   "question": "What are the PARAMETERS of the makeHat function?",
-  "options": ["\\"large\\", \\"white\\", \\"green\\", \\"Italy\\"", "size, topColor, brimColor, lettering", "finishedHat", "myHat"],
+  "options": ["\"large\", \"white\", \"green\", \"Italy\"", "size, topColor, brimColor, lettering", "finishedHat", "myHat"],
   "correctIndex": 1,
   "explanation": "Parameters are the variable names in the function definition. The actual values are arguments.",
   "hint": "Look at what's inside the parentheses where the function is defined."
 }`,
 
-  ocean: `Generate JavaScript quiz questions about for loops, while loops, and iteration.
+  ocean: String.raw`Generate JavaScript quiz questions about for loops, while loops, and iteration.
 Topics: for...of loops over arrays, while loop conditions, counting iterations, loop termination, choosing between for and while loops, tracing loop variable values.
 
 Example question format:
 {
   "id": 1,
-  "code": "let fruits = [\\"apple\\", \\"banana\\", \\"cherry\\"];\\n\\nfor (let fruit of fruits) {\\n  console.log(fruit);\\n}",
+  "code": "let fruits = [\"apple\", \"banana\", \"cherry\"];\n\nfor (let fruit of fruits) {\n  console.log(fruit);\n}",
   "question": "How many times does console.log run?",
   "options": ["1 time", "2 times", "3 times", "It runs forever"],
   "correctIndex": 2,
@@ -72,13 +72,13 @@ Example question format:
   "hint": "Count how many items are in the array. The loop runs once for each item."
 }`,
 
-  psychic: `Generate JavaScript quiz questions about binary search and comparison-based searching algorithms.
+  psychic: String.raw`Generate JavaScript quiz questions about binary search and comparison-based searching algorithms.
 Topics: binary search first guess calculation, updating min/max after each guess, worst-case number of guesses (log2), requirement for sorted data, comparing binary search to linear search, tracing binary search steps.
 
 Example question format:
 {
   "id": 1,
-  "code": "// Searching for the number 73 in range 1-100\\n// Using binary search:\\nlet min = 1, max = 100;\\nlet guess = Math.floor((min + max) / 2); // guess = ?",
+  "code": "// Searching for the number 73 in range 1-100\n// Using binary search:\nlet min = 1, max = 100;\nlet guess = Math.floor((min + max) / 2); // guess = ?",
   "question": "What is the first guess when using binary search on the range 1-100?",
   "options": ["1", "25", "50", "100"],
   "correctIndex": 2,
@@ -87,6 +87,104 @@ Example question format:
 }`,
 
 };
+
+function stripMarkdownFences(text: string): string {
+  let cleaned = text.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.slice(7);
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.slice(3);
+  }
+  if (cleaned.endsWith("```")) {
+    cleaned = cleaned.slice(0, -3);
+  }
+  return cleaned.trim();
+}
+
+function repairAndParseJSON(raw: string): unknown {
+  const repaired = raw
+    .replaceAll("\u2018", "'")
+    .replaceAll("\u2019", "'")
+    .replaceAll("\u201C", '"')
+    .replaceAll("\u201D", '"')
+    .replaceAll("\t", String.raw`\t`)
+    .replace(/(?<!\\)\\(?!["\\bfnrtu])/g, "\\\\");
+
+  const arrayStart = repaired.indexOf("[");
+  const arrayEnd = repaired.lastIndexOf("]");
+  const sliced = (arrayStart !== -1 && arrayEnd > arrayStart)
+    ? repaired.slice(arrayStart, arrayEnd + 1)
+    : repaired;
+
+  try {
+    return JSON.parse(sliced);
+  } catch (secondErr) {
+    console.warn("JSON repair pass failed, attempting individual object extraction:", secondErr);
+  }
+
+  const objects: unknown[] = [];
+  const objRegex = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
+  let match;
+  while ((match = objRegex.exec(repaired)) !== null) {
+    try {
+      objects.push(JSON.parse(match[0]));
+    } catch {
+      // skip unparseable individual objects
+    }
+  }
+  if (objects.length > 0) {
+    return objects;
+  }
+  throw new Error("Could not parse LLM response as valid JSON after repair attempts");
+}
+
+function unwrapQuestionArray(parsed: unknown): unknown[] {
+  if (Array.isArray(parsed)) {
+    return parsed;
+  }
+
+  if (parsed && typeof parsed === "object") {
+    const obj = parsed as Record<string, unknown>;
+    if (Array.isArray(obj.questions)) {
+      return obj.questions;
+    }
+    const firstArray = Object.values(obj).find(Array.isArray);
+    if (firstArray) {
+      return firstArray;
+    }
+    throw new Error("Response object contains no question array");
+  }
+
+  throw new TypeError("Response is not an array");
+}
+
+function validateRawQuestions(raw: unknown[]): GeneratedQuestion[] {
+  const questions: GeneratedQuestion[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const q = raw[i] as Record<string, unknown>;
+    if (
+      typeof q.code === "string" &&
+      typeof q.question === "string" &&
+      Array.isArray(q.options) &&
+      q.options.length === 4 &&
+      typeof q.correctIndex === "number" &&
+      q.correctIndex >= 0 &&
+      q.correctIndex <= 3 &&
+      typeof q.explanation === "string"
+    ) {
+      questions.push({
+        id: i + 1,
+        code: q.code,
+        question: q.question,
+        options: (q.options as unknown[]).map(String),
+        correctIndex: q.correctIndex,
+        explanation: q.explanation,
+        hint: typeof q.hint === "string" ? q.hint : "Think carefully about the code.",
+      });
+    }
+  }
+  return questions;
+}
 
 export async function generateQuestions(
   worldId: string,
@@ -121,97 +219,16 @@ Return a JSON object with a "questions" key containing an array of question obje
   });
 
   const content = response.choices[0]?.message?.content || "";
-
-  let cleaned = content.trim();
-  if (cleaned.startsWith("```json")) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith("```")) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith("```")) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  cleaned = cleaned.trim();
+  const cleaned = stripMarkdownFences(content);
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(cleaned);
-  } catch (_firstErr) {
-    let repaired = cleaned
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/\t/g, "\\t")
-      .replace(/(?<!\\)\\(?!["\\\/bfnrtu])/g, "\\\\");
-
-    const arrayStart = repaired.indexOf("[");
-    const arrayEnd = repaired.lastIndexOf("]");
-    if (arrayStart !== -1 && arrayEnd > arrayStart) {
-      repaired = repaired.slice(arrayStart, arrayEnd + 1);
-    }
-
-    try {
-      parsed = JSON.parse(repaired);
-    } catch (_secondErr) {
-      const objects: unknown[] = [];
-      const objRegex = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
-      let match;
-      while ((match = objRegex.exec(repaired)) !== null) {
-        try {
-          objects.push(JSON.parse(match[0]));
-        } catch {
-          // skip unparseable individual objects
-        }
-      }
-      if (objects.length > 0) {
-        parsed = objects;
-      } else {
-        throw new Error("Could not parse LLM response as valid JSON after repair attempts");
-      }
-    }
+  } catch (firstErr) {
+    console.warn("Initial JSON parse failed, attempting repair:", firstErr);
+    parsed = repairAndParseJSON(cleaned);
   }
 
-  if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-    const obj = parsed as Record<string, unknown>;
-    if (Array.isArray(obj.questions)) {
-      parsed = obj.questions;
-    } else {
-      const firstArray = Object.values(obj).find(Array.isArray);
-      if (firstArray) {
-        parsed = firstArray;
-      } else {
-        throw new Error("Response object contains no question array");
-      }
-    }
-  }
-
-  if (!Array.isArray(parsed)) {
-    throw new Error("Response is not an array");
-  }
-
-  const questions: GeneratedQuestion[] = [];
-  for (let i = 0; i < parsed.length; i++) {
-    const q = parsed[i];
-    if (
-      typeof q.code === "string" &&
-      typeof q.question === "string" &&
-      Array.isArray(q.options) &&
-      q.options.length === 4 &&
-      typeof q.correctIndex === "number" &&
-      q.correctIndex >= 0 &&
-      q.correctIndex <= 3 &&
-      typeof q.explanation === "string"
-    ) {
-      questions.push({
-        id: i + 1,
-        code: q.code,
-        question: q.question,
-        options: q.options.map(String),
-        correctIndex: q.correctIndex,
-        explanation: q.explanation,
-        hint: q.hint || "Think carefully about the code.",
-      });
-    }
-  }
-
-  return questions;
+  const rawArray = unwrapQuestionArray(parsed);
+  return validateRawQuestions(rawArray);
 }

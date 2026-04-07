@@ -188,8 +188,6 @@ interface GameState {
 
   totalScore: number;
   firstTryCount: number;
-  addTotalScore: (points: number) => void;
-  incrementFirstTry: () => void;
   townQuestBonusAwarded: boolean;
   oceanQuestBonusAwarded: boolean;
   factoryQuestBonusAwarded: boolean;
@@ -226,8 +224,8 @@ interface GameState {
   closePractice: () => void;
   addPracticeScore: (points: number) => void;
   resetPracticeScore: () => void;
-  incrementFirstTry: () => void;
   addTotalScore: (points: number) => void;
+  incrementFirstTry: () => void;
   completePractice: () => void;
   enterPortal: () => void;
   openWorld2Dialogue: (lines: { speaker: string; text: string }[]) => void;
@@ -844,9 +842,6 @@ export const useGame = create<GameState>()(
         totalScore: state.totalScore + bonus,
       }));
     },
-
-    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
-    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
 
     enterPsychicPortal: () => {
       const prefetch = useQuestionPrefetch.getState().prefetchQuestions;

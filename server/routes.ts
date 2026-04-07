@@ -4,7 +4,7 @@ import { setupAuth } from "./auth";
 import path from "path";
 import { generateQuestions } from "./questionGenerator";
 
-const VALID_WORLD_IDS = ["town", "town-lesson", "factory", "ocean", "psychic"];
+const VALID_WORLD_IDS = new Set(["town", "town-lesson", "factory", "ocean", "psychic"]);
 const MAX_QUESTION_COUNT = 12;
 const MIN_QUESTION_COUNT = 1;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -51,7 +51,7 @@ export async function registerRoutes(
       if (!worldId || typeof worldId !== "string") {
         return res.status(400).json({ error: "worldId is required" });
       }
-      if (!VALID_WORLD_IDS.includes(worldId)) {
+      if (!VALID_WORLD_IDS.has(worldId)) {
         return res.status(400).json({ error: "Invalid worldId" });
       }
       const clampedCount = Math.max(
