@@ -66,8 +66,7 @@ export function ShopUI() {
           background: "linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%)",
           borderRadius: 16,
           padding: "24px 32px",
-          minWidth: 500,
-          maxWidth: 580,
+          width: 560,
           maxHeight: "85vh",
           overflowY: "auto",
           border: `2px solid ${accentColor}40`,
@@ -155,26 +154,25 @@ export function ShopUI() {
               <rect x="18" y="82" width="15" height="8" fill="#555" />
               <rect x="31" y="82" width="15" height="8" fill="#555" />
             </svg>
-            {(equippedShirt || equippedPants) && (
-              <button
-                onClick={unequipAll}
-                style={{
-                  marginTop: 8,
-                  background: "rgba(255,255,255,0.08)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: 6,
-                  padding: "4px 10px",
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: 9,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                }}
-              >
-                Reset Default
-              </button>
-            )}
+            <button
+              onClick={unequipAll}
+              style={{
+                marginTop: 8,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: 6,
+                padding: "4px 10px",
+                color: "rgba(255,255,255,0.5)",
+                fontSize: 9,
+                fontWeight: 600,
+                cursor: (equippedShirt || equippedPants) ? "pointer" : "default",
+                textTransform: "uppercase",
+                letterSpacing: 0.5,
+                visibility: (equippedShirt || equippedPants) ? "visible" : "hidden",
+              }}
+            >
+              Reset Default
+            </button>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, minWidth: 0 }}>
@@ -278,7 +276,7 @@ export function ShopUI() {
                       background: equipped ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.04)",
                       borderRadius: 8,
                       padding: "8px 12px",
-                      border: equipped ? `2px solid ${accentColor}` : "1px solid rgba(255,255,255,0.1)",
+                      border: `2px solid ${equipped ? accentColor : "rgba(255,255,255,0.1)"}`,
                       cursor: equipped ? "default" : "pointer",
                       transition: "background 0.15s",
                     }}
