@@ -32,7 +32,7 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 3. **Factory Order Fulfillment (World 3 - Factory):** Operate machines to fulfill a manufacturing order, learning about functions. Followed by a functions practice quiz.
 4. **Search Algorithm Game (World 4 - Psychic Shop):** Engage in a guessing game across three rounds (random, linear, binary search) to learn about algorithm efficiency. Concludes with a lesson and 8-question practice quiz on binary search using PracticeQuizBase (same layout/scoring as other worlds, purple theme). Lesson UI shows "Test Your Understanding" button; quiz replaces the lesson UI while active. After quiz completion, lesson returns with "Back to Town" button.
 5. **Game Completion:** After finishing all 4 worlds, clicking "Back to Town" uses `returnToTown()` which sets `gameCompleted: true`, moves the player back to the town world, and saves progress. The player keeps their full score and all completion flags. The HUD shows a congratulations message and "Adventure Complete" with all 4 worlds checked off. Players can still explore town freely. Use "Reset Progress" from the settings menu to start over.
-6. **World Toggle (Post-Completion):** After completing all worlds, a "Switch World" option appears in the Settings menu. Players can freely switch between Town, Ocean, Factory, and Psychic worlds. The toggle is gated by `gameCompleted` both in UI (SettingsMenu) and store (`setCurrentWorld` checks `gameCompleted`). World-specific state normalization occurs on switch (e.g., psychic phase reset to "waiting", factory lesson phase cleared, ocean lesson phase capped). Logout, reset, and new user login correctly hide this option since `gameCompleted` resets to false.
+6. **World Toggle (Post-Completion):** After completing all worlds, a "Switch World" option appears in the Settings menu. Players can freely switch between Town, Ocean, Factory, and Psychic worlds. The toggle is gated by `gameCompleted` both in UI (SettingsMenu) and store (`setCurrentWorld` checks `gameCompleted`). World-specific state normalization occurs on switch (e.g., psychic phase reset to "waiting" + practice quiz reset, factory lesson phase cleared, ocean lesson phase capped). Switching to Psychic world resets `psychicPracticeCompleted` so the quiz can be retaken. PsychicLessonUI always shows the quiz button (labeled "Retake Quiz" when previously completed). Logout, reset, and new user login correctly hide this option since `gameCompleted` resets to false.
 
 ## LLM-Generated Quiz Questions
 The game dynamically generates quiz questions using OpenAI (via Replit AI Integrations) with hardcoded fallback.
@@ -56,3 +56,20 @@ The game dynamically generates quiz questions using OpenAI (via Replit AI Integr
 - **Express-session:** Middleware for managing user sessions.
 - **Connect-pg-simple:** PostgreSQL session store for express-session.
 - **OpenAI SDK:** (via Replit AI Integrations) for LLM-generated quiz questions.
+
+## UI Standardization
+
+**Semantic Color System (Lesson/Quiz Popups):**
+- World accent = programming concept being taught: Town `#4fc3f7`, Ocean `#69f0ae`, Factory `#ff9800`, Psychic `#e0b0ff`/`#9b59b6`.
+- Universal yellow `#ffeb3b` = game data values/examples. Never borrow another world's accent for inline text.
+
+**Lesson & Quiz Text Sizes:**
+- Lesson body: 15px | Code blocks: 14px | Quiz question: 15px | Answers: 15px
+- Explanation/hint: 14px | Navigation buttons: 14px | CTA buttons: 16px | Footnotes: 14px
+
+**Quest/Task HUD & Dialogue Standardization:**
+- Dialogue speaker name: 14px | Dialogue body: 16px | "Press E" prompt: 13px
+- HUD "Tasks" toggle label: 12px | Toggle arrow: 11px | Objective text: 15px
+- Task list items: 14px (factory order cards: 12px for dense data) | Task category labels: 12px
+- Controls hint (bottom-right): 13px | "Back to Town" HUD button: 14px
+- CTA action buttons (lesson/quiz): 16px (exempt from nav button sizing)

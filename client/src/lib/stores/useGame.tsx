@@ -1304,6 +1304,7 @@ export const useGame = create<GameState>()(
         updates.psychicGuesses = [];
         updates.psychicGuessesRemaining = 10;
         updates.psychicGuessHint = null;
+        updates.psychicPracticeCompleted = false;
       }
       if (world === "factory") {
         updates.factoryLessonPhase = 0;

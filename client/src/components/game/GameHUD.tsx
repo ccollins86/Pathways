@@ -665,7 +665,7 @@ export function GameHUD() {
       >
         <div
           style={{
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             color: gameCompleted ? "#69f0ae" : questFailed ? "#ef5350" : questCompleted ? "#66bb6a" : "#ffeb3b",
             textTransform: "uppercase",
@@ -675,7 +675,7 @@ export function GameHUD() {
         >
           {gameCompleted ? "Complete" : questFailed ? "Failed" : questCompleted ? "Completed" : "Objective"}
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.5 }}>{objective}</div>
+        <div style={{ fontSize: 15, lineHeight: 1.5 }}>{objective}</div>
       </div>
 
       {/* Carried item indicator */}
@@ -742,7 +742,7 @@ export function GameHUD() {
       >
         <div
           style={{
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             color: "#ffeb3b",
             textTransform: "uppercase",
@@ -757,17 +757,17 @@ export function GameHUD() {
           onClick={() => setTasksOpen(!tasksOpen)}
         >
           <span>{gameCompleted ? "Adventure Complete" : "Quest Progress"}</span>
-          <span style={{ fontSize: 13 }}>{tasksOpen ? "\u25BC" : "\u25B6"}</span>
+          <span style={{ fontSize: 11 }}>{tasksOpen ? "\u25BC" : "\u25B6"}</span>
         </div>
         {tasksOpen && gameCompleted && (
-          <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+          <div style={{ fontSize: 14, lineHeight: 1.8 }}>
             <div style={{ color: "#66bb6a" }}>✓ Town World</div>
             <div style={{ color: "#66bb6a" }}>✓ Ocean World</div>
             <div style={{ color: "#66bb6a" }}>✓ Factory World</div>
             <div style={{ color: "#66bb6a" }}>✓ Psychic World</div>
           </div>
         )}
-        {tasksOpen && !gameCompleted && <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        {tasksOpen && !gameCompleted && <div style={{ fontSize: 14, lineHeight: 1.8 }}>
           <div style={{ color: talkedToDan ? "#66bb6a" : "white" }}>
             {talkedToDan ? "✓" : "○"} Talk to Dan
           </div>
@@ -782,7 +782,7 @@ export function GameHUD() {
             <>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#ff9800",
                   marginTop: 8,
@@ -832,7 +832,7 @@ export function GameHUD() {
             <>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#ff9800",
                   marginTop: 8,
@@ -863,7 +863,7 @@ export function GameHUD() {
             <>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#ff9800",
                   marginTop: 8,
@@ -904,7 +904,7 @@ export function GameHUD() {
           padding: "8px 14px",
           color: "rgba(255,255,255,0.6)",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           zIndex: 50,
         }}
       >

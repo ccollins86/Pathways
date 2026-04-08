@@ -183,7 +183,7 @@ function World2DialogueUI() {
     >
       <div
         style={{
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 700,
           color: "#00bcd4",
           textTransform: "uppercase",
@@ -193,10 +193,10 @@ function World2DialogueUI() {
       >
         {line.speaker}
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div style={{ fontSize: 16, lineHeight: 1.6 }}>{line.text}</div>
       <div
         style={{
-          fontSize: 12,
+          fontSize: 13,
           color: "rgba(255,255,255,0.5)",
           marginTop: 12,
           textAlign: "right",
@@ -282,7 +282,7 @@ function World2HUD() {
             padding: "6px 14px",
             color: "#00bcd4",
             fontFamily: "'Inter', sans-serif",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: 1,
@@ -294,7 +294,7 @@ function World2HUD() {
           }}
         >
           <span>Tasks</span>
-          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+          <span style={{ fontSize: 11 }}>{hudOpen ? "▼" : "▶"}</span>
         </button>
         {hudOpen && (
           <div
@@ -309,11 +309,11 @@ function World2HUD() {
               borderTop: "none",
             }}
           >
-            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 15, lineHeight: 1.5 }}>
               {objectiveText}
             </div>
             {oceanQuestStarted && !oceanQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 13 }}>
+              <div style={{ marginTop: 8, fontSize: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                   <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
                     {hasDivingSuit ? "✓" : "○"}
@@ -332,8 +332,8 @@ function World2HUD() {
               </div>
             )}
             {cleanupQuestStarted && !cleanupQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 13 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
+              <div style={{ marginTop: 8, fontSize: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
                   Chemical Spill Cleanup:
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
@@ -381,7 +381,7 @@ function World2HUD() {
           padding: "8px 14px",
           color: "rgba(255,255,255,0.6)",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           zIndex: 50,
         }}
       >
@@ -399,7 +399,7 @@ function World2HUD() {
           padding: "8px 16px",
           color: "white",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: "pointer",
           zIndex: 50,
@@ -455,7 +455,7 @@ function World3DialogueUI() {
     >
       <div
         style={{
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 700,
           color: "#ff9800",
           textTransform: "uppercase",
@@ -465,10 +465,10 @@ function World3DialogueUI() {
       >
         {line.speaker}
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div style={{ fontSize: 16, lineHeight: 1.6 }}>{line.text}</div>
       <div
         style={{
-          fontSize: 12,
+          fontSize: 13,
           color: "rgba(255,255,255,0.5)",
           marginTop: 12,
           textAlign: "right",
@@ -551,7 +551,7 @@ function World3HUD() {
             padding: "6px 14px",
             color: "#ff9800",
             fontFamily: "'Inter', sans-serif",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: 1,
@@ -563,7 +563,7 @@ function World3HUD() {
           }}
         >
           <span>Tasks</span>
-          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+          <span style={{ fontSize: 11 }}>{hudOpen ? "▼" : "▶"}</span>
         </button>
         {hudOpen && (
           <div
@@ -578,11 +578,11 @@ function World3HUD() {
               borderTop: "none",
             }}
           >
-            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 15, lineHeight: 1.5 }}>
               {objectiveText}
             </div>
             {factoryQuestStarted && (
-              <div style={{ marginTop: 8, fontSize: 11 }}>
+              <div style={{ marginTop: 8, fontSize: 12 }}>
                 <div style={{ marginBottom: 8, padding: "6px 10px", background: "rgba(244,67,54,0.15)", borderRadius: 6, borderLeft: "3px solid #f44336" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                     <span style={{ color: stateColor(hatMachineState), fontSize: 14 }}>●</span>
@@ -657,7 +657,7 @@ function World3HUD() {
           padding: "8px 14px",
           color: "rgba(255,255,255,0.6)",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           zIndex: 50,
         }}
       >
@@ -675,7 +675,7 @@ function World3HUD() {
           padding: "8px 16px",
           color: "white",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: "pointer",
           zIndex: 50,
@@ -1639,25 +1639,24 @@ function PsychicLessonUI() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-        {!psychicPracticeCompleted ? (
-          <div
-            onClick={openPsychicPractice}
-            style={{
-              padding: "12px 32px",
-              background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
-              border: "none",
-              borderRadius: 8,
-              color: "white",
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-            }}
-          >
-            Test Your Understanding
-          </div>
-        ) : (
+        <div
+          onClick={openPsychicPractice}
+          style={{
+            padding: "12px 32px",
+            background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+            border: "none",
+            borderRadius: 8,
+            color: "white",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}
+        >
+          {psychicPracticeCompleted ? "Retake Quiz" : "Test Your Understanding"}
+        </div>
+        {psychicPracticeCompleted && (
           <div
             onClick={returnToTown}
             style={{
@@ -1910,21 +1909,21 @@ function PsychicHUD() {
           left: 16,
           zIndex: 50,
           background: "rgba(26, 10, 46, 0.9)",
-          borderRadius: 10,
+          borderRadius: 8,
           padding: "12px 20px",
           fontFamily: "'Inter', sans-serif",
           border: "1px solid rgba(155, 89, 182, 0.4)",
           minWidth: 200,
         }}
       >
-        <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+        <div style={{ fontSize: 12, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
           {roundLabel}
         </div>
         <div style={{ fontSize: 24, fontWeight: 800, color: psychicBalance >= 0 ? "#ffd700" : "#ff6b6b", marginBottom: 4 }}>
           ${psychicBalance}
         </div>
         <div style={{
-          fontSize: 11,
+          fontSize: 12,
           color: "rgba(255,255,255,0.5)",
           marginBottom: 4,
         }}>
@@ -1943,11 +1942,11 @@ function PsychicHUD() {
             transition: "width 0.3s ease",
           }} />
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 6 }}>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 6 }}>
           Customers served: {psychicCustomersServed}
         </div>
         {psychicGamePhase === "waiting" && (
-          <div style={{ fontSize: 11, color: "#e0b0ff", marginTop: 4, fontStyle: "italic" }}>
+          <div style={{ fontSize: 12, color: "#e0b0ff", marginTop: 4, fontStyle: "italic" }}>
             Waiting for next customer...
           </div>
         )}
@@ -1964,7 +1963,7 @@ function PsychicHUD() {
           padding: "8px 16px",
           color: "white",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: "pointer",
           zIndex: 50,
