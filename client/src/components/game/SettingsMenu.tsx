@@ -27,8 +27,8 @@ export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMen
       ref={menuRef}
       style={{
         position: "absolute",
-        top: 16,
-        right: 16,
+        bottom: 16,
+        left: 16,
         zIndex: 200,
         fontFamily: "'Inter', sans-serif",
       }}
@@ -68,8 +68,8 @@ export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMen
         <div
           style={{
             position: "absolute",
-            top: 48,
-            right: 0,
+            bottom: 48,
+            left: 0,
             minWidth: 200,
             background: "linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%)",
             backdropFilter: "blur(12px)",
