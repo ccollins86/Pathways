@@ -442,6 +442,27 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     psychicWorldBonusAwarded: p.psychicWorldBonusAwarded,
   };
 
+  if (p.townQuestCompleted) {
+    if (p.townKnownDisaster === "hurricane") {
+      updates.hurricaneTasks = {
+        frontDoorSandbagged: true,
+        backDoorSandbagged: true,
+        window1Boarded: true,
+        window2Boarded: true,
+      };
+    } else if (p.townKnownDisaster === "wildfire") {
+      updates.wildfireTasks = {
+        houseSprayed: true,
+        vegetationCleared: true,
+      };
+    } else if (p.townKnownDisaster === "earthquake") {
+      updates.earthquakeTasks = {
+        furnitureStrapped: true,
+        gasShutOff: true,
+      };
+    }
+  }
+
   if (p.oceanQuestCompleted) {
     updates.ecosystems = generateEcosystems().map((e) => ({ ...e, surveyed: true }));
   }
