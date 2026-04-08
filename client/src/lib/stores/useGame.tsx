@@ -1285,6 +1285,16 @@ export const useGame = create<GameState>()(
 
     setCurrentWorld: (world: GameWorld) => {
       if (!get().gameCompleted) return;
+
+      const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+      const worldPrefetchMap: Record<GameWorld, () => void> = {
+        town: () => { prefetch("town", TOWN_QUESTIONS); prefetch("town-lesson", TOWN_LESSON_QUESTIONS); },
+        ocean: () => { prefetch("ocean", OCEAN_QUESTIONS); },
+        factory: () => { prefetch("factory", FACTORY_QUESTIONS); },
+        psychic: () => { prefetch("psychic", PSYCHIC_QUESTIONS); },
+      };
+      worldPrefetchMap[world]();
+
       const updates: Partial<GameState> = {
         currentWorld: world,
         activeDialogue: null,
@@ -1343,6 +1353,22 @@ export const useGame = create<GameState>()(
         if (data.progress && typeof data.progress === "object" && "phase" in data.progress) {
           const updates = applyProgress(data.progress as ProgressData);
           set(updates);
+
+          const p = data.progress as ProgressData;
+          if (p.phase === "playing") {
+            const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+            prefetch("town", TOWN_QUESTIONS);
+            prefetch("town-lesson", TOWN_LESSON_QUESTIONS);
+            if (p.townPortalActive || p.currentWorld === "ocean" || p.currentWorld === "factory" || p.currentWorld === "psychic") {
+              prefetch("ocean", OCEAN_QUESTIONS);
+            }
+            if (p.oceanPortalActive || p.currentWorld === "factory" || p.currentWorld === "psychic") {
+              prefetch("factory", FACTORY_QUESTIONS);
+            }
+            if (p.factoryPortalActive || p.currentWorld === "psychic") {
+              prefetch("psychic", PSYCHIC_QUESTIONS);
+            }
+          }
         }
       } catch (err) {
         console.warn("Error loading progress:", err);

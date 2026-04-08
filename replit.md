@@ -40,7 +40,7 @@ The game dynamically generates quiz questions using OpenAI (via Replit AI Integr
 **Architecture:**
 - **Server:** `server/questionGenerator.ts` generates questions via OpenAI `gpt-5-mini` model with world-specific prompts. Endpoint at `POST /api/generate-questions` accepts `worldId` and `count`.
 - **Client Store:** `client/src/lib/stores/useQuestionPrefetch.ts` (Zustand) manages prefetched questions per world/quiz-type. Validates each question (distinct options, proper schema) and replaces invalid ones with random hardcoded fallbacks.
-- **Prefetch Triggers:** Questions are prefetched on world entry (Town on game start, Ocean/Factory/Psychic via portal actions in `useGame.tsx`).
+- **Prefetch Triggers:** Questions are prefetched on world entry (Town on game start, Ocean/Factory/Psychic via portal actions in `useGame.tsx`), on progress load (when resuming a saved game, prefetches for all unlocked worlds), and on world toggle (when switching worlds post-completion).
 - **Hardcoded Questions:** Extracted to separate files (`townQuestions.ts`, `factoryQuestions.ts`, `oceanQuestions.ts`, `psychicQuestions.ts`) and serve as fallback when LLM generation hasn't completed or fails.
 - **Quiz Components:** `PracticeQuizUI`, `FactoryPracticeQuizUI`, `OceanPracticeQuizUI`, `PsychicPracticeQuizUI`, and GameHUD lesson quiz all read from the prefetch store, falling back to hardcoded arrays seamlessly.
 
