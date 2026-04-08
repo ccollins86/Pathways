@@ -1901,7 +1901,7 @@ export function OceanWorld() {
       />
 
       <OutfitBooth
-        position={[0, 0, 14]}
+        position={[-16, 0, 14]}
         playerPosition={playerPos}
         world="ocean"
       />
