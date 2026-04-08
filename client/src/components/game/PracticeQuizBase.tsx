@@ -511,12 +511,12 @@ export function PracticeQuizBase({
           <div style={{ fontSize: 20, fontWeight: 800, color: theme.accentColor }}>
             {theme.title}
           </div>
-          <div style={{ fontSize: 13, opacity: 0.6 }}>
+          <div style={{ fontSize: 14, opacity: 0.6 }}>
             {currentQ + 1} / {questions.length}
           </div>
         </div>
 
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#b0bec5" }}>
+        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "#b0bec5" }}>
           {question.question}
         </div>
 
@@ -526,7 +526,7 @@ export function PracticeQuizBase({
             borderRadius: 8,
             padding: "14px 18px",
             fontFamily: "'Courier New', monospace",
-            fontSize: 13,
+            fontSize: 14,
             lineHeight: 1.7,
             marginBottom: 16,
             border: `1px solid ${theme.accentColor}33`,
@@ -563,7 +563,7 @@ export function PracticeQuizBase({
                   border,
                   borderRadius: 8,
                   cursor: answeredCorrectly ? "default" : "pointer",
-                  fontSize: 14,
+                  fontSize: 15,
                   color: textColor,
                   fontWeight: (answeredCorrectly && i === question.correctIndex) || selectedAnswer === i ? 600 : 400,
                   transition: "all 0.15s",
@@ -606,7 +606,7 @@ export function PracticeQuizBase({
                 </div>
               )}
             </div>
-            <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
+            <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
               {question.explanation}
             </div>
             {scorePopups.map((popup) => (
@@ -646,7 +646,7 @@ export function PracticeQuizBase({
             <div
               onClick={() => setShowHint(!showHint)}
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 color: theme.hintColor,
                 cursor: "pointer",
                 marginTop: 6,
@@ -659,7 +659,7 @@ export function PracticeQuizBase({
               {showHint ? "Hide Hint" : "Show Hint"}
             </div>
             {showHint && (
-              <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: `2px solid ${theme.accentColor}66` }}>
+              <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: `2px solid ${theme.accentColor}66` }}>
                 {question.hint}
               </div>
             )}
@@ -675,7 +675,7 @@ export function PracticeQuizBase({
               border: "1px solid rgba(255,255,255,0.3)",
               borderRadius: 8,
               color: "white",
-              fontSize: 13,
+              fontSize: 14,
               cursor: "pointer",
             }}
           >
@@ -690,7 +690,7 @@ export function PracticeQuizBase({
                 border: "none",
                 borderRadius: 8,
                 color: theme.nextBtnTextColor,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 700,
                 cursor: "pointer",
               }}
