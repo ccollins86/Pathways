@@ -1,15 +1,9 @@
 import OpenAI from "openai";
 
-let _openai: OpenAI | null = null;
-function getOpenAI(): OpenAI {
-  if (!_openai) {
-    _openai = new OpenAI({
-      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY || "missing",
-      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-    });
-  }
-  return _openai;
-}
+const openai = new OpenAI({
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+});
 
 interface GeneratedQuestion {
   id: number;
@@ -214,7 +208,7 @@ CRITICAL RULES:
 
 Return a JSON object with a "questions" key containing an array of question objects. Each object must have: id (number), code (string), question (string), options (array of 4 distinct strings), correctIndex (0-3), explanation (string), hint (string). Do not include any markdown formatting.`;
 
-  const response = await getOpenAI().chat.completions.create({
+  const response = await openai.chat.completions.create({
     model: "gpt-5-mini",
     messages: [
       { role: "system", content: systemPrompt },
