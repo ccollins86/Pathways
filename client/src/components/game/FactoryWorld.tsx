@@ -1342,10 +1342,10 @@ export function FactoryWorld() {
 
       <PackingTable position={[0, 0, 10]} playerPosition={playerPos} />
       <ShippingTruck position={[20, 0, 25]} playerPosition={playerPos} />
-      <FactoryPracticeBooth position={[-15, 0, 20]} playerPosition={playerPos} />
+      <FactoryPracticeBooth position={[-7, 0, 20]} playerPosition={playerPos} />
 
       <OutfitBooth
-        position={[-7, 0, 20]}
+        position={[-15, 0, 20]}
         playerPosition={playerPos}
         world="factory"
       />
