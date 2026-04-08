@@ -31,6 +31,14 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 3. **Factory Order Fulfillment (World 3 - Factory):** Operate machines to fulfill a manufacturing order, learning about functions. Followed by a functions practice quiz.
 4. **Search Algorithm Game (World 4 - Psychic Shop):** Engage in a guessing game across three rounds (random, linear, binary search) to learn about algorithm efficiency. Concludes with a lesson and 8-question practice quiz on binary search using PracticeQuizBase (same layout/scoring as other worlds, purple theme). Lesson UI shows "Test Your Understanding" button; quiz replaces the lesson UI while active. After quiz completion, lesson returns with "Back to Town" button.
 
+**Outfit Shop System:**
+- Outfit shop booths appear in Town, Ocean, and Factory worlds (not Psychic).
+- Players earn currency equal to points earned — currency is tracked separately and only currency is spent on purchases (points stay intact).
+- Each world offers one themed shirt and one themed pants. Walking up to a booth and pressing E opens a shop UI overlay.
+- The shop UI shows the player's currency balance, available outfits with color previews, prices, buy/equip buttons.
+- Equipped outfits change the avatar's torso/arms and legs colors. The diving suit override in Ocean World still takes priority.
+- Key files: `outfitCatalog.ts` (data), `OutfitBooth.tsx` (3D booth), `ShopUI.tsx` (overlay), store fields in `useGame.tsx` (currency, ownedOutfits, equippedShirt, equippedPants, shopOpen).
+
 ## LLM-Generated Quiz Questions
 The game dynamically generates quiz questions using OpenAI (via Replit AI Integrations) with hardcoded fallback.
 

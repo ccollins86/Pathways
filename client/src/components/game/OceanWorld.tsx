@@ -7,6 +7,7 @@ import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { MarineEcosystem } from "./MarineEcosystem";
 import { Portal } from "./Portal";
+import { OutfitBooth } from "./OutfitBooth";
 import { useGame, SludgePatch } from "@/lib/stores/useGame";
 
 function Ocean() {
@@ -1897,6 +1898,12 @@ export function OceanWorld() {
         unlocked={oceanPracticeUnlocked}
         active={oceanPracticeActive}
         onInteract={openOceanPractice}
+      />
+
+      <OutfitBooth
+        position={[0, 0, 14]}
+        playerPosition={playerPos}
+        world="ocean"
       />
 
       {oceanPortalActive && (

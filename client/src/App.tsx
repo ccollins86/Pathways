@@ -16,6 +16,7 @@ import { AuthScreen } from "./components/AuthScreen";
 import { AdminPanel } from "./components/AdminPanel";
 import { PsychicWorld } from "./components/game/PsychicWorld";
 import { ScoreHUD } from "./components/game/ScoreHUD";
+import { ShopUI } from "./components/game/ShopUI";
 import { useGame } from "./lib/stores/useGame";
 import "@fontsource/inter";
 
@@ -1518,6 +1519,8 @@ function PsychicRoundResultUI() {
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const restart = useGame((s) => s.restart);
+  const returnToFactory = useGame((s) => s.returnToFactory);
+  const openShop = useGame((s) => s.openShop);
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
 
@@ -1657,23 +1660,42 @@ function PsychicLessonUI() {
             Test Your Understanding
           </div>
         ) : (
-          <div
-            onClick={restart}
-            style={{
-              padding: "12px 32px",
-              background: "#69f0ae",
-              border: "none",
-              borderRadius: 8,
-              color: "#1a1a1a",
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-            }}
-          >
-            Back to Town
-          </div>
+          <>
+            <div
+              onClick={returnToFactory}
+              style={{
+                padding: "12px 32px",
+                background: "linear-gradient(135deg, #e67e22, #d35400)",
+                border: "none",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              Back to Factory
+            </div>
+            <div
+              onClick={() => { returnToFactory(); setTimeout(() => openShop("factory"), 100); }}
+              style={{
+                padding: "12px 32px",
+                background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+                border: "none",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              Open Shop
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -2038,6 +2060,7 @@ function App() {
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
       {phase === "playing" && <ScoreHUD />}
+      {phase === "playing" && <ShopUI />}
       {phase === "playing" && <AdminPanel username={user.username} />}
 
       <KeyboardControls map={keyMap}>

@@ -15,6 +15,7 @@ import { WorldItem } from "./WorldItem";
 import { InteractionTarget } from "./InteractionTarget";
 import { PracticeBooth } from "./PracticeBooth";
 import { Portal } from "./Portal";
+import { OutfitBooth } from "./OutfitBooth";
 import { useGame } from "@/lib/stores/useGame";
 
 export function Game() {
@@ -568,6 +569,12 @@ export function Game() {
         practiceUnlocked={practiceUnlocked}
         practiceActive={practiceActive}
         onInteract={openPractice}
+      />
+
+      <OutfitBooth
+        position={[28, 0, 8]}
+        playerPosition={playerPos}
+        world="town"
       />
 
       {portalActive && (

@@ -4,6 +4,7 @@ import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "@/lib/stores/useGame";
 import { HOUSE_POS } from "./House";
+import { getOutfitById } from "./outfitCatalog";
 
 enum Controls {
   forward = "forward",
@@ -27,6 +28,13 @@ export function Player({ onPositionUpdate }: PlayerProps) {
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
   const inBoat = useGame((s) => s.inBoat);
   const respawnTrigger = useGame((s) => s.respawnTrigger);
+  const equippedShirt = useGame((s) => s.equippedShirt);
+  const equippedPants = useGame((s) => s.equippedPants);
+
+  const shirtOutfit = equippedShirt ? getOutfitById(equippedShirt) : null;
+  const pantsOutfit = equippedPants ? getOutfitById(equippedPants) : null;
+  const shirtColor = shirtOutfit ? shirtOutfit.color : "#4caf50";
+  const pantsColor = pantsOutfit ? pantsOutfit.color : "#1a237e";
 
   useEffect(() => {
     if (respawnTrigger > 0 && groupRef.current) {
@@ -165,23 +173,23 @@ export function Player({ onPositionUpdate }: PlayerProps) {
     <group ref={groupRef} position={[0, 0, 5]}>
       <mesh position={[-0.2, 0.4, 0]} castShadow>
         <boxGeometry args={[0.25, 0.8, 0.25]} />
-        <meshStandardMaterial color={inWater ? "#1a1a1a" : "#1a237e"} />
+        <meshStandardMaterial color={inWater ? "#1a1a1a" : pantsColor} />
       </mesh>
       <mesh position={[0.2, 0.4, 0]} castShadow>
         <boxGeometry args={[0.25, 0.8, 0.25]} />
-        <meshStandardMaterial color={inWater ? "#1a1a1a" : "#1a237e"} />
+        <meshStandardMaterial color={inWater ? "#1a1a1a" : pantsColor} />
       </mesh>
       <mesh position={[0, 1.1, 0]} castShadow>
         <boxGeometry args={[0.6, 0.8, 0.35]} />
-        <meshStandardMaterial color={inWater ? "#263238" : "#4caf50"} />
+        <meshStandardMaterial color={inWater ? "#263238" : shirtColor} />
       </mesh>
       <mesh position={[-0.45, 1.1, 0]} castShadow>
         <boxGeometry args={[0.2, 0.7, 0.2]} />
-        <meshStandardMaterial color={inWater ? "#263238" : "#4caf50"} />
+        <meshStandardMaterial color={inWater ? "#263238" : shirtColor} />
       </mesh>
       <mesh position={[0.45, 1.1, 0]} castShadow>
         <boxGeometry args={[0.2, 0.7, 0.2]} />
-        <meshStandardMaterial color={inWater ? "#263238" : "#4caf50"} />
+        <meshStandardMaterial color={inWater ? "#263238" : shirtColor} />
       </mesh>
       <mesh position={[0, 1.75, 0]} castShadow>
         <boxGeometry args={[0.4, 0.4, 0.4]} />

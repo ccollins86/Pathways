@@ -6,6 +6,7 @@ import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { Portal } from "./Portal";
+import { OutfitBooth } from "./OutfitBooth";
 import { useGame } from "@/lib/stores/useGame";
 
 function FactoryFloor() {
@@ -1342,6 +1343,12 @@ export function FactoryWorld() {
       <PackingTable position={[0, 0, 10]} playerPosition={playerPos} />
       <ShippingTruck position={[20, 0, 25]} playerPosition={playerPos} />
       <FactoryPracticeBooth position={[-15, 0, 20]} playerPosition={playerPos} />
+
+      <OutfitBooth
+        position={[-7, 0, 20]}
+        playerPosition={playerPos}
+        world="factory"
+      />
 
       {factoryPortalActive && (
         <Portal
