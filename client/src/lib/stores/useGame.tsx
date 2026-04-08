@@ -415,8 +415,8 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     hasDivingSuit: p.oceanHasDivingSuit,
     cleanupQuestStarted: p.oceanCleanupQuestStarted,
     cleanupQuestCompleted: p.oceanCleanupQuestCompleted,
-    oceanLessonPhase: p.oceanLessonPhase,
-    oceanPracticeUnlocked: p.oceanPracticeUnlocked,
+    oceanLessonPhase: p.oceanCleanupQuestCompleted ? Math.max(p.oceanLessonPhase, 3) : p.oceanLessonPhase,
+    oceanPracticeUnlocked: p.oceanPracticeUnlocked || p.oceanCleanupQuestCompleted,
     oceanPracticeCompleted: p.oceanPracticeCompleted,
     oceanPortalActive: p.oceanPortalActive,
     oceanQuestBonusAwarded: p.oceanQuestBonusAwarded,
@@ -425,7 +425,7 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     factoryQuestStarted: p.factoryQuestStarted,
     factoryOrderComplete: p.factoryOrderComplete,
     factoryLessonPhase: p.factoryLessonPhase,
-    factoryPracticeUnlocked: p.factoryPracticeUnlocked,
+    factoryPracticeUnlocked: p.factoryPracticeUnlocked || p.factoryOrderComplete,
     factoryPracticeCompleted: p.factoryPracticeCompleted,
     factoryPortalActive: p.factoryPortalActive,
     factoryQuestBonusAwarded: p.factoryQuestBonusAwarded,
@@ -437,7 +437,14 @@ function applyProgress(p: ProgressData): Partial<GameState> {
 
     psychicRound: p.psychicRound as 1 | 2 | 3,
     psychicCustomersServed: p.psychicCustomersServed,
-    psychicGamePhase: p.psychicGamePhase as GameState["psychicGamePhase"],
+    psychicGamePhase: (() => {
+      const phase = p.psychicGamePhase;
+      const safe = ["instructions", "waiting", "lesson", "practice"];
+      if (safe.includes(phase)) return phase as GameState["psychicGamePhase"];
+      if (phase === "transition") return "waiting" as const;
+      if (phase === "round_win" || phase === "round_lose" || phase === "won" || phase === "lost" || phase === "entering" || phase === "guessing") return "waiting" as const;
+      return "instructions" as const;
+    })(),
     psychicPracticeCompleted: p.psychicPracticeCompleted,
     psychicWorldBonusAwarded: p.psychicWorldBonusAwarded,
   };
@@ -887,8 +894,8 @@ export const useGame = create<GameState>()(
       set({ oceanLessonPhase: next });
       if (next === 3) {
         set({ oceanPracticeUnlocked: true });
-        setTimeout(() => get().saveProgress(), 0);
       }
+      setTimeout(() => get().saveProgress(), 0);
     },
     unlockOceanPractice: () => {
       set({ oceanPracticeUnlocked: true });
@@ -1209,6 +1216,7 @@ export const useGame = create<GameState>()(
         psychicBinaryMax: 100,
         psychicGuessHint: null,
       });
+      setTimeout(() => get().saveProgress(), 0);
     },
 
     psychicRetryRound: () => {
