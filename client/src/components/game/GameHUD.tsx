@@ -667,13 +667,23 @@ export function GameHUD() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: gameCompleted ? "#69f0ae" : questFailed ? "#ef5350" : questCompleted ? "#66bb6a" : "#ffeb3b",
+            color: (() => {
+              if (gameCompleted) return "#69f0ae";
+              if (questFailed) return "#ef5350";
+              if (questCompleted) return "#66bb6a";
+              return "#ffeb3b";
+            })(),
             textTransform: "uppercase",
             letterSpacing: 1,
             marginBottom: 4,
           }}
         >
-          {gameCompleted ? "Complete" : questFailed ? "Failed" : questCompleted ? "Completed" : "Objective"}
+          {(() => {
+            if (gameCompleted) return "Complete";
+            if (questFailed) return "Failed";
+            if (questCompleted) return "Completed";
+            return "Objective";
+          })()}
         </div>
         <div style={{ fontSize: 15, lineHeight: 1.5 }}>{objective}</div>
       </div>

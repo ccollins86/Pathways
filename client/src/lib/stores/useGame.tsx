@@ -10,6 +10,8 @@ export type GamePhase = "ready" | "playing" | "ended";
 export type GameWorld = "town" | "ocean" | "factory" | "psychic";
 export type DisasterType = "hurricane" | "wildfire" | "earthquake";
 export type EnvironmentalIssue = "trash" | "nets" | "oil_spill";
+type PsychicRound = 1 | 2 | 3;
+type PsychicGamePhase = "instructions" | "waiting" | "entering" | "guessing" | "won" | "lost" | "round_win" | "round_lose" | "transition" | "lesson" | "practice";
 
 export interface MachineOrderSettings {
   quantity: number;
@@ -173,9 +175,9 @@ interface GameState {
   psychicCustomer: { name: string; color: string; favoriteNumber: number } | null;
   psychicGuesses: { guess: number; result: "high" | "low" | "correct" }[];
   psychicGuessesRemaining: number;
-  psychicGamePhase: "instructions" | "waiting" | "entering" | "guessing" | "won" | "lost" | "round_win" | "round_lose" | "transition" | "lesson" | "practice";
+  psychicGamePhase: PsychicGamePhase;
   psychicCustomersServed: number;
-  psychicRound: 1 | 2 | 3;
+  psychicRound: PsychicRound;
   psychicSequentialStart: number | null;
   psychicLastGuess: number | null;
   psychicBinaryMin: number;

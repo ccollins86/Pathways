@@ -1989,14 +1989,14 @@ function App() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {}
-    window.location.reload();
+    globalThis.location.reload();
   }, []);
 
   const handleResetProgress = useCallback(async () => {
     try {
       await fetch("/api/progress", { method: "DELETE" });
     } catch {}
-    window.location.reload();
+    globalThis.location.reload();
   }, []);
 
   const loadProgress = useGame((s) => s.loadProgress);

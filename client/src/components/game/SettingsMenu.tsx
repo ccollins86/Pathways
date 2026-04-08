@@ -93,7 +93,8 @@ export function SettingsMenu({ onLogout, onResetProgress, gameCompleted, current
             animation: "settings-fade-in 0.15s ease-out",
           }}
         >
-          {!confirmReset && !showWorldPicker ? (
+          {(() => {
+            if (!confirmReset && !showWorldPicker) return (
             <>
               {gameCompleted && (
                 <button
@@ -184,7 +185,8 @@ export function SettingsMenu({ onLogout, onResetProgress, gameCompleted, current
                 Sign Out
               </button>
             </>
-          ) : showWorldPicker ? (
+          );
+            if (showWorldPicker) return (
             <div style={{ padding: "4px 6px" }}>
               <div style={{ color: "#a78bfa", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
                 Switch World
@@ -261,7 +263,8 @@ export function SettingsMenu({ onLogout, onResetProgress, gameCompleted, current
                 Back
               </button>
             </div>
-          ) : (
+          );
+            return (
             <div style={{ padding: "4px 6px" }}>
               <div style={{ color: "#f87171", fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
                 Are you sure? This will permanently erase all your game progress.
@@ -303,7 +306,8 @@ export function SettingsMenu({ onLogout, onResetProgress, gameCompleted, current
                 </button>
               </div>
             </div>
-          )}
+          );
+          })()}
         </div>
       )}
 
