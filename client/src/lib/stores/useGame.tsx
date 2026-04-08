@@ -290,6 +290,7 @@ interface GameState {
   resetPsychicPracticeScore: () => void;
   completePsychicPractice: () => void;
 
+  setCurrentWorld: (world: GameWorld) => void;
   saveProgress: () => Promise<void>;
   loadProgress: () => Promise<void>;
 }
@@ -820,7 +821,10 @@ export const useGame = create<GameState>()(
       }));
     },
 
-    activateTasks: () => set({ tasksActive: true }),
+    activateTasks: () => {
+      set({ tasksActive: true });
+      setTimeout(() => get().saveProgress(), 0);
+    },
 
     unlockPractice: () => {
       set({ practiceUnlocked: true });
@@ -1274,6 +1278,40 @@ export const useGame = create<GameState>()(
         psychicWorldBonusAwarded: true,
         totalScore: s.totalScore + bonus,
       });
+      setTimeout(() => get().saveProgress(), 0);
+    },
+
+    setCurrentWorld: (world: GameWorld) => {
+      if (!get().gameCompleted) return;
+      const updates: Partial<GameState> = {
+        currentWorld: world,
+        activeDialogue: null,
+        dialogueIndex: 0,
+        activeNpc: null,
+        world2Dialogue: null,
+        world2DialogueIndex: 0,
+        world3Dialogue: null,
+        world3DialogueIndex: 0,
+        practiceActive: false,
+        oceanPracticeActive: false,
+        factoryPracticeActive: false,
+        psychicPracticeActive: false,
+        activeMachine: null,
+      };
+      if (world === "psychic") {
+        updates.psychicGamePhase = "waiting";
+        updates.psychicCustomer = null;
+        updates.psychicGuesses = [];
+        updates.psychicGuessesRemaining = 10;
+        updates.psychicGuessHint = null;
+      }
+      if (world === "factory") {
+        updates.factoryLessonPhase = 0;
+      }
+      if (world === "ocean") {
+        updates.oceanLessonPhase = Math.max(get().oceanLessonPhase, 3);
+      }
+      set(updates);
       setTimeout(() => get().saveProgress(), 0);
     },
 

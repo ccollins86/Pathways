@@ -1981,6 +1981,8 @@ function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
   const currentWorld = useGame((s) => s.currentWorld);
+  const gameCompleted = useGame((s) => s.gameCompleted);
+  const setCurrentWorld = useGame((s) => s.setCurrentWorld);
   const [user, setUser] = useState<{ id: number; username: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -2054,7 +2056,7 @@ function App() {
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
       {phase === "playing" && <ScoreHUD />}
-      {phase === "playing" && <SettingsMenu onLogout={handleLogout} onResetProgress={handleResetProgress} />}
+      {phase === "playing" && <SettingsMenu onLogout={handleLogout} onResetProgress={handleResetProgress} gameCompleted={gameCompleted} currentWorld={currentWorld} onWorldChange={setCurrentWorld} />}
       {phase === "playing" && <AdminPanel username={user.username} />}
 
       <KeyboardControls map={keyMap}>

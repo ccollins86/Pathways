@@ -1,13 +1,25 @@
 import { useState, useRef, useEffect } from "react";
+import type { GameWorld } from "@/lib/stores/useGame";
+
+const WORLD_OPTIONS: { id: GameWorld; label: string; color: string }[] = [
+  { id: "town", label: "Town", color: "#4fc3f7" },
+  { id: "ocean", label: "Ocean", color: "#69f0ae" },
+  { id: "factory", label: "Factory", color: "#ff9800" },
+  { id: "psychic", label: "Psychic", color: "#9b59b6" },
+];
 
 interface SettingsMenuProps {
   onLogout: () => void;
   onResetProgress: () => void;
+  gameCompleted: boolean;
+  currentWorld: GameWorld;
+  onWorldChange: (world: GameWorld) => void;
 }
 
-export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMenuProps>) {
+export function SettingsMenu({ onLogout, onResetProgress, gameCompleted, currentWorld, onWorldChange }: Readonly<SettingsMenuProps>) {
   const [open, setOpen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [showWorldPicker, setShowWorldPicker] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,6 +28,7 @@ export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMen
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
         setConfirmReset(false);
+        setShowWorldPicker(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -34,7 +47,7 @@ export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMen
       }}
     >
       <button
-        onClick={() => { setOpen(!open); setConfirmReset(false); }}
+        onClick={() => { setOpen(!open); setConfirmReset(false); setShowWorldPicker(false); }}
         style={{
           width: 40,
           height: 40,
@@ -80,8 +93,39 @@ export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMen
             animation: "settings-fade-in 0.15s ease-out",
           }}
         >
-          {!confirmReset ? (
+          {!confirmReset && !showWorldPicker ? (
             <>
+              {gameCompleted && (
+                <button
+                  onClick={() => setShowWorldPicker(true)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: 8,
+                    color: "#a78bfa",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: "'Inter', sans-serif",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(167, 139, 250, 0.1)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M2 12h20" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                  Switch World
+                </button>
+              )}
               <button
                 onClick={() => setConfirmReset(true)}
                 style={{
@@ -140,6 +184,83 @@ export function SettingsMenu({ onLogout, onResetProgress }: Readonly<SettingsMen
                 Sign Out
               </button>
             </>
+          ) : showWorldPicker ? (
+            <div style={{ padding: "4px 6px" }}>
+              <div style={{ color: "#a78bfa", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+                Switch World
+              </div>
+              {WORLD_OPTIONS.map((world) => (
+                <button
+                  key={world.id}
+                  onClick={() => {
+                    if (world.id !== currentWorld) {
+                      onWorldChange(world.id);
+                    }
+                    setShowWorldPicker(false);
+                    setOpen(false);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    background: world.id === currentWorld ? `${world.color}20` : "transparent",
+                    border: world.id === currentWorld ? `1px solid ${world.color}60` : "1px solid transparent",
+                    borderRadius: 8,
+                    color: world.id === currentWorld ? world.color : "#94a3b8",
+                    fontSize: 14,
+                    fontWeight: world.id === currentWorld ? 700 : 500,
+                    fontFamily: "'Inter', sans-serif",
+                    cursor: world.id === currentWorld ? "default" : "pointer",
+                    textAlign: "left",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginBottom: 4,
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (world.id !== currentWorld) {
+                      e.currentTarget.style.background = `${world.color}15`;
+                      e.currentTarget.style.color = world.color;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (world.id !== currentWorld) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "#94a3b8";
+                    }
+                  }}
+                >
+                  <span style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: world.color,
+                    display: "inline-block",
+                    opacity: world.id === currentWorld ? 1 : 0.5,
+                  }} />
+                  {world.label}
+                  {world.id === currentWorld && (
+                    <span style={{ marginLeft: "auto", fontSize: 11, opacity: 0.7 }}>current</span>
+                  )}
+                </button>
+              ))}
+              <button
+                onClick={() => setShowWorldPicker(false)}
+                style={{
+                  width: "100%",
+                  padding: "6px 0",
+                  background: "transparent",
+                  border: "none",
+                  color: "#64748b",
+                  fontSize: 12,
+                  fontFamily: "'Inter', sans-serif",
+                  cursor: "pointer",
+                  marginTop: 4,
+                }}
+              >
+                Back
+              </button>
+            </div>
           ) : (
             <div style={{ padding: "4px 6px" }}>
               <div style={{ color: "#f87171", fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
