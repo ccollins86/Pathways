@@ -840,7 +840,7 @@ function SchoolOfFish({ position, count, color }: { position: [number, number, n
 function BeachExtras() {
   return (
     <group>
-      <BeachUmbrella position={[-16, 0, 16]} color="#e53935" rotation={0.5} />
+      <BeachUmbrella position={[-26, 0, 16]} color="#e53935" rotation={0.5} />
       <BeachUmbrella position={[15, 0, 18]} color="#1e88e5" rotation={-0.3} />
       <BeachUmbrella position={[30, 0, 22]} color="#ffb300" rotation={0.8} />
       <BeachUmbrella position={[-35, 0, 20]} color="#43a047" rotation={0.2} />
@@ -848,7 +848,7 @@ function BeachExtras() {
       <BeachUmbrella position={[-50, 0, 25]} color="#ff7043" rotation={1.1} />
       <BeachUmbrella position={[55, 0, 20]} color="#7b1fa2" rotation={0.4} />
 
-      <BeachChair position={[-15, 0, 17]} rotation={0.6} fabricColor="#1565c0" />
+      <BeachChair position={[-25, 0, 17]} rotation={0.6} fabricColor="#1565c0" />
       <BeachChair position={[16, 0, 19]} rotation={-0.2} fabricColor="#e53935" />
       <BeachChair position={[31, 0, 23]} rotation={0.9} fabricColor="#ff8f00" />
       <BeachChair position={[-34, 0, 21]} rotation={0.3} fabricColor="#2e7d32" />
