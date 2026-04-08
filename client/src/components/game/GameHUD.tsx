@@ -38,6 +38,7 @@ export function GameHUD() {
   const unlockPractice = useGame((s) => s.unlockPractice);
   const practiceCompleted = useGame((s) => s.practiceCompleted);
   const portalActive = useGame((s) => s.portalActive);
+  const gameCompleted = useGame((s) => s.gameCompleted);
   const addTotalScore = useGame((s) => s.addTotalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
@@ -127,7 +128,9 @@ export function GameHUD() {
   if (activeDialogue) return null;
 
   let objective = "Find Dan at the USC Apparel stand and talk to him.";
-  if (questFailed) {
+  if (gameCompleted) {
+    objective = "Congratulations! You've completed Disaster Prep Quest! Feel free to explore the town.";
+  } else if (questFailed) {
     objective = "Quest Failed! You made the wrong preparation choice.";
   } else if (portalActive) {
     objective = "A portal has appeared! Walk into it to enter the next world!";
@@ -664,13 +667,13 @@ export function GameHUD() {
           style={{
             fontSize: 11,
             fontWeight: 700,
-            color: questFailed ? "#ef5350" : questCompleted ? "#66bb6a" : "#ffeb3b",
+            color: gameCompleted ? "#69f0ae" : questFailed ? "#ef5350" : questCompleted ? "#66bb6a" : "#ffeb3b",
             textTransform: "uppercase",
             letterSpacing: 1,
             marginBottom: 4,
           }}
         >
-          {questFailed ? "Failed" : questCompleted ? "Completed" : "Objective"}
+          {gameCompleted ? "Complete" : questFailed ? "Failed" : questCompleted ? "Completed" : "Objective"}
         </div>
         <div style={{ fontSize: 14, lineHeight: 1.5 }}>{objective}</div>
       </div>
@@ -753,10 +756,18 @@ export function GameHUD() {
           }}
           onClick={() => setTasksOpen(!tasksOpen)}
         >
-          <span>Quest Progress</span>
+          <span>{gameCompleted ? "Adventure Complete" : "Quest Progress"}</span>
           <span style={{ fontSize: 13 }}>{tasksOpen ? "\u25BC" : "\u25B6"}</span>
         </div>
-        {tasksOpen && <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        {tasksOpen && gameCompleted && (
+          <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+            <div style={{ color: "#66bb6a" }}>✓ Town World</div>
+            <div style={{ color: "#66bb6a" }}>✓ Ocean World</div>
+            <div style={{ color: "#66bb6a" }}>✓ Factory World</div>
+            <div style={{ color: "#66bb6a" }}>✓ Psychic World</div>
+          </div>
+        )}
+        {tasksOpen && !gameCompleted && <div style={{ fontSize: 13, lineHeight: 1.8 }}>
           <div style={{ color: talkedToDan ? "#66bb6a" : "white" }}>
             {talkedToDan ? "✓" : "○"} Talk to Dan
           </div>

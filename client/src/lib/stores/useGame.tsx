@@ -185,6 +185,7 @@ interface GameState {
   psychicPracticeScore: number;
   psychicPracticeCompleted: boolean;
   psychicWorldBonusAwarded: boolean;
+  gameCompleted: boolean;
 
   totalScore: number;
   firstTryCount: number;
@@ -198,6 +199,7 @@ interface GameState {
 
   start: () => void;
   restart: () => void;
+  returnToTown: () => void;
   end: () => void;
   setDisaster: (d: DisasterType) => void;
   setTalkedToDan: () => void;
@@ -338,6 +340,7 @@ interface ProgressData {
   psychicGamePhase: string;
   psychicPracticeCompleted: boolean;
   psychicWorldBonusAwarded: boolean;
+  gameCompleted: boolean;
 }
 
 function extractProgress(s: GameState): ProgressData {
@@ -387,6 +390,7 @@ function extractProgress(s: GameState): ProgressData {
     psychicGamePhase: s.psychicGamePhase,
     psychicPracticeCompleted: s.psychicPracticeCompleted,
     psychicWorldBonusAwarded: s.psychicWorldBonusAwarded,
+    gameCompleted: s.gameCompleted,
   };
 }
 
@@ -447,6 +451,7 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     })(),
     psychicPracticeCompleted: p.psychicPracticeCompleted,
     psychicWorldBonusAwarded: p.psychicWorldBonusAwarded,
+    gameCompleted: p.gameCompleted ?? false,
   };
 
   if (p.townQuestCompleted) {
@@ -575,6 +580,7 @@ export const useGame = create<GameState>()(
     psychicPracticeScore: 0,
     psychicPracticeCompleted: false,
     psychicWorldBonusAwarded: false,
+    gameCompleted: false,
 
     totalScore: 0,
     firstTryCount: 0,
@@ -683,7 +689,19 @@ export const useGame = create<GameState>()(
         psychicPracticeActive: false,
         psychicPracticeScore: 0,
         psychicPracticeCompleted: false,
+        gameCompleted: false,
       }));
+    },
+
+    returnToTown: () => {
+      set({
+        currentWorld: "town" as GameWorld,
+        phase: "playing" as GamePhase,
+        gameCompleted: true,
+        psychicPracticeActive: false,
+        psychicGamePhase: "lesson",
+      });
+      setTimeout(() => get().saveProgress(), 0);
     },
 
     end: () => {

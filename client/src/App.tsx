@@ -1518,7 +1518,7 @@ function PsychicRoundResultUI() {
 
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
-  const restart = useGame((s) => s.restart);
+  const returnToTown = useGame((s) => s.returnToTown);
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
 
@@ -1659,7 +1659,7 @@ function PsychicLessonUI() {
           </div>
         ) : (
           <div
-            onClick={restart}
+            onClick={returnToTown}
             style={{
               padding: "12px 32px",
               background: "#69f0ae",

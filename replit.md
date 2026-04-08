@@ -31,6 +31,7 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 2. **Marine Ecosystem Survey & Cleanup (World 2 - Ocean):** Survey marine life, identify environmental issues, and clean up chemical spills. Integrates lessons and quizzes on for/while loops.
 3. **Factory Order Fulfillment (World 3 - Factory):** Operate machines to fulfill a manufacturing order, learning about functions. Followed by a functions practice quiz.
 4. **Search Algorithm Game (World 4 - Psychic Shop):** Engage in a guessing game across three rounds (random, linear, binary search) to learn about algorithm efficiency. Concludes with a lesson and 8-question practice quiz on binary search using PracticeQuizBase (same layout/scoring as other worlds, purple theme). Lesson UI shows "Test Your Understanding" button; quiz replaces the lesson UI while active. After quiz completion, lesson returns with "Back to Town" button.
+5. **Game Completion:** After finishing all 4 worlds, clicking "Back to Town" uses `returnToTown()` which sets `gameCompleted: true`, moves the player back to the town world, and saves progress. The player keeps their full score and all completion flags. The HUD shows a congratulations message and "Adventure Complete" with all 4 worlds checked off. Players can still explore town freely. Use "Reset Progress" from the settings menu to start over.
 
 ## LLM-Generated Quiz Questions
 The game dynamically generates quiz questions using OpenAI (via Replit AI Integrations) with hardcoded fallback.
