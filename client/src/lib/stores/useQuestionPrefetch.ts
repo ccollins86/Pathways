@@ -18,6 +18,7 @@ interface PrefetchState {
   succeeded: Partial<Record<QuizKey, boolean>>;
   prefetchQuestions: (key: QuizKey, fallbackQuestions: Question[], count?: number) => void;
   getQuestions: (key: QuizKey, fallbackQuestions: Question[]) => Question[];
+  reset: () => void;
 }
 
 function isValidQuestion(q: unknown): q is Question {
@@ -201,5 +202,9 @@ export const useQuestionPrefetch = create<PrefetchState>((set, get) => ({
       return prefetched;
     }
     return fallbackQuestions;
+  },
+
+  reset: () => {
+    set({ questions: {}, loading: {}, succeeded: {} });
   },
 }));

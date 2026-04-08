@@ -18,6 +18,7 @@ import { PsychicWorld } from "./components/game/PsychicWorld";
 import { ScoreHUD } from "./components/game/ScoreHUD";
 import { SettingsMenu } from "./components/game/SettingsMenu";
 import { useGame } from "./lib/stores/useGame";
+import { useQuestionPrefetch } from "./lib/stores/useQuestionPrefetch";
 import "@fontsource/inter";
 
 enum Controls {
@@ -1989,6 +1990,7 @@ function App() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {}
+    useQuestionPrefetch.getState().reset();
     globalThis.location.reload();
   }, []);
 
@@ -1996,6 +1998,7 @@ function App() {
     try {
       await fetch("/api/progress", { method: "DELETE" });
     } catch {}
+    useQuestionPrefetch.getState().reset();
     globalThis.location.reload();
   }, []);
 
