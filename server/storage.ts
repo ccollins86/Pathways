@@ -1,6 +1,6 @@
 import { users, userProgress, type User, type InsertUser, type UserProgressData } from "@shared/schema";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
