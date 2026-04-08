@@ -871,7 +871,7 @@ function BeachExtras() {
       <BeachVolleyballNet position={[-30, 0, 18]} />
 
 
-      <Cooler position={[-14, 0, 16]} />
+      <Cooler position={[-24, 0, 18]} />
       <Cooler position={[32, 0, 21]} />
 
       <Jellyfish position={[-20, -3, -30]} />
