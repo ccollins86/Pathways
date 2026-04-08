@@ -404,7 +404,7 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     questCompleted: p.townQuestCompleted,
     disaster: p.townDisaster as DisasterType | null,
     knownDisaster: p.townKnownDisaster as DisasterType | null,
-    practiceUnlocked: p.townPracticeUnlocked,
+    practiceUnlocked: p.townPracticeUnlocked || p.townQuestCompleted,
     practiceCompleted: p.townPracticeCompleted,
     portalActive: p.townPortalActive,
     townQuestBonusAwarded: p.townQuestBonusAwarded,
@@ -776,7 +776,10 @@ export const useGame = create<GameState>()(
 
     activateTasks: () => set({ tasksActive: true }),
 
-    unlockPractice: () => set({ practiceUnlocked: true }),
+    unlockPractice: () => {
+      set({ practiceUnlocked: true });
+      setTimeout(() => get().saveProgress(), 0);
+    },
     openPractice: () => set({ practiceActive: true }),
     closePractice: () => set({ practiceActive: false }),
     addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points })),
@@ -866,7 +869,10 @@ export const useGame = create<GameState>()(
         setTimeout(() => get().saveProgress(), 0);
       }
     },
-    unlockOceanPractice: () => set({ oceanPracticeUnlocked: true }),
+    unlockOceanPractice: () => {
+      set({ oceanPracticeUnlocked: true });
+      setTimeout(() => get().saveProgress(), 0);
+    },
     openOceanPractice: () => set({ oceanPracticeActive: true }),
     closeOceanPractice: () => set({ oceanPracticeActive: false }),
     addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points, totalScore: state.totalScore + points })),
@@ -997,8 +1003,10 @@ export const useGame = create<GameState>()(
         setTimeout(() => get().saveProgress(), 0);
       }
     },
-    unlockFactoryPractice: () =>
-      set({ factoryPracticeUnlocked: true, factoryLessonPhase: 0 }),
+    unlockFactoryPractice: () => {
+      set({ factoryPracticeUnlocked: true, factoryLessonPhase: 0 });
+      setTimeout(() => get().saveProgress(), 0);
+    },
     openFactoryPractice: () =>
       set({ factoryPracticeActive: true, factoryPracticeScore: 0 }),
     closeFactoryPractice: () =>
