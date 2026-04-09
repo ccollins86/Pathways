@@ -1520,10 +1520,8 @@ function PsychicRoundResultUI() {
 
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
-  const restart = useGame((s) => s.restart);
   const returnToFactory = useGame((s) => s.returnToFactory);
   const openShop = useGame((s) => s.openShop);
-  const returnToTown = useGame((s) => s.returnToTown);
 
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
@@ -1645,7 +1643,7 @@ function PsychicLessonUI() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-        <div
+        <button
           onClick={openPsychicPractice}
           style={{
             padding: "12px 32px",
@@ -1661,10 +1659,10 @@ function PsychicLessonUI() {
           }}
         >
           {psychicPracticeCompleted ? "Retake Quiz" : "Test Your Understanding"}
-        </div>
+        </button>
         {psychicPracticeCompleted && (
           <>
-            <div
+            <button
               onClick={returnToFactory}
               style={{
                 padding: "12px 32px",
@@ -1680,8 +1678,8 @@ function PsychicLessonUI() {
               }}
             >
               Back to Factory
-            </div>
-            <div
+            </button>
+            <button
               onClick={() => openShop("psychic")}
               style={{
                 padding: "12px 32px",
@@ -1697,7 +1695,7 @@ function PsychicLessonUI() {
               }}
             >
               Open Shop
-            </div>
+            </button>
           </>
         )}
       </div>

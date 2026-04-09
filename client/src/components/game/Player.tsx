@@ -13,7 +13,7 @@ enum Controls {
   right = "right",
 }
 
-function ShirtPatternOverlay({ outfit }: { outfit: OutfitItem }) {
+function ShirtPatternOverlay({ outfit }: Readonly<{ outfit: OutfitItem }>) {
   const sc = outfit.secondaryColor || "#ffffff";
   switch (outfit.pattern) {
     case "reflective-stripes":
@@ -109,7 +109,7 @@ function ShirtPatternOverlay({ outfit }: { outfit: OutfitItem }) {
   }
 }
 
-function PantsPatternOverlay({ outfit }: { outfit: OutfitItem }) {
+function PantsPatternOverlay({ outfit }: Readonly<{ outfit: OutfitItem }>) {
   const sc = outfit.secondaryColor || "#ffffff";
   switch (outfit.pattern) {
     case "cargo-pockets":

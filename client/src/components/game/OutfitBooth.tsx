@@ -10,7 +10,7 @@ interface OutfitBoothProps {
   world: GameWorld;
 }
 
-export function OutfitBooth({ position, playerPosition, world }: OutfitBoothProps) {
+export function OutfitBooth({ position, playerPosition, world }: Readonly<OutfitBoothProps>) {
   const [isNear, setIsNear] = useState(false);
   const nearRef = useRef(false);
   const posVec = useRef(new THREE.Vector3(position[0], position[1], position[2]));
@@ -37,11 +37,12 @@ export function OutfitBooth({ position, playerPosition, world }: OutfitBoothProp
         openShop(world);
       }
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    globalThis.addEventListener("keydown", handleKey);
+    return () => globalThis.removeEventListener("keydown", handleKey);
   }, [openShop, world]);
 
-  const accentColor = world === "town" ? "#ff6d00" : world === "ocean" ? "#00897b" : "#757575";
+  const accentColorMap: Record<string, string> = { town: "#ff6d00", ocean: "#00897b" };
+  const accentColor = accentColorMap[world] ?? "#757575";
 
   return (
     <group position={position}>
@@ -92,7 +93,7 @@ export function OutfitBooth({ position, playerPosition, world }: OutfitBoothProp
       </mesh>
       <mesh position={[0, 1.3, 0.5]} castShadow>
         <boxGeometry args={[0.35, 0.6, 0.08]} />
-        <meshStandardMaterial color={world === "ocean" ? "#1a3a5c" : world === "factory" ? "#2c3e6b" : "#c2b280"} />
+        <meshStandardMaterial color={{ ocean: "#1a3a5c", factory: "#2c3e6b" }[world] ?? "#c2b280"} />
       </mesh>
       <mesh position={[0.6, 1.3, 0.5]} castShadow>
         <boxGeometry args={[0.4, 0.5, 0.08]} />
