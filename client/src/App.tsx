@@ -1521,7 +1521,6 @@ function PsychicRoundResultUI() {
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const returnToFactory = useGame((s) => s.returnToFactory);
-  const openShop = useGame((s) => s.openShop);
 
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
@@ -1678,23 +1677,6 @@ function PsychicLessonUI() {
               }}
             >
               Back to Factory
-            </button>
-            <button
-              onClick={() => openShop("psychic")}
-              style={{
-                padding: "12px 32px",
-                background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
-                border: "none",
-                borderRadius: 8,
-                color: "white",
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-              }}
-            >
-              Open Shop
             </button>
           </>
         )}
