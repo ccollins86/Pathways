@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState, useCallback, useEffect, useRef } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef, Component } from "react";
+import type { ErrorInfo, ReactNode } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
@@ -1981,6 +1982,33 @@ function PsychicHUD() {
   );
 }
 
+class GameErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[Game Crash]", error.message, error.stack, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#0d1930", color: "white", fontFamily: "'Inter', sans-serif", flexDirection: "column", gap: 16, zIndex: 9999 }}>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>Something went wrong</div>
+          <div style={{ fontSize: 14, opacity: 0.7, maxWidth: 400, textAlign: "center" }}>{this.state.error?.message}</div>
+          <button onClick={() => this.setState({ hasError: false, error: null })} style={{ padding: "10px 28px", background: "#4fc3f7", border: "none", borderRadius: 8, color: "#0d1930", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+            Try Again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
@@ -2066,6 +2094,7 @@ function App() {
       {phase === "playing" && <SettingsMenu onLogout={handleLogout} onResetProgress={handleResetProgress} gameCompleted={gameCompleted} currentWorld={currentWorld} onWorldChange={setCurrentWorld} />}
       {phase === "playing" && <AdminPanel username={user.username} />}
 
+      <GameErrorBoundary>
       <KeyboardControls map={keyMap}>
         <Canvas
           shadows
@@ -2128,6 +2157,7 @@ function App() {
           </>
         )}
       </KeyboardControls>
+      </GameErrorBoundary>
     </div>
   );
 }
