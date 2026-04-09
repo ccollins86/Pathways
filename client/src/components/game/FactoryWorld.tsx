@@ -1083,7 +1083,8 @@ function FactoryDecor() {
         </mesh>
       </group>
 
-      <HazardStripe position={[0, 0.01, 0]} width={3} length={55} />
+      <HazardStripe position={[0, 0.01, 14]} width={3} length={25} />
+      <HazardStripe position={[0, 0.01, -23]} width={3} length={10} />
 
       {[-8, 8].map((x, i) => (
         <mesh key={`lane-${i}`} position={[x, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
