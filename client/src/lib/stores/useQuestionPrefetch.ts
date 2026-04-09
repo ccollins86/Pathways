@@ -180,6 +180,7 @@ export const useQuestionPrefetch = create<PrefetchState>((set, get) => ({
         if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
           const validated = validateAndReplace(data.questions, fallbackQuestions, targetCount);
           if (validated.length > 0) {
+            console.log(`[Prefetch] AI questions loaded for "${key}" (${validated.length} questions)`);
             set((s) => ({
               questions: { ...s.questions, [key]: validated },
               loading: { ...s.loading, [key]: false },
