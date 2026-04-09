@@ -727,6 +727,7 @@ export const useGame = create<GameState>()(
         psychicPracticeActive: false,
         shopOpen: null,
       });
+    },
 
     returnToTown: () => {
       set({

@@ -1663,24 +1663,6 @@ function PsychicLessonUI() {
           {psychicPracticeCompleted ? "Retake Quiz" : "Test Your Understanding"}
         </div>
         {psychicPracticeCompleted && (
-          <div
-            onClick={openPsychicPractice}
-            style={{
-              padding: "12px 32px",
-              background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
-              border: "none",
-              borderRadius: 8,
-              color: "white",
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-            }}
-          >
-            Test Your Understanding
-          </div>
-        ) : (
           <>
             <div
               onClick={returnToFactory}
