@@ -64,6 +64,7 @@ interface PracticeQuizBaseProps {
   onFirstTryBonus: () => void;
   worldName: string;
   worldBonusAwarded?: boolean;
+  isLoading?: boolean;
 }
 
 interface ScorePopup {
