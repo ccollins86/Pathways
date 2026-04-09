@@ -71,24 +71,34 @@ function getRandomFallback(
   return fallbackQuestions[idx];
 }
 
+function stripTags(s: string): string {
+  return s.replace(/<\/?[a-zA-Z][^>]*>/g, "");
+}
+
 function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+  return stripTags(
+    s
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+  );
+}
+
+function sanitizeText(s: string): string {
+  return stripTags(decodeEntities(s));
 }
 
 function sanitizeQuestion(q: Question): Question {
   return {
     id: q.id,
     code: decodeEntities(q.code),
-    question: decodeEntities(q.question),
-    options: q.options.map((o) => decodeEntities(String(o))),
+    question: sanitizeText(q.question),
+    options: q.options.map((o) => sanitizeText(String(o))),
     correctIndex: Math.floor(q.correctIndex),
-    explanation: decodeEntities(q.explanation),
-    hint: typeof q.hint === "string" ? decodeEntities(q.hint) : "Think carefully about the code.",
+    explanation: sanitizeText(q.explanation),
+    hint: typeof q.hint === "string" ? sanitizeText(q.hint) : "Think carefully about the code.",
   };
 }
 
