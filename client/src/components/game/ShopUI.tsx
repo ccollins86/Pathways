@@ -33,7 +33,11 @@ export function ShopUI() {
   const sOutfit = equippedShirt ? getOutfitById(equippedShirt) : null;
   const pOutfit = equippedPants ? getOutfitById(equippedPants) : null;
   const sColor = sOutfit ? sOutfit.color : "#4caf50";
+  const sSecondary = sOutfit?.secondaryColor;
+  const sPattern = sOutfit?.pattern;
   const pColor = pOutfit ? pOutfit.color : "#1a237e";
+  const pSecondary = pOutfit?.secondaryColor;
+  const pPattern = pOutfit?.pattern;
   const skinColor = "#ffcc80";
 
   const unboughtOutfits = outfits.filter((item) => !ownedOutfits.includes(item.id));
@@ -148,10 +152,63 @@ export function ShopUI() {
               <rect x="18" y="24" width="28" height="28" fill={sColor} />
               <rect x="4" y="24" width="14" height="12" fill={sColor} />
               <rect x="46" y="24" width="14" height="12" fill={sColor} />
+              {sPattern === "reflective-stripes" && sSecondary && (
+                <>
+                  <rect x="18" y="30" width="28" height="3" fill={sSecondary} opacity={0.9} />
+                  <rect x="18" y="38" width="28" height="3" fill={sSecondary} opacity={0.9} />
+                </>
+              )}
+              {sPattern === "wetsuit-panels" && sSecondary && (
+                <>
+                  <rect x="18" y="24" width="3" height="28" fill={sSecondary} opacity={0.8} />
+                  <rect x="43" y="24" width="3" height="28" fill={sSecondary} opacity={0.8} />
+                </>
+              )}
+              {sPattern === "name-patch" && sSecondary && (
+                <>
+                  <rect x="30" y="26" width="12" height="8" fill="#eee" rx="1" />
+                  <rect x="32" y="28" width="8" height="3" fill={sSecondary} />
+                  <rect x="20" y="26" width="8" height="8" fill={sSecondary} opacity={0.8} />
+                </>
+              )}
+              {sPattern === "mystic-runes" && sSecondary && (
+                <>
+                  <rect x="28" y="28" width="5" height="5" fill={sSecondary} opacity={0.8} />
+                  <rect x="22" y="36" width="4" height="4" fill={sSecondary} opacity={0.6} />
+                  <rect x="36" y="34" width="3" height="6" fill={sSecondary} opacity={0.7} />
+                  <rect x="26" y="44" width="12" height="2" fill={sSecondary} opacity={0.5} />
+                </>
+              )}
               <rect x="4" y="36" width="10" height="14" fill={skinColor} />
               <rect x="50" y="36" width="10" height="14" fill={skinColor} />
               <rect x="20" y="52" width="11" height="30" fill={pColor} />
               <rect x="33" y="52" width="11" height="30" fill={pColor} />
+              {pPattern === "cargo-pockets" && pSecondary && (
+                <>
+                  <rect x="21" y="62" width="8" height="6" fill={pSecondary} opacity={0.7} />
+                  <rect x="35" y="62" width="8" height="6" fill={pSecondary} opacity={0.7} />
+                </>
+              )}
+              {pPattern === "knee-pads" && pSecondary && (
+                <>
+                  <rect x="21" y="65" width="9" height="7" fill={pSecondary} opacity={0.7} rx="1" />
+                  <rect x="34" y="65" width="9" height="7" fill={pSecondary} opacity={0.7} rx="1" />
+                </>
+              )}
+              {pPattern === "riveted" && pSecondary && (
+                <>
+                  <rect x="23" y="54" width="3" height="3" fill={pSecondary} opacity={0.9} />
+                  <rect x="38" y="54" width="3" height="3" fill={pSecondary} opacity={0.9} />
+                  <rect x="23" y="74" width="3" height="3" fill={pSecondary} opacity={0.9} />
+                  <rect x="38" y="74" width="3" height="3" fill={pSecondary} opacity={0.9} />
+                </>
+              )}
+              {pPattern === "shimmer" && pSecondary && (
+                <>
+                  <rect x="22" y="56" width="4" height="10" fill={pSecondary} opacity={0.6} />
+                  <rect x="38" y="62" width="3" height="12" fill={pSecondary} opacity={0.5} />
+                </>
+              )}
               <rect x="18" y="82" width="15" height="8" fill="#555" />
               <rect x="31" y="82" width="15" height="8" fill="#555" />
             </svg>
@@ -198,9 +255,12 @@ export function ShopUI() {
                         width: 40,
                         height: 40,
                         borderRadius: 8,
-                        background: item.color,
+                        background: item.secondaryColor
+                          ? `linear-gradient(135deg, ${item.color} 60%, ${item.secondaryColor} 100%)`
+                          : item.color,
                         border: "2px solid rgba(255,255,255,0.2)",
                         flexShrink: 0,
+                        boxShadow: item.emissive ? `0 0 8px ${item.emissive}40` : "none",
                       }}
                     />
                     <div style={{ flex: 1 }}>
@@ -208,7 +268,7 @@ export function ShopUI() {
                         {item.name}
                       </div>
                       <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>
-                        {item.type}
+                        {item.type} {item.pattern && `· ${item.pattern.replace("-", " ")}`}
                       </div>
                     </div>
                     <button
@@ -287,9 +347,12 @@ export function ShopUI() {
                         width: 24,
                         height: 24,
                         borderRadius: 4,
-                        background: item.color,
+                        background: item.secondaryColor
+                          ? `linear-gradient(135deg, ${item.color} 60%, ${item.secondaryColor} 100%)`
+                          : item.color,
                         border: "1px solid rgba(255,255,255,0.2)",
                         flexShrink: 0,
+                        boxShadow: item.emissive ? `0 0 6px ${item.emissive}40` : "none",
                       }}
                     />
                     <div>
