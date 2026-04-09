@@ -1087,7 +1087,6 @@ export const useGame = create<GameState>()(
       if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
         const bonus = state.factoryQuestBonusAwarded ? 0 : 25;
         set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus, currency: s.currency + bonus }));
-        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
         setTimeout(() => get().saveProgress(), 0);
       }
     },
@@ -1472,6 +1471,7 @@ export const useGame = create<GameState>()(
         currency: state.currency - outfit.price,
         ownedOutfits: [...state.ownedOutfits, outfitId],
       }));
+      setTimeout(() => get().saveProgress(), 0);
       return true;
     },
     equipOutfit: (outfitId: string) => {
@@ -1484,9 +1484,11 @@ export const useGame = create<GameState>()(
       } else {
         set({ equippedPants: outfitId });
       }
+      setTimeout(() => get().saveProgress(), 0);
     },
     unequipAll: () => {
       set({ equippedShirt: null, equippedPants: null });
+      setTimeout(() => get().saveProgress(), 0);
     },
   }))
 );
