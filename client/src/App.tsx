@@ -17,7 +17,9 @@ import { AdminPanel } from "./components/AdminPanel";
 import { PsychicWorld } from "./components/game/PsychicWorld";
 import { ScoreHUD } from "./components/game/ScoreHUD";
 import { ShopUI } from "./components/game/ShopUI";
+import { SettingsMenu } from "./components/game/SettingsMenu";
 import { useGame } from "./lib/stores/useGame";
+import { useQuestionPrefetch } from "./lib/stores/useQuestionPrefetch";
 import "@fontsource/inter";
 
 enum Controls {
@@ -183,7 +185,7 @@ function World2DialogueUI() {
     >
       <div
         style={{
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 700,
           color: "#00bcd4",
           textTransform: "uppercase",
@@ -193,10 +195,10 @@ function World2DialogueUI() {
       >
         {line.speaker}
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div style={{ fontSize: 16, lineHeight: 1.6 }}>{line.text}</div>
       <div
         style={{
-          fontSize: 12,
+          fontSize: 13,
           color: "rgba(255,255,255,0.5)",
           marginTop: 12,
           textAlign: "right",
@@ -282,7 +284,7 @@ function World2HUD() {
             padding: "6px 14px",
             color: "#00bcd4",
             fontFamily: "'Inter', sans-serif",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: 1,
@@ -294,7 +296,7 @@ function World2HUD() {
           }}
         >
           <span>Tasks</span>
-          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+          <span style={{ fontSize: 11 }}>{hudOpen ? "▼" : "▶"}</span>
         </button>
         {hudOpen && (
           <div
@@ -309,11 +311,11 @@ function World2HUD() {
               borderTop: "none",
             }}
           >
-            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 15, lineHeight: 1.5 }}>
               {objectiveText}
             </div>
             {oceanQuestStarted && !oceanQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 13 }}>
+              <div style={{ marginTop: 8, fontSize: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                   <span style={{ color: hasDivingSuit ? "#66bb6a" : "#ff9800" }}>
                     {hasDivingSuit ? "✓" : "○"}
@@ -332,8 +334,8 @@ function World2HUD() {
               </div>
             )}
             {cleanupQuestStarted && !cleanupQuestCompleted && (
-              <div style={{ marginTop: 8, fontSize: 13 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
+              <div style={{ marginTop: 8, fontSize: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#69f0ae", marginBottom: 4 }}>
                   Chemical Spill Cleanup:
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
@@ -381,7 +383,7 @@ function World2HUD() {
           padding: "8px 14px",
           color: "rgba(255,255,255,0.6)",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           zIndex: 50,
         }}
       >
@@ -399,7 +401,7 @@ function World2HUD() {
           padding: "8px 16px",
           color: "white",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: "pointer",
           zIndex: 50,
@@ -455,7 +457,7 @@ function World3DialogueUI() {
     >
       <div
         style={{
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 700,
           color: "#ff9800",
           textTransform: "uppercase",
@@ -465,10 +467,10 @@ function World3DialogueUI() {
       >
         {line.speaker}
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.6 }}>{line.text}</div>
+      <div style={{ fontSize: 16, lineHeight: 1.6 }}>{line.text}</div>
       <div
         style={{
-          fontSize: 12,
+          fontSize: 13,
           color: "rgba(255,255,255,0.5)",
           marginTop: 12,
           textAlign: "right",
@@ -551,7 +553,7 @@ function World3HUD() {
             padding: "6px 14px",
             color: "#ff9800",
             fontFamily: "'Inter', sans-serif",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: 1,
@@ -563,7 +565,7 @@ function World3HUD() {
           }}
         >
           <span>Tasks</span>
-          <span style={{ fontSize: 10 }}>{hudOpen ? "▼" : "▶"}</span>
+          <span style={{ fontSize: 11 }}>{hudOpen ? "▼" : "▶"}</span>
         </button>
         {hudOpen && (
           <div
@@ -578,11 +580,11 @@ function World3HUD() {
               borderTop: "none",
             }}
           >
-            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 15, lineHeight: 1.5 }}>
               {objectiveText}
             </div>
             {factoryQuestStarted && (
-              <div style={{ marginTop: 8, fontSize: 11 }}>
+              <div style={{ marginTop: 8, fontSize: 12 }}>
                 <div style={{ marginBottom: 8, padding: "6px 10px", background: "rgba(244,67,54,0.15)", borderRadius: 6, borderLeft: "3px solid #f44336" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                     <span style={{ color: stateColor(hatMachineState), fontSize: 14 }}>●</span>
@@ -657,7 +659,7 @@ function World3HUD() {
           padding: "8px 14px",
           color: "rgba(255,255,255,0.6)",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           zIndex: 50,
         }}
       >
@@ -675,7 +677,7 @@ function World3HUD() {
           padding: "8px 16px",
           color: "white",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: "pointer",
           zIndex: 50,
@@ -720,12 +722,12 @@ function OceanLessonUI() {
         <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
           For Loops in Programming
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
           In the survey task, you visited <strong style={{ color: "#ffeb3b" }}>each of the 4 marine ecosystems</strong> and
           performed the same set of actions at every one: count the animals, count the plants, and identify the
           environmental issue.
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
           This is exactly how a <strong style={{ color: "#69f0ae" }}>for loop</strong> works in programming!
           A for loop repeats the same block of code <em>for each item</em> in a collection. You knew exactly
           how many ecosystems there were (4), and you did the same survey steps at each one.
@@ -737,7 +739,7 @@ function OceanLessonUI() {
             borderRadius: 8,
             padding: "16px 20px",
             fontFamily: "'Courier New', monospace",
-            fontSize: 13,
+            fontSize: 14,
             lineHeight: 1.8,
             marginBottom: 16,
             border: "1px solid rgba(105, 240, 174, 0.3)",
@@ -786,14 +788,14 @@ function OceanLessonUI() {
           <span style={{ color: "#c3e88d" }}>{"}"}</span>
         </div>
 
-        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
           Just like you visited each ecosystem one by one and performed the same survey tasks,
           the <strong style={{ color: "#69f0ae" }}>for loop</strong> goes through the array of ecosystems
           one by one and runs the same code block for each one. The loop body executes exactly
           <strong style={{ color: "#ffeb3b" }}> 4 times</strong> — once per ecosystem!
         </div>
 
-        <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+        <div style={{ fontSize: 14, opacity: 0.6, marginBottom: 16 }}>
           For loops are used when you know how many times you need to repeat something — like surveying a known list of ecosystems.
         </div>
 
@@ -841,12 +843,12 @@ function OceanLessonUI() {
       <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#69f0ae" }}>
         While Loops in Programming
       </div>
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
         In the cleanup task, you drove the boat around the ocean vacuuming up chemical sludge.
         You didn't know exactly how many patches were out there — you just kept cleaning
         <strong style={{ color: "#ffeb3b" }}> while there was still sludge</strong> in the water.
       </div>
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
         This is exactly how a <strong style={{ color: "#69f0ae" }}>while loop</strong> works!
         A while loop keeps repeating a block of code <em>as long as a condition is true</em>.
         You didn't count the sludge patches — you just kept going until the ocean was clean.
@@ -858,7 +860,7 @@ function OceanLessonUI() {
           borderRadius: 8,
           padding: "16px 20px",
           fontFamily: "'Courier New', monospace",
-          fontSize: 13,
+          fontSize: 14,
           lineHeight: 1.8,
           marginBottom: 16,
           border: "1px solid rgba(105, 240, 174, 0.3)",
@@ -889,7 +891,7 @@ function OceanLessonUI() {
         <span style={{ color: "#546e7a" }}>{" // Done!"}</span>
       </div>
 
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
         Just like you kept vacuuming sludge until the ocean was clean, the
         <strong style={{ color: "#69f0ae" }}> while loop</strong> keeps running its code block as long as
         <code style={{ color: "#82aaff" }}> oceanHasSludge()</code> returns true. Once all the sludge
@@ -897,7 +899,7 @@ function OceanLessonUI() {
         and reported back to Josh!
       </div>
 
-      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+      <div style={{ fontSize: 14, opacity: 0.6, marginBottom: 16 }}>
         While loops are used when you don't know in advance how many times you'll need to repeat — you just keep going until a condition changes.
       </div>
 
@@ -913,10 +915,10 @@ function OceanLessonUI() {
         <div style={{ fontSize: 12, fontWeight: 700, color: "#ffeb3b", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>
           For vs While
         </div>
-        <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85 }}>
-          <strong style={{ color: "#4fc3f7" }}>For loop:</strong> Use when you know the items — "survey <em>each of</em> these 4 ecosystems"
+        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.85 }}>
+          <strong style={{ color: "#69f0ae" }}>For loop:</strong> Use when you know the items — "survey <em>each of</em> these 4 ecosystems"
         </div>
-        <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85 }}>
+        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.85 }}>
           <strong style={{ color: "#69f0ae" }}>While loop:</strong> Use when you have a condition — "keep cleaning <em>while</em> there's still sludge"
         </div>
       </div>
@@ -981,14 +983,14 @@ function FactoryLessonUI() {
         <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#ff9800" }}>
           Functions in Programming
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
           Great job fulfilling the Olympic Village order! You just used <strong style={{ color: "#ffeb3b" }}>three different machines</strong>,
           each one taking specific inputs (quantity, size, colors, lettering) and producing a finished product as output.
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
           This is exactly how <strong style={{ color: "#ff9800" }}>functions</strong> work in programming!
-          A function is a reusable block of code that takes <strong style={{ color: "#4fc3f7" }}>inputs (parameters)</strong>,
-          does some work, and produces an <strong style={{ color: "#69f0ae" }}>output (return value)</strong>.
+          A function is a reusable block of code that takes <strong style={{ color: "#ff9800" }}>inputs (parameters)</strong>,
+          does some work, and produces an <strong style={{ color: "#ff9800" }}>output (return value)</strong>.
         </div>
 
         <div
@@ -997,7 +999,7 @@ function FactoryLessonUI() {
             borderRadius: 8,
             padding: "16px 20px",
             fontFamily: "'Courier New', monospace",
-            fontSize: 13,
+            fontSize: 14,
             lineHeight: 1.8,
             marginBottom: 16,
             border: "1px solid rgba(255, 152, 0, 0.3)",
@@ -1043,15 +1045,15 @@ function FactoryLessonUI() {
           <span style={{ color: "#89ddff" }}>);</span>
         </div>
 
-        <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
-          The <strong style={{ color: "#4fc3f7" }}>parameters</strong> (quantity, size, topColor, brimColor, lettering)
+        <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+          The <strong style={{ color: "#ff9800" }}>parameters</strong> (quantity, size, topColor, brimColor, lettering)
           are like the settings on the machine — they tell the function what to do.
           The <strong style={{ color: "#ffeb3b" }}>arguments</strong> (2, "large", "white", "green", "Italy")
           are the actual values you supplied.
-          And the function <strong style={{ color: "#69f0ae" }}>returned</strong> the finished hats — your output!
+          And the function <strong style={{ color: "#ff9800" }}>returned</strong> the finished hats — your output!
         </div>
 
-        <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+        <div style={{ fontSize: 14, opacity: 0.6, marginBottom: 16 }}>
           Each machine is like a different function — same concept, different purpose!
         </div>
 
@@ -1101,11 +1103,11 @@ function FactoryLessonUI() {
       <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#ff9800" }}>
         Functions Group Tasks Together
       </div>
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
         Think about what each machine did internally — it took raw materials, cut them to size, applied colors,
         stamped the lettering, and assembled the final product. That's <strong style={{ color: "#ffeb3b" }}>a lot of steps</strong>!
       </div>
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
         But you didn't have to do each step manually. You just called the function with your inputs,
         and the machine handled all the complexity for you. That's the power of functions —
         they <strong style={{ color: "#ff9800" }}>cluster all the tasks needed</strong> to accomplish something,
@@ -1118,7 +1120,7 @@ function FactoryLessonUI() {
           borderRadius: 8,
           padding: "16px 20px",
           fontFamily: "'Courier New', monospace",
-          fontSize: 13,
+          fontSize: 14,
           lineHeight: 1.8,
           marginBottom: 16,
           border: "1px solid rgba(255, 152, 0, 0.3)",
@@ -1175,13 +1177,13 @@ function FactoryLessonUI() {
         <span style={{ color: "#89ddff" }}>);</span>
       </div>
 
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
-        Each function took <strong style={{ color: "#4fc3f7" }}>different inputs</strong> and
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        Each function took <strong style={{ color: "#ff9800" }}>different inputs</strong> and
         produced <strong style={{ color: "#ff9800" }}>different outputs</strong>, but they all
         followed the same pattern: <em>call the function, pass your inputs, get your result</em>.
       </div>
 
-      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+      <div style={{ fontSize: 14, opacity: 0.6, marginBottom: 16 }}>
         Now head to the Practice Station to test your knowledge of functions!
       </div>
 
@@ -1253,7 +1255,7 @@ function PsychicInstructionsUI() {
       </div>
 
       <div style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-        You are the <strong style={{ color: "#ffd700" }}>resident psychic</strong>. Customers will enter through the door
+        You are the <strong style={{ color: "#ffeb3b" }}>resident psychic</strong>. Customers will enter through the door
         and sit across from you. Each customer has a <strong style={{ color: "#e0b0ff" }}>favorite number between 1 and 100</strong> written
         on their tablet (hidden from you).
       </div>
@@ -1270,18 +1272,18 @@ function PsychicInstructionsUI() {
         marginBottom: 20,
         border: "1px solid rgba(155, 89, 182, 0.3)",
       }}>
-        <div style={{ fontSize: 14, marginBottom: 6 }}>
-          <span style={{ color: "#69f0ae", fontWeight: 700 }}>Correct guess:</span> You earn <strong style={{ color: "#ffd700" }}>$100</strong>
+        <div style={{ fontSize: 15, marginBottom: 6 }}>
+          <span style={{ color: "#69f0ae", fontWeight: 700 }}>Correct guess:</span> You earn <strong style={{ color: "#ffeb3b" }}>$100</strong>
         </div>
-        <div style={{ fontSize: 14, marginBottom: 6 }}>
+        <div style={{ fontSize: 15, marginBottom: 6 }}>
           <span style={{ color: "#ff6b6b", fontWeight: 700 }}>10 wrong guesses:</span> You lose <strong style={{ color: "#ff6b6b" }}>$100</strong>
         </div>
-        <div style={{ fontSize: 14 }}>
-          <span style={{ color: "#ffd700", fontWeight: 700 }}>Goal:</span> Reach a balance of <strong style={{ color: "#ffd700" }}>+$200</strong> to win the round!
+        <div style={{ fontSize: 15 }}>
+          <span style={{ color: "#ffeb3b", fontWeight: 700 }}>Goal:</span> Reach a balance of <strong style={{ color: "#ffeb3b" }}>+$200</strong> to win the round!
         </div>
       </div>
 
-      <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 20, textAlign: "center" }}>
+      <div style={{ fontSize: 15, opacity: 0.8, marginBottom: 20, textAlign: "center" }}>
         For this first round, just <strong>guess randomly</strong> — pick any number you think it might be!
       </div>
 
@@ -1377,17 +1379,17 @@ function PsychicTransitionUI() {
           borderRadius: 8,
           padding: "12px 18px",
           marginBottom: 20,
-          border: "1px solid rgba(105, 240, 174, 0.3)",
+          border: "1px solid rgba(155, 89, 182, 0.3)",
           fontFamily: "'Courier New', monospace",
           fontSize: 14,
-          color: "#69f0ae",
+          color: "#e0b0ff",
           textAlign: "center",
         }}>
           guess = (min + max) / 2
         </div>
       )}
 
-      <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 16, textAlign: "center" }}>
+      <div style={{ fontSize: 14, opacity: 0.7, marginBottom: 16, textAlign: "center" }}>
         {psychicRound === 3
           ? "Reach +$300 to win this round! (You should find this much easier...)"
           : "Reach +$200 to win, or -$200 to lose. Good luck!"}
@@ -1521,6 +1523,8 @@ function PsychicLessonUI() {
   const restart = useGame((s) => s.restart);
   const returnToFactory = useGame((s) => s.returnToFactory);
   const openShop = useGame((s) => s.openShop);
+  const returnToTown = useGame((s) => s.returnToTown);
+
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
 
@@ -1539,15 +1543,15 @@ function PsychicLessonUI() {
         color: "white",
         fontFamily: "'Inter', sans-serif",
         zIndex: 200,
-        border: "3px solid #69f0ae",
-        boxShadow: "0 0 40px rgba(105, 240, 174, 0.4)",
+        border: "3px solid #9b59b6",
+        boxShadow: "0 0 40px rgba(155, 89, 182, 0.4)",
         maxWidth: 640,
         maxHeight: "85vh",
         overflowY: "auto",
         width: "92%",
       }}
     >
-      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 16, color: "#69f0ae", textAlign: "center" }}>
+      <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 16, color: "#e0b0ff", textAlign: "center" }}>
         Search Algorithms: What You Just Learned
       </div>
 
@@ -1561,7 +1565,7 @@ function PsychicLessonUI() {
         <div style={{ fontSize: 16, fontWeight: 700, color: "#ff6b6b", marginBottom: 6 }}>
           Round 1: Random Search
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.6, opacity: 0.9 }}>
           You picked numbers at random — sometimes lucky, usually not. With 100 possible numbers and only 10 guesses,
           your odds of finding the right one were slim. This is like looking for a word in a dictionary by flipping to random pages.
         </div>
@@ -1577,7 +1581,7 @@ function PsychicLessonUI() {
         <div style={{ fontSize: 16, fontWeight: 700, color: "#ffc107", marginBottom: 6 }}>
           Round 2: Linear Search (Sequential)
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.6, opacity: 0.9 }}>
           You started at a number and checked one by one: 20, 21, 22, 23... This is <strong>linear search</strong> —
           you check every single element in order. In the worst case, you'd need up to 100 guesses!
           With only 10, you could only cover 10 numbers. Still very hard to win.
@@ -1594,7 +1598,7 @@ function PsychicLessonUI() {
         <div style={{ fontSize: 16, fontWeight: 700, color: "#69f0ae", marginBottom: 6 }}>
           Round 3: Binary Search
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
+        <div style={{ fontSize: 15, lineHeight: 1.6, opacity: 0.9 }}>
           You always guessed the <strong>middle</strong> of the remaining range. Each guess cut the possibilities
           <strong> in half</strong>! Starting with 100 numbers: after 1 guess you had 50 left, then 25, then 12, then 6, then 3, then 1.
           That's why you could <strong>always find any number in 7 guesses or fewer</strong> — making it nearly impossible to lose!
@@ -1606,10 +1610,10 @@ function PsychicLessonUI() {
         borderRadius: 8,
         padding: "16px 20px",
         fontFamily: "'Courier New', monospace",
-        fontSize: 13,
+        fontSize: 14,
         lineHeight: 1.8,
         marginBottom: 16,
-        border: "1px solid rgba(105, 240, 174, 0.3)",
+        border: "1px solid rgba(155, 89, 182, 0.3)",
         whiteSpace: "pre-wrap",
       }}>
         <span style={{ color: "#546e7a" }}>{"// Binary search divides the space in half each time:\n\n"}</span>
@@ -1630,18 +1634,35 @@ function PsychicLessonUI() {
         <span style={{ color: "#89ddff" }}>{"}"}</span>
       </div>
 
-      <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
-        Binary search is one of the most powerful algorithms in computer science. By <strong style={{ color: "#69f0ae" }}>dividing
-        the search space in half</strong> with each step, it finds answers in <strong style={{ color: "#ffd700" }}>logarithmic time</strong> —
+      <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+        Binary search is one of the most powerful algorithms in computer science. By <strong style={{ color: "#e0b0ff" }}>dividing
+        the search space in half</strong> with each step, it finds answers in <strong style={{ color: "#ffeb3b" }}>logarithmic time</strong> —
         dramatically faster than checking every possibility one by one.
       </div>
 
-      <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+      <div style={{ fontSize: 14, opacity: 0.6, marginBottom: 16 }}>
         Random search: ~100 guesses worst case | Linear search: ~100 guesses worst case | Binary search: ~7 guesses worst case
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-        {!psychicPracticeCompleted ? (
+        <div
+          onClick={openPsychicPractice}
+          style={{
+            padding: "12px 32px",
+            background: "linear-gradient(135deg, #9b59b6, #6a0dad)",
+            border: "none",
+            borderRadius: 8,
+            color: "white",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: "pointer",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}
+        >
+          {psychicPracticeCompleted ? "Retake Quiz" : "Test Your Understanding"}
+        </div>
+        {psychicPracticeCompleted && (
           <div
             onClick={openPsychicPractice}
             style={{
@@ -1931,21 +1952,21 @@ function PsychicHUD() {
           left: 16,
           zIndex: 50,
           background: "rgba(26, 10, 46, 0.9)",
-          borderRadius: 10,
+          borderRadius: 8,
           padding: "12px 20px",
           fontFamily: "'Inter', sans-serif",
           border: "1px solid rgba(155, 89, 182, 0.4)",
           minWidth: 200,
         }}
       >
-        <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+        <div style={{ fontSize: 12, color: "#9b59b6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
           {roundLabel}
         </div>
         <div style={{ fontSize: 24, fontWeight: 800, color: psychicBalance >= 0 ? "#ffd700" : "#ff6b6b", marginBottom: 4 }}>
           ${psychicBalance}
         </div>
         <div style={{
-          fontSize: 11,
+          fontSize: 12,
           color: "rgba(255,255,255,0.5)",
           marginBottom: 4,
         }}>
@@ -1964,11 +1985,11 @@ function PsychicHUD() {
             transition: "width 0.3s ease",
           }} />
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 6 }}>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 6 }}>
           Customers served: {psychicCustomersServed}
         </div>
         {psychicGamePhase === "waiting" && (
-          <div style={{ fontSize: 11, color: "#e0b0ff", marginTop: 4, fontStyle: "italic" }}>
+          <div style={{ fontSize: 12, color: "#e0b0ff", marginTop: 4, fontStyle: "italic" }}>
             Waiting for next customer...
           </div>
         )}
@@ -1985,7 +2006,7 @@ function PsychicHUD() {
           padding: "8px 16px",
           color: "white",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: "pointer",
           zIndex: 50,
@@ -2002,6 +2023,8 @@ function App() {
   const phase = useGame((s) => s.phase);
   const practiceActive = useGame((s) => s.practiceActive);
   const currentWorld = useGame((s) => s.currentWorld);
+  const gameCompleted = useGame((s) => s.gameCompleted);
+  const setCurrentWorld = useGame((s) => s.setCurrentWorld);
   const [user, setUser] = useState<{ id: number; username: string } | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -2009,8 +2032,19 @@ function App() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {}
-    setUser(null);
+    useQuestionPrefetch.getState().reset();
+    globalThis.location.reload();
   }, []);
+
+  const handleResetProgress = useCallback(async () => {
+    try {
+      await fetch("/api/progress", { method: "DELETE" });
+    } catch {}
+    useQuestionPrefetch.getState().reset();
+    globalThis.location.reload();
+  }, []);
+
+  const loadProgress = useGame((s) => s.loadProgress);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -2024,6 +2058,12 @@ function App() {
       })
       .catch(() => setAuthChecked(true));
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadProgress();
+    }
+  }, [user, loadProgress]);
 
   if (!authChecked) {
     return (
@@ -2061,6 +2101,7 @@ function App() {
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
       {phase === "playing" && <ScoreHUD />}
       {phase === "playing" && <ShopUI />}
+      {phase === "playing" && <SettingsMenu onLogout={handleLogout} onResetProgress={handleResetProgress} gameCompleted={gameCompleted} currentWorld={currentWorld} onWorldChange={setCurrentWorld} />}
       {phase === "playing" && <AdminPanel username={user.username} />}
 
       <KeyboardControls map={keyMap}>

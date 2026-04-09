@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import path from "path";
 import { generateQuestions } from "./questionGenerator";
+import { storage } from "./storage";
+import { progressDataSchema } from "@shared/schema";
 
 const VALID_WORLD_IDS = new Set(["town", "town-lesson", "factory", "ocean", "psychic"]);
 const MAX_QUESTION_COUNT = 12;
@@ -63,6 +65,49 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error generating questions:", error);
       res.status(500).json({ error: "Failed to generate questions" });
+    }
+  });
+
+  app.get("/api/progress", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      const progress = await storage.getProgress(req.session.userId);
+      return res.json({ progress });
+    } catch (error) {
+      console.error("Error loading progress:", error);
+      return res.status(500).json({ error: "Failed to load progress" });
+    }
+  });
+
+  app.delete("/api/progress", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      await storage.deleteProgress(req.session.userId);
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting progress:", error);
+      return res.status(500).json({ error: "Failed to delete progress" });
+    }
+  });
+
+  app.post("/api/progress", async (req, res) => {
+    try {
+      if (!req.session?.userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      const parsed = progressDataSchema.safeParse(req.body.progress);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid progress data", details: parsed.error.issues });
+      }
+      await storage.saveProgress(req.session.userId, parsed.data);
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error saving progress:", error);
+      return res.status(500).json({ error: "Failed to save progress" });
     }
   });
 

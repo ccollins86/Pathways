@@ -59,7 +59,7 @@ export function DialogueUI() {
       </div>
       <div
         style={{
-          fontSize: 12,
+          fontSize: 13,
           color: "rgba(255,255,255,0.5)",
           textAlign: "right",
         }}

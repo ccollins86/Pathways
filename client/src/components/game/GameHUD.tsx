@@ -38,6 +38,7 @@ export function GameHUD() {
   const unlockPractice = useGame((s) => s.unlockPractice);
   const practiceCompleted = useGame((s) => s.practiceCompleted);
   const portalActive = useGame((s) => s.portalActive);
+  const gameCompleted = useGame((s) => s.gameCompleted);
   const addTotalScore = useGame((s) => s.addTotalScore);
   const incrementFirstTry = useGame((s) => s.incrementFirstTry);
 
@@ -127,7 +128,9 @@ export function GameHUD() {
   if (activeDialogue) return null;
 
   let objective = "Find Dan at the USC Apparel stand and talk to him.";
-  if (questFailed) {
+  if (gameCompleted) {
+    objective = "Congratulations! You've completed Disaster Prep Quest! Feel free to explore the town.";
+  } else if (questFailed) {
     objective = "Quest Failed! You made the wrong preparation choice.";
   } else if (portalActive) {
     objective = "A portal has appeared! Walk into it to enter the next world!";
@@ -227,12 +230,12 @@ export function GameHUD() {
           <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, color: "#4fc3f7" }}>
             Branching Statements in Programming
           </div>
-          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
             In this quest, you found out that a <strong style={{ color: "#ffeb3b" }}>{knownDisaster}</strong> was coming.
             Even though items for <em>all three</em> disasters were available, you only performed the tasks
             for the {knownDisaster}. You ignored the other items because they didn't match the situation.
           </div>
-          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
+          <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 16 }}>
             This is exactly how <strong style={{ color: "#4fc3f7" }}>if / else-if / else</strong> statements
             work in programming! The computer checks each condition in order, and <em>only executes the
             code block</em> where the condition is true. The other blocks are skipped entirely — just like
@@ -245,7 +248,7 @@ export function GameHUD() {
               borderRadius: 8,
               padding: "16px 20px",
               fontFamily: "'Courier New', monospace",
-              fontSize: 13,
+              fontSize: 14,
               lineHeight: 1.8,
               marginBottom: 16,
               border: "1px solid rgba(79, 195, 247, 0.3)",
@@ -286,7 +289,7 @@ export function GameHUD() {
             {"}"}</span>
           </div>
 
-          <div style={{ fontSize: 14, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
+          <div style={{ fontSize: 15, lineHeight: 1.7, opacity: 0.9, marginBottom: 8 }}>
             {knownDisaster === "hurricane" && (
               <>Because the disaster was <strong style={{ color: "#ffeb3b" }}>"hurricane"</strong>, only the first block ran — sandbagging doors and boarding windows. The wildfire and earthquake blocks were skipped, just like you skipped those items in the game!</>
             )}
@@ -298,7 +301,7 @@ export function GameHUD() {
             )}
           </div>
 
-          <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>
+          <div style={{ fontSize: 14, opacity: 0.6, marginBottom: 16 }}>
             Only one branch executes — the first one whose condition is true. The rest are ignored.
           </div>
 
@@ -352,12 +355,12 @@ export function GameHUD() {
               <div style={{ fontSize: 20, fontWeight: 800, color: "#4fc3f7" }}>
                 Lesson Quiz
               </div>
-              <div style={{ fontSize: 13, opacity: 0.6 }}>
+              <div style={{ fontSize: 14, opacity: 0.6 }}>
                 {lessonQuizQ + 1} / {lessonQuestions.length}
               </div>
             </div>
 
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#b0bec5" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8, color: "#b0bec5" }}>
               {q.question}
             </div>
 
@@ -367,7 +370,7 @@ export function GameHUD() {
                 borderRadius: 8,
                 padding: "14px 18px",
                 fontFamily: "'Courier New', monospace",
-                fontSize: 13,
+                fontSize: 14,
                 lineHeight: 1.7,
                 marginBottom: 16,
                 border: "1px solid rgba(79, 195, 247, 0.2)",
@@ -404,7 +407,7 @@ export function GameHUD() {
                       border,
                       borderRadius: 8,
                       cursor: lessonQuizCorrect ? "default" : "pointer",
-                      fontSize: 14,
+                      fontSize: 15,
                       color: textColor,
                       fontWeight: (lessonQuizCorrect && i === q.correctIndex) || lessonQuizSelected === i ? 600 : 400,
                       transition: "all 0.15s",
@@ -445,7 +448,7 @@ export function GameHUD() {
                     </div>
                   )}
                 </div>
-                <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
+                <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9 }}>
                   {q.explanation}
                 </div>
                 {lessonQuizPopups.map((p) => (
@@ -485,7 +488,7 @@ export function GameHUD() {
                 <div
                   onClick={() => setLessonQuizHint(!lessonQuizHint)}
                   style={{
-                    fontSize: 13,
+                    fontSize: 14,
                     color: "#4fc3f7",
                     cursor: "pointer",
                     marginTop: 6,
@@ -498,7 +501,7 @@ export function GameHUD() {
                   {lessonQuizHint ? "Hide Hint" : "Show Hint"}
                 </div>
                 {lessonQuizHint && (
-                  <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(79, 195, 247, 0.4)" }}>
+                  <div style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.85, marginTop: 8, paddingLeft: 16, borderLeft: "2px solid rgba(79, 195, 247, 0.4)" }}>
                     {q.hint}
                   </div>
                 )}
@@ -514,7 +517,7 @@ export function GameHUD() {
                   border: "1px solid rgba(255,255,255,0.3)",
                   borderRadius: 8,
                   color: "white",
-                  fontSize: 13,
+                  fontSize: 14,
                   cursor: "pointer",
                 }}
               >
@@ -529,7 +532,7 @@ export function GameHUD() {
                     border: "none",
                     borderRadius: 8,
                     color: "#0d47a1",
-                    fontSize: 14,
+                    fontSize: 15,
                     fontWeight: 700,
                     cursor: "pointer",
                   }}
@@ -662,17 +665,27 @@ export function GameHUD() {
       >
         <div
           style={{
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
-            color: questFailed ? "#ef5350" : questCompleted ? "#66bb6a" : "#ffeb3b",
+            color: (() => {
+              if (gameCompleted) return "#69f0ae";
+              if (questFailed) return "#ef5350";
+              if (questCompleted) return "#66bb6a";
+              return "#ffeb3b";
+            })(),
             textTransform: "uppercase",
             letterSpacing: 1,
             marginBottom: 4,
           }}
         >
-          {questFailed ? "Failed" : questCompleted ? "Completed" : "Objective"}
+          {(() => {
+            if (gameCompleted) return "Complete";
+            if (questFailed) return "Failed";
+            if (questCompleted) return "Completed";
+            return "Objective";
+          })()}
         </div>
-        <div style={{ fontSize: 14, lineHeight: 1.5 }}>{objective}</div>
+        <div style={{ fontSize: 15, lineHeight: 1.5 }}>{objective}</div>
       </div>
 
       {/* Carried item indicator */}
@@ -739,7 +752,7 @@ export function GameHUD() {
       >
         <div
           style={{
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             color: "#ffeb3b",
             textTransform: "uppercase",
@@ -753,10 +766,18 @@ export function GameHUD() {
           }}
           onClick={() => setTasksOpen(!tasksOpen)}
         >
-          <span>Quest Progress</span>
-          <span style={{ fontSize: 13 }}>{tasksOpen ? "\u25BC" : "\u25B6"}</span>
+          <span>{gameCompleted ? "Adventure Complete" : "Quest Progress"}</span>
+          <span style={{ fontSize: 11 }}>{tasksOpen ? "\u25BC" : "\u25B6"}</span>
         </div>
-        {tasksOpen && <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+        {tasksOpen && gameCompleted && (
+          <div style={{ fontSize: 14, lineHeight: 1.8 }}>
+            <div style={{ color: "#66bb6a" }}>✓ Town World</div>
+            <div style={{ color: "#66bb6a" }}>✓ Ocean World</div>
+            <div style={{ color: "#66bb6a" }}>✓ Factory World</div>
+            <div style={{ color: "#66bb6a" }}>✓ Psychic World</div>
+          </div>
+        )}
+        {tasksOpen && !gameCompleted && <div style={{ fontSize: 14, lineHeight: 1.8 }}>
           <div style={{ color: talkedToDan ? "#66bb6a" : "white" }}>
             {talkedToDan ? "✓" : "○"} Talk to Dan
           </div>
@@ -771,7 +792,7 @@ export function GameHUD() {
             <>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#ff9800",
                   marginTop: 8,
@@ -821,7 +842,7 @@ export function GameHUD() {
             <>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#ff9800",
                   marginTop: 8,
@@ -852,7 +873,7 @@ export function GameHUD() {
             <>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "#ff9800",
                   marginTop: 8,
@@ -893,7 +914,7 @@ export function GameHUD() {
           padding: "8px 14px",
           color: "rgba(255,255,255,0.6)",
           fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           zIndex: 50,
         }}
       >
