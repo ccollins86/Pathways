@@ -357,6 +357,10 @@ interface ProgressData {
   psychicPracticeCompleted: boolean;
   psychicWorldBonusAwarded: boolean;
   gameCompleted: boolean;
+  currency: number;
+  ownedOutfits: string[];
+  equippedShirt: string | null;
+  equippedPants: string | null;
 }
 
 function extractProgress(s: GameState): ProgressData {
@@ -407,6 +411,10 @@ function extractProgress(s: GameState): ProgressData {
     psychicPracticeCompleted: s.psychicPracticeCompleted,
     psychicWorldBonusAwarded: s.psychicWorldBonusAwarded,
     gameCompleted: s.gameCompleted,
+    currency: s.currency,
+    ownedOutfits: [...s.ownedOutfits],
+    equippedShirt: s.equippedShirt,
+    equippedPants: s.equippedPants,
   };
 }
 
@@ -468,6 +476,10 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     psychicPracticeCompleted: p.psychicPracticeCompleted,
     psychicWorldBonusAwarded: p.psychicWorldBonusAwarded,
     gameCompleted: p.gameCompleted ?? false,
+    currency: p.currency ?? 0,
+    ownedOutfits: p.ownedOutfits ?? [],
+    equippedShirt: p.equippedShirt ?? null,
+    equippedPants: p.equippedPants ?? null,
   };
 
   if (p.townQuestCompleted) {
