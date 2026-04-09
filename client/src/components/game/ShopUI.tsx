@@ -27,8 +27,8 @@ export function ShopUI() {
   if (!shopOpen) return null;
 
   const outfits = getOutfitsForWorld(shopOpen);
-  const worldLabel = shopOpen === "town" ? "Town" : shopOpen === "ocean" ? "Ocean" : "Factory";
-  const accentColor = shopOpen === "town" ? "#ff6d00" : shopOpen === "ocean" ? "#00897b" : "#ff9800";
+  const worldLabel = shopOpen === "town" ? "Town" : shopOpen === "ocean" ? "Ocean" : shopOpen === "psychic" ? "Psychic" : "Factory";
+  const accentColor = shopOpen === "town" ? "#ff6d00" : shopOpen === "ocean" ? "#00897b" : shopOpen === "psychic" ? "#9b59b6" : "#ff9800";
 
   const sOutfit = equippedShirt ? getOutfitById(equippedShirt) : null;
   const pOutfit = equippedPants ? getOutfitById(equippedPants) : null;
@@ -43,6 +43,7 @@ export function ShopUI() {
     town: "Town",
     ocean: "Ocean",
     factory: "Factory",
+    psychic: "Psychic",
   };
 
   return (

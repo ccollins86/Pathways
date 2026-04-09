@@ -1682,7 +1682,7 @@ function PsychicLessonUI() {
               Back to Factory
             </div>
             <div
-              onClick={() => { returnToFactory(); setTimeout(() => openShop("factory"), 100); }}
+              onClick={() => openShop("psychic")}
               style={{
                 padding: "12px 32px",
                 background: "linear-gradient(135deg, #9b59b6, #6a0dad)",

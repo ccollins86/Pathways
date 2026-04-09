@@ -58,6 +58,22 @@ export const OUTFIT_CATALOG: OutfitItem[] = [
     color: "#2c3e6b",
     world: "factory",
   },
+  {
+    id: "psychic-shirt",
+    name: "Mystic Robe",
+    type: "shirt",
+    price: 35,
+    color: "#7b1fa2",
+    world: "psychic",
+  },
+  {
+    id: "psychic-pants",
+    name: "Enchanted Leggings",
+    type: "pants",
+    price: 30,
+    color: "#4a148c",
+    world: "psychic",
+  },
 ];
 
 export function getOutfitsForWorld(world: GameWorld): OutfitItem[] {
