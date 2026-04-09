@@ -111,7 +111,7 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
     <div
       style={{
         position: "fixed",
-        bottom: 12,
+        bottom: 60,
         left: 12,
         zIndex: 9999,
         fontFamily: "'Inter', sans-serif",
