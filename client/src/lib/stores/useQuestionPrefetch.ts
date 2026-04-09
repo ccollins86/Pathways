@@ -103,19 +103,16 @@ function processGeneratedQuestion(
   result: Question[]
 ): void {
   if (!isValidQuestion(q)) {
-    console.log(`[Prefetch] Question ${q?.id} failed validation, using fallback`, q);
     pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
     return;
   }
   if (!hasDistinctOptions(q)) {
-    console.log(`[Prefetch] Question ${q.id} has duplicate options, using fallback`);
     pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
     return;
   }
 
   const sig = questionSignature(q);
   if (usedSignatures.has(sig)) {
-    console.log(`[Prefetch] Question ${q.id} is duplicate, using fallback`);
     pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
     return;
   }
@@ -187,7 +184,6 @@ export const useQuestionPrefetch = create<PrefetchState>((set, get) => ({
         if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
           const validated = validateAndReplace(data.questions, fallbackQuestions, targetCount);
           if (validated.length > 0) {
-            console.log(`[Prefetch] AI questions loaded for "${key}" (${validated.length} questions)`);
             set((s) => ({
               questions: { ...s.questions, [key]: validated },
               loading: { ...s.loading, [key]: false },

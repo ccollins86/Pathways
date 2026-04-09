@@ -27,7 +27,6 @@ export function PracticeQuizUI() {
 
   const prefetched = useQuestionPrefetch((s) => s.questions["town"]);
   const questions = prefetched && prefetched.length > 0 ? prefetched : TOWN_QUESTIONS;
-  console.log(`[PracticeQuizUI] Using ${prefetched && prefetched.length > 0 ? "AI" : "hardcoded"} questions (${questions.length})`);
 
   return (
     <PracticeQuizBase
