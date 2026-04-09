@@ -157,9 +157,13 @@ export const useQuestionPrefetch = create<PrefetchState>((set, get) => ({
 
   prefetchQuestions: (key, fallbackQuestions, count) => {
     const state = get();
-    if (state.loading[key] || state.succeeded[key]) return;
+    if (state.loading[key]) return;
 
-    set((s) => ({ loading: { ...s.loading, [key]: true } }));
+    set((s) => ({
+      loading: { ...s.loading, [key]: true },
+      succeeded: { ...s.succeeded, [key]: false },
+      questions: { ...s.questions, [key]: undefined },
+    }));
 
     const targetCount = count || fallbackQuestions.length;
 
