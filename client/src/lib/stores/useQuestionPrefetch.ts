@@ -102,13 +102,20 @@ function processGeneratedQuestion(
   usedFallbackIndices: Set<number>,
   result: Question[]
 ): void {
-  if (!isValidQuestion(q) || !hasDistinctOptions(q)) {
+  if (!isValidQuestion(q)) {
+    console.log(`[Prefetch] Question ${q?.id} failed validation, using fallback`, q);
+    pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
+    return;
+  }
+  if (!hasDistinctOptions(q)) {
+    console.log(`[Prefetch] Question ${q.id} has duplicate options, using fallback`);
     pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
     return;
   }
 
   const sig = questionSignature(q);
   if (usedSignatures.has(sig)) {
+    console.log(`[Prefetch] Question ${q.id} is duplicate, using fallback`);
     pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
     return;
   }
