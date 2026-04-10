@@ -15,6 +15,7 @@ import { WorldItem } from "./WorldItem";
 import { InteractionTarget } from "./InteractionTarget";
 import { PracticeBooth } from "./PracticeBooth";
 import { Portal } from "./Portal";
+import { OutfitBooth } from "./OutfitBooth";
 import { useGame } from "@/lib/stores/useGame";
 
 export function Game() {
@@ -171,9 +172,10 @@ export function Game() {
       ]);
     } else if (!talkedToBob) {
       setTalkedToBob();
+      const d = disaster || "hurricane";
       const disasterName =
-        disaster!.charAt(0).toUpperCase() + disaster!.slice(1);
-      setKnownDisaster(disaster!);
+        d.charAt(0).toUpperCase() + d.slice(1);
+      setKnownDisaster(d);
       openDialogue("Bob", [
         {
           speaker: "You",
@@ -189,8 +191,9 @@ export function Game() {
         },
       ]);
     } else {
+      const kd = knownDisaster || "hurricane";
       const disasterName =
-        knownDisaster!.charAt(0).toUpperCase() + knownDisaster!.slice(1);
+        kd.charAt(0).toUpperCase() + kd.slice(1);
       openDialogue("Bob", [
         {
           speaker: "Bob",
@@ -252,8 +255,9 @@ export function Game() {
         },
       ]);
     } else {
+      const kd = knownDisaster || "hurricane";
       const disasterName =
-        knownDisaster!.charAt(0).toUpperCase() + knownDisaster!.slice(1);
+        kd.charAt(0).toUpperCase() + kd.slice(1);
       openDialogue("Mike", [
         {
           speaker: "Mike",
@@ -568,6 +572,12 @@ export function Game() {
         practiceUnlocked={practiceUnlocked}
         practiceActive={practiceActive}
         onInteract={openPractice}
+      />
+
+      <OutfitBooth
+        position={[28, 0, 8]}
+        playerPosition={playerPos}
+        world="town"
       />
 
       {portalActive && (

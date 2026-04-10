@@ -32,6 +32,7 @@ function isValidQuestion(q: unknown): q is Question {
     obj.options.length === 4 &&
     obj.options.every((o: unknown) => typeof o === "string") &&
     typeof obj.correctIndex === "number" &&
+    Number.isInteger(obj.correctIndex) &&
     obj.correctIndex >= 0 &&
     obj.correctIndex <= 3 &&
     typeof obj.explanation === "string"
@@ -70,15 +71,45 @@ function getRandomFallback(
   return fallbackQuestions[idx];
 }
 
+function stripTags(s: string): string {
+  const tagPattern = /<\/?[a-zA-Z][^>]*>/g;
+  let prev = s;
+  let result = s.replace(tagPattern, "");
+  while (result !== prev) {
+    prev = result;
+    result = result.replace(tagPattern, "");
+  }
+  return result;
+}
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+function sanitizeText(s: string): string {
+  let prev = s;
+  let result = stripTags(decodeEntities(s));
+  while (result !== prev) {
+    prev = result;
+    result = stripTags(decodeEntities(result));
+  }
+  return result;
+}
+
 function sanitizeQuestion(q: Question): Question {
   return {
     id: q.id,
-    code: q.code,
-    question: q.question,
-    options: q.options.map(String),
-    correctIndex: q.correctIndex,
-    explanation: q.explanation,
-    hint: typeof q.hint === "string" ? q.hint : "Think carefully about the code.",
+    code: decodeEntities(q.code),
+    question: sanitizeText(q.question),
+    options: q.options.map((o) => sanitizeText(String(o))),
+    correctIndex: Math.floor(q.correctIndex),
+    explanation: sanitizeText(q.explanation),
+    hint: typeof q.hint === "string" ? sanitizeText(q.hint) : "Think carefully about the code.",
   };
 }
 
@@ -102,7 +133,11 @@ function processGeneratedQuestion(
   usedFallbackIndices: Set<number>,
   result: Question[]
 ): void {
-  if (!isValidQuestion(q) || !hasDistinctOptions(q)) {
+  if (!isValidQuestion(q)) {
+    pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
+    return;
+  }
+  if (!hasDistinctOptions(q)) {
     pushFallback(fallbackQuestions, usedSignatures, usedFallbackIndices, result);
     return;
   }
@@ -157,9 +192,13 @@ export const useQuestionPrefetch = create<PrefetchState>((set, get) => ({
 
   prefetchQuestions: (key, fallbackQuestions, count) => {
     const state = get();
-    if (state.loading[key] || state.succeeded[key]) return;
+    if (state.loading[key]) return;
 
-    set((s) => ({ loading: { ...s.loading, [key]: true } }));
+    set((s) => ({
+      loading: { ...s.loading, [key]: true },
+      succeeded: { ...s.succeeded, [key]: false },
+      questions: { ...s.questions, [key]: undefined },
+    }));
 
     const targetCount = count || fallbackQuestions.length;
 

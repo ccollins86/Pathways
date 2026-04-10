@@ -62,6 +62,10 @@ export const progressDataSchema = z.object({
   psychicPracticeCompleted: z.boolean(),
   psychicWorldBonusAwarded: z.boolean(),
   gameCompleted: z.boolean(),
+  currency: z.number().default(0),
+  ownedOutfits: z.array(z.string()).default([]),
+  equippedShirt: z.string().nullable().default(null),
+  equippedPants: z.string().nullable().default(null),
 });
 
 export type UserProgressData = z.infer<typeof progressDataSchema>;

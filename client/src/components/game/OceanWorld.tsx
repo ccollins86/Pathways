@@ -7,6 +7,7 @@ import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { MarineEcosystem } from "./MarineEcosystem";
 import { Portal } from "./Portal";
+import { OutfitBooth } from "./OutfitBooth";
 import { useGame, SludgePatch } from "@/lib/stores/useGame";
 
 function Ocean() {
@@ -839,7 +840,7 @@ function SchoolOfFish({ position, count, color }: { position: [number, number, n
 function BeachExtras() {
   return (
     <group>
-      <BeachUmbrella position={[-16, 0, 16]} color="#e53935" rotation={0.5} />
+      <BeachUmbrella position={[-26, 0, 16]} color="#e53935" rotation={0.5} />
       <BeachUmbrella position={[15, 0, 18]} color="#1e88e5" rotation={-0.3} />
       <BeachUmbrella position={[30, 0, 22]} color="#ffb300" rotation={0.8} />
       <BeachUmbrella position={[-35, 0, 20]} color="#43a047" rotation={0.2} />
@@ -847,7 +848,7 @@ function BeachExtras() {
       <BeachUmbrella position={[-50, 0, 25]} color="#ff7043" rotation={1.1} />
       <BeachUmbrella position={[55, 0, 20]} color="#7b1fa2" rotation={0.4} />
 
-      <BeachChair position={[-15, 0, 17]} rotation={0.6} fabricColor="#1565c0" />
+      <BeachChair position={[-25, 0, 17]} rotation={0.6} fabricColor="#1565c0" />
       <BeachChair position={[16, 0, 19]} rotation={-0.2} fabricColor="#e53935" />
       <BeachChair position={[31, 0, 23]} rotation={0.9} fabricColor="#ff8f00" />
       <BeachChair position={[-34, 0, 21]} rotation={0.3} fabricColor="#2e7d32" />
@@ -870,7 +871,7 @@ function BeachExtras() {
       <BeachVolleyballNet position={[-30, 0, 18]} />
 
 
-      <Cooler position={[-14, 0, 16]} />
+      <Cooler position={[-24, 0, 18]} />
       <Cooler position={[32, 0, 21]} />
 
       <Jellyfish position={[-20, -3, -30]} />
@@ -1034,6 +1035,8 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
   const [isNear, setIsNear] = useState(false);
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
   const equipDivingSuit = useGame((s) => s.equipDivingSuit);
+  const removeDivingSuit = useGame((s) => s.removeDivingSuit);
+  const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
   const world2Dialogue = useGame((s) => s.world2Dialogue);
   const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
   const stationPos: [number, number, number] = [-8, 0, 2];
@@ -1046,21 +1049,38 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
   });
 
   useEffect(() => {
-    if (hasDivingSuit || world2Dialogue) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if ((e.key === "e" || e.key === "E") && isNear) {
-        equipDivingSuit();
-        openWorld2Dialogue([
-          {
-            speaker: "System",
-            text: "You put on the diving suit! You can now explore the underwater ecosystems. Head into the ocean!",
-          },
-        ]);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, hasDivingSuit, equipDivingSuit, world2Dialogue, openWorld2Dialogue]);
+    if (world2Dialogue) return;
+    if (!hasDivingSuit) {
+      const handleKey = (e: KeyboardEvent) => {
+        if ((e.key === "e" || e.key === "E") && isNear) {
+          equipDivingSuit();
+          openWorld2Dialogue([
+            {
+              speaker: "System",
+              text: "You put on the diving suit! You can now explore the underwater ecosystems. Head into the ocean!",
+            },
+          ]);
+        }
+      };
+      window.addEventListener("keydown", handleKey);
+      return () => window.removeEventListener("keydown", handleKey);
+    }
+    if (hasDivingSuit && cleanupQuestCompleted) {
+      const handleKey = (e: KeyboardEvent) => {
+        if ((e.key === "e" || e.key === "E") && isNear) {
+          removeDivingSuit();
+          openWorld2Dialogue([
+            {
+              speaker: "System",
+              text: "You took off the diving suit. You can put it back on anytime by coming back here.",
+            },
+          ]);
+        }
+      };
+      window.addEventListener("keydown", handleKey);
+      return () => window.removeEventListener("keydown", handleKey);
+    }
+  }, [isNear, hasDivingSuit, equipDivingSuit, removeDivingSuit, cleanupQuestCompleted, world2Dialogue, openWorld2Dialogue]);
 
   return (
     <group position={stationPos}>
@@ -1122,7 +1142,7 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
         {hasDivingSuit ? "Suit Equipped ✓" : "Diving Suit"}
       </Text>
 
-      {!hasDivingSuit && isNear && !world2Dialogue && (
+      {isNear && !world2Dialogue && !hasDivingSuit && (
         <Text
           position={[0, 0.3, 0.2]}
           fontSize={0.18}
@@ -1133,6 +1153,20 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
           outlineColor="#000"
         >
           Press E to equip
+        </Text>
+      )}
+
+      {isNear && !world2Dialogue && hasDivingSuit && cleanupQuestCompleted && (
+        <Text
+          position={[0, 0.3, 0.2]}
+          fontSize={0.18}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000"
+        >
+          Press E to remove
         </Text>
       )}
     </group>
@@ -1897,6 +1931,12 @@ export function OceanWorld() {
         unlocked={oceanPracticeUnlocked}
         active={oceanPracticeActive}
         onInteract={openOceanPractice}
+      />
+
+      <OutfitBooth
+        position={[-16, 0, 14]}
+        playerPosition={playerPos}
+        world="ocean"
       />
 
       {oceanPortalActive && (

@@ -5,6 +5,7 @@ import { TOWN_QUESTIONS, TOWN_LESSON_QUESTIONS } from "../../components/game/tow
 import { FACTORY_QUESTIONS } from "../../components/game/factoryQuestions";
 import { OCEAN_QUESTIONS } from "../../components/game/oceanQuestions";
 import { PSYCHIC_QUESTIONS } from "../../components/game/psychicQuestions";
+import { getOutfitById } from "../../components/game/outfitCatalog";
 
 export type GamePhase = "ready" | "playing" | "ended";
 export type GameWorld = "town" | "ocean" | "factory" | "psychic";
@@ -189,6 +190,12 @@ interface GameState {
   psychicWorldBonusAwarded: boolean;
   gameCompleted: boolean;
 
+  currency: number;
+  ownedOutfits: string[];
+  equippedShirt: string | null;
+  equippedPants: string | null;
+  shopOpen: GameWorld | null;
+
   totalScore: number;
   firstTryCount: number;
   townQuestBonusAwarded: boolean;
@@ -201,6 +208,7 @@ interface GameState {
 
   start: () => void;
   restart: () => void;
+  returnToFactory: () => void;
   returnToTown: () => void;
   end: () => void;
   setDisaster: (d: DisasterType) => void;
@@ -230,6 +238,11 @@ interface GameState {
   resetPracticeScore: () => void;
   addTotalScore: (points: number) => void;
   incrementFirstTry: () => void;
+  openShop: (world: GameWorld) => void;
+  closeShop: () => void;
+  buyOutfit: (outfitId: string) => boolean;
+  equipOutfit: (outfitId: string) => void;
+  unequipAll: () => void;
   completePractice: () => void;
   enterPortal: () => void;
   openWorld2Dialogue: (lines: { speaker: string; text: string }[]) => void;
@@ -242,6 +255,7 @@ interface GameState {
   completeEcosystemSurvey: (index: number) => void;
   completeOceanQuest: () => void;
   equipDivingSuit: () => void;
+  removeDivingSuit: () => void;
 
   startCleanupQuest: () => void;
   boardBoat: () => void;
@@ -344,6 +358,10 @@ interface ProgressData {
   psychicPracticeCompleted: boolean;
   psychicWorldBonusAwarded: boolean;
   gameCompleted: boolean;
+  currency: number;
+  ownedOutfits: string[];
+  equippedShirt: string | null;
+  equippedPants: string | null;
 }
 
 function extractProgress(s: GameState): ProgressData {
@@ -394,6 +412,10 @@ function extractProgress(s: GameState): ProgressData {
     psychicPracticeCompleted: s.psychicPracticeCompleted,
     psychicWorldBonusAwarded: s.psychicWorldBonusAwarded,
     gameCompleted: s.gameCompleted,
+    currency: s.currency,
+    ownedOutfits: [...s.ownedOutfits],
+    equippedShirt: s.equippedShirt,
+    equippedPants: s.equippedPants,
   };
 }
 
@@ -455,6 +477,10 @@ function applyProgress(p: ProgressData): Partial<GameState> {
     psychicPracticeCompleted: p.psychicPracticeCompleted,
     psychicWorldBonusAwarded: p.psychicWorldBonusAwarded,
     gameCompleted: p.gameCompleted ?? false,
+    currency: p.currency ?? 0,
+    ownedOutfits: p.ownedOutfits ?? [],
+    equippedShirt: p.equippedShirt ?? null,
+    equippedPants: p.equippedPants ?? null,
   };
 
   if (p.townQuestCompleted) {
@@ -585,6 +611,12 @@ export const useGame = create<GameState>()(
     psychicWorldBonusAwarded: false,
     gameCompleted: false,
 
+    currency: 0,
+    ownedOutfits: [],
+    equippedShirt: null,
+    equippedPants: null,
+    shopOpen: null,
+
     totalScore: 0,
     firstTryCount: 0,
     townQuestBonusAwarded: false,
@@ -693,7 +725,22 @@ export const useGame = create<GameState>()(
         psychicPracticeScore: 0,
         psychicPracticeCompleted: false,
         gameCompleted: false,
+        currency: 0,
+        ownedOutfits: [],
+        equippedShirt: null,
+        equippedPants: null,
+        shopOpen: null,
       }));
+    },
+
+    returnToFactory: () => {
+      set({
+        currentWorld: "factory" as GameWorld,
+        phase: "playing" as GamePhase,
+        psychicPracticeActive: false,
+        shopOpen: null,
+      });
+      setTimeout(() => get().saveProgress(), 0);
     },
 
     returnToTown: () => {
@@ -834,10 +881,10 @@ export const useGame = create<GameState>()(
     },
     openPractice: () => set({ practiceActive: true }),
     closePractice: () => set({ practiceActive: false }),
-    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points })),
+    addPracticeScore: (points: number) => set((state) => ({ practiceScore: state.practiceScore + points, totalScore: state.totalScore + points, currency: state.currency + points })),
     resetPracticeScore: () => set({ practiceScore: 0 }),
-    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5 })),
-    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points })),
+    incrementFirstTry: () => set((state) => ({ firstTryCount: state.firstTryCount + 1, totalScore: state.totalScore + 5, currency: state.currency + 5 })),
+    addTotalScore: (points: number) => set((state) => ({ totalScore: state.totalScore + points, currency: state.currency + points })),
     completePractice: () => {
       const { questCompleted, townWorldBonusAwarded } = get();
       const bonus = townWorldBonusAwarded ? 0 : 50;
@@ -846,6 +893,7 @@ export const useGame = create<GameState>()(
         portalActive: questCompleted,
         townWorldBonusAwarded: true,
         totalScore: state.totalScore + bonus,
+        currency: state.currency + bonus,
       }));
       setTimeout(() => get().saveProgress(), 0);
     },
@@ -861,6 +909,7 @@ export const useGame = create<GameState>()(
         practiceActive: false,
         world2Dialogue: null,
         world2DialogueIndex: 0,
+        shopOpen: null,
       });
       setTimeout(() => get().saveProgress(), 0);
     },
@@ -894,10 +943,15 @@ export const useGame = create<GameState>()(
         oceanQuestCompleted: true,
         oceanQuestBonusAwarded: true,
         totalScore: state.totalScore + bonus,
+        currency: state.currency + bonus,
       }));
       setTimeout(() => get().saveProgress(), 0);
     },
     equipDivingSuit: () => set({ hasDivingSuit: true }),
+    removeDivingSuit: () => {
+      set({ hasDivingSuit: false });
+      setTimeout(() => get().saveProgress(), 0);
+    },
 
     startCleanupQuest: () => set({ cleanupQuestStarted: true }),
     boardBoat: () => set({ inBoat: true }),
@@ -927,7 +981,7 @@ export const useGame = create<GameState>()(
     },
     openOceanPractice: () => set({ oceanPracticeActive: true }),
     closeOceanPractice: () => set({ oceanPracticeActive: false }),
-    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points, totalScore: state.totalScore + points })),
+    addOceanPracticeScore: (points: number) => set((state) => ({ oceanPracticeScore: state.oceanPracticeScore + points, totalScore: state.totalScore + points, currency: state.currency + points })),
     resetOceanPracticeScore: () => set({ oceanPracticeScore: 0 }),
     completeOceanPractice: () => {
       const { oceanWorldBonusAwarded } = get();
@@ -937,6 +991,7 @@ export const useGame = create<GameState>()(
         oceanPortalActive: true,
         oceanWorldBonusAwarded: true,
         totalScore: state.totalScore + bonus,
+        currency: state.currency + bonus,
       }));
       setTimeout(() => get().saveProgress(), 0);
     },
@@ -952,6 +1007,7 @@ export const useGame = create<GameState>()(
         oceanPracticeActive: false,
         world3Dialogue: null,
         world3DialogueIndex: 0,
+        shopOpen: null,
       });
       setTimeout(() => get().saveProgress(), 0);
     },
@@ -983,7 +1039,7 @@ export const useGame = create<GameState>()(
         const key = "config-hat";
         const awarded = get().factoryStagePointsAwarded;
         const bonus = awarded.has(key) ? 0 : 5;
-        set((s) => ({ hatMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
+        set((s) => ({ hatMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus, currency: s.currency + bonus }));
         return null;
       } else if (machine === "tshirt") {
         if (settings.quantity !== 3) return "Check the quantity — that's not right.";
@@ -995,7 +1051,7 @@ export const useGame = create<GameState>()(
         const key = "config-tshirt";
         const awarded = get().factoryStagePointsAwarded;
         const bonus = awarded.has(key) ? 0 : 5;
-        set((s) => ({ tshirtMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
+        set((s) => ({ tshirtMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus, currency: s.currency + bonus }));
         return null;
       } else if (machine === "jacket") {
         if (settings.quantity !== 5) return "Check the quantity — that's not right.";
@@ -1007,7 +1063,7 @@ export const useGame = create<GameState>()(
         const key = "config-jacket";
         const awarded = get().factoryStagePointsAwarded;
         const bonus = awarded.has(key) ? 0 : 5;
-        set((s) => ({ jacketMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus }));
+        set((s) => ({ jacketMachineState: "produced", activeMachine: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, key]), totalScore: s.totalScore + bonus, currency: s.currency + bonus }));
         return null;
       }
       return null;
@@ -1030,13 +1086,13 @@ export const useGame = create<GameState>()(
       const loadKey = `load-${carryingBox}`;
       const loadAwarded = get().factoryStagePointsAwarded;
       const loadBonus = loadAwarded.has(loadKey) ? 0 : 5;
-      if (carryingBox === "hats") set((s) => ({ hatMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
-      else if (carryingBox === "tshirts") set((s) => ({ tshirtMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
-      else if (carryingBox === "jackets") set((s) => ({ jacketMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus }));
+      if (carryingBox === "hats") set((s) => ({ hatMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus, currency: s.currency + loadBonus }));
+      else if (carryingBox === "tshirts") set((s) => ({ tshirtMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus, currency: s.currency + loadBonus }));
+      else if (carryingBox === "jackets") set((s) => ({ jacketMachineState: "loaded", carryingBox: null, factoryStagePointsAwarded: new Set([...s.factoryStagePointsAwarded, loadKey]), totalScore: s.totalScore + loadBonus, currency: s.currency + loadBonus }));
       const state = get();
       if (state.hatMachineState === "loaded" && state.tshirtMachineState === "loaded" && state.jacketMachineState === "loaded") {
         const bonus = state.factoryQuestBonusAwarded ? 0 : 25;
-        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
+        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus, currency: s.currency + bonus }));
         setTimeout(() => get().saveProgress(), 0);
       }
     },
@@ -1044,7 +1100,7 @@ export const useGame = create<GameState>()(
       const { hatMachineState, tshirtMachineState, jacketMachineState, factoryQuestBonusAwarded } = get();
       if (hatMachineState === "loaded" && tshirtMachineState === "loaded" && jacketMachineState === "loaded") {
         const bonus = factoryQuestBonusAwarded ? 0 : 25;
-        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus }));
+        set((s) => ({ factoryOrderComplete: true, factoryLessonPhase: 1, factoryQuestBonusAwarded: true, totalScore: s.totalScore + bonus, currency: s.currency + bonus }));
         setTimeout(() => get().saveProgress(), 0);
       }
     },
@@ -1064,7 +1120,7 @@ export const useGame = create<GameState>()(
     closeFactoryPractice: () =>
       set({ factoryPracticeActive: false }),
     addFactoryPracticeScore: (points) =>
-      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points })),
+      set((s) => ({ factoryPracticeScore: s.factoryPracticeScore + points, totalScore: s.totalScore + points, currency: s.currency + points })),
     resetFactoryPracticeScore: () =>
       set({ factoryPracticeScore: 0 }),
     completeFactoryPractice: () => {
@@ -1075,6 +1131,7 @@ export const useGame = create<GameState>()(
         factoryPortalActive: true,
         factoryWorldBonusAwarded: true,
         totalScore: state.totalScore + bonus,
+        currency: state.currency + bonus,
       }));
       setTimeout(() => get().saveProgress(), 0);
     },
@@ -1088,6 +1145,7 @@ export const useGame = create<GameState>()(
         world3Dialogue: null,
         world3DialogueIndex: 0,
         factoryPracticeActive: false,
+        shopOpen: null,
         psychicGamePhase: "instructions",
         psychicCustomer: null,
         psychicGuesses: [],
@@ -1269,7 +1327,7 @@ export const useGame = create<GameState>()(
     closePsychicPractice: () =>
       set({ psychicPracticeActive: false, psychicGamePhase: "lesson" }),
     addPsychicPracticeScore: (points) =>
-      set((s) => ({ psychicPracticeScore: s.psychicPracticeScore + points, totalScore: s.totalScore + points })),
+      set((s) => ({ psychicPracticeScore: s.psychicPracticeScore + points, totalScore: s.totalScore + points, currency: s.currency + points })),
     resetPsychicPracticeScore: () =>
       set({ psychicPracticeScore: 0 }),
     completePsychicPractice: () => {
@@ -1279,6 +1337,7 @@ export const useGame = create<GameState>()(
         psychicPracticeCompleted: true,
         psychicWorldBonusAwarded: true,
         totalScore: s.totalScore + bonus,
+        currency: s.currency + bonus,
       });
       setTimeout(() => get().saveProgress(), 0);
     },
@@ -1400,9 +1459,42 @@ export const useGame = create<GameState>()(
           portalActive: practiceCompleted,
           townQuestBonusAwarded: true,
           totalScore: state.totalScore + bonus,
+          currency: state.currency + bonus,
         }));
         setTimeout(() => get().saveProgress(), 0);
       }
+    },
+
+    openShop: (world: GameWorld) => set({ shopOpen: world }),
+    closeShop: () => set({ shopOpen: null }),
+    buyOutfit: (outfitId: string) => {
+      const { currency, ownedOutfits } = get();
+      const outfit = getOutfitById(outfitId);
+      if (!outfit) return false;
+      if (ownedOutfits.includes(outfitId)) return false;
+      if (currency < outfit.price) return false;
+      set((state) => ({
+        currency: state.currency - outfit.price,
+        ownedOutfits: [...state.ownedOutfits, outfitId],
+      }));
+      setTimeout(() => get().saveProgress(), 0);
+      return true;
+    },
+    equipOutfit: (outfitId: string) => {
+      const { ownedOutfits } = get();
+      if (!ownedOutfits.includes(outfitId)) return;
+      const outfit = getOutfitById(outfitId);
+      if (!outfit) return;
+      if (outfit.type === "shirt") {
+        set({ equippedShirt: outfitId });
+      } else {
+        set({ equippedPants: outfitId });
+      }
+      setTimeout(() => get().saveProgress(), 0);
+    },
+    unequipAll: () => {
+      set({ equippedShirt: null, equippedPants: null });
+      setTimeout(() => get().saveProgress(), 0);
     },
   }))
 );

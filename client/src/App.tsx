@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState, useCallback, useEffect, useRef } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef, Component } from "react";
+import type { ErrorInfo, ReactNode } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
 import { OceanWorld } from "./components/game/OceanWorld";
@@ -16,6 +17,7 @@ import { AuthScreen } from "./components/AuthScreen";
 import { AdminPanel } from "./components/AdminPanel";
 import { PsychicWorld } from "./components/game/PsychicWorld";
 import { ScoreHUD } from "./components/game/ScoreHUD";
+import { ShopUI } from "./components/game/ShopUI";
 import { SettingsMenu } from "./components/game/SettingsMenu";
 import { useGame } from "./lib/stores/useGame";
 import { useQuestionPrefetch } from "./lib/stores/useQuestionPrefetch";
@@ -213,7 +215,6 @@ function World2HUD() {
   const [hudOpen, setHudOpen] = useState(true);
   const world2Dialogue = useGame((s) => s.world2Dialogue);
   const currentSurveyIndex = useGame((s) => s.currentSurveyIndex);
-  const restart = useGame((s) => s.restart);
   const oceanQuestStarted = useGame((s) => s.oceanQuestStarted);
   const ecosystems = useGame((s) => s.ecosystems);
   const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
@@ -226,7 +227,6 @@ function World2HUD() {
   const oceanPracticeActive = useGame((s) => s.oceanPracticeActive);
   const oceanPracticeCompleted = useGame((s) => s.oceanPracticeCompleted);
   const oceanPracticeUnlocked = useGame((s) => s.oceanPracticeUnlocked);
-
   if (world2Dialogue || currentSurveyIndex !== null) return null;
   if (oceanLessonPhase >= 1 && oceanLessonPhase <= 2) return null;
   if (oceanPracticeActive) return null;
@@ -389,26 +389,6 @@ function World2HUD() {
         WASD / Arrows to move | E to interact{inBoat ? " | Drive to sludge & press E" : ""}
       </div>
 
-      <div
-        onClick={restart}
-        style={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          background: "rgba(0, 30, 60, 0.8)",
-          borderRadius: 8,
-          padding: "8px 16px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: "pointer",
-          zIndex: 50,
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        Back to Town
-      </div>
     </>
   );
 }
@@ -485,7 +465,6 @@ function World3HUD() {
   const [hudOpen, setHudOpen] = useState(true);
   const world3Dialogue = useGame((s) => s.world3Dialogue);
   const activeMachine = useGame((s) => s.activeMachine);
-  const restart = useGame((s) => s.restart);
   const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
   const hatMachineState = useGame((s) => s.hatMachineState);
   const tshirtMachineState = useGame((s) => s.tshirtMachineState);
@@ -665,26 +644,6 @@ function World3HUD() {
         WASD / Arrows to move | E to interact
       </div>
 
-      <div
-        onClick={restart}
-        style={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          background: "rgba(40, 30, 10, 0.8)",
-          borderRadius: 8,
-          padding: "8px 16px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: "pointer",
-          zIndex: 50,
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        Back to Town
-      </div>
     </>
   );
 }
@@ -1520,6 +1479,7 @@ function PsychicRoundResultUI() {
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const returnToTown = useGame((s) => s.returnToTown);
+
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
 
@@ -1640,7 +1600,7 @@ function PsychicLessonUI() {
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-        <div
+        <button
           onClick={openPsychicPractice}
           style={{
             padding: "12px 32px",
@@ -1656,25 +1616,27 @@ function PsychicLessonUI() {
           }}
         >
           {psychicPracticeCompleted ? "Retake Quiz" : "Test Your Understanding"}
-        </div>
+        </button>
         {psychicPracticeCompleted && (
-          <div
-            onClick={returnToTown}
-            style={{
-              padding: "12px 32px",
-              background: "#69f0ae",
-              border: "none",
-              borderRadius: 8,
-              color: "#1a1a1a",
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-            }}
-          >
-            Back to Town
-          </div>
+          <>
+            <button
+              onClick={returnToTown}
+              style={{
+                padding: "12px 32px",
+                background: "linear-gradient(135deg, #27ae60, #1e8449)",
+                border: "none",
+                borderRadius: 8,
+                color: "white",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              Back to Town
+            </button>
+          </>
         )}
       </div>
     </div>
@@ -1894,8 +1856,6 @@ function PsychicHUD() {
   const psychicCustomersServed = useGame((s) => s.psychicCustomersServed);
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const psychicRound = useGame((s) => s.psychicRound);
-  const restart = useGame((s) => s.restart);
-
   if (psychicGamePhase === "instructions" || psychicGamePhase === "transition" || psychicGamePhase === "round_win" || psychicGamePhase === "round_lose" || psychicGamePhase === "lesson" || psychicGamePhase === "practice") return null;
 
   const roundLabel = psychicRound === 1 ? "Round 1: Random" : psychicRound === 2 ? "Round 2: Sequential" : "Round 3: Binary Search";
@@ -1953,28 +1913,35 @@ function PsychicHUD() {
         )}
       </div>
 
-      <div
-        onClick={restart}
-        style={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          background: "rgba(26, 10, 46, 0.8)",
-          borderRadius: 8,
-          padding: "8px 16px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: "pointer",
-          zIndex: 50,
-          border: "1px solid rgba(155, 89, 182, 0.3)",
-        }}
-      >
-        Back to Town
-      </div>
     </>
   );
+}
+
+class GameErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[Game Crash]", error.message, error.stack, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#0d1930", color: "white", fontFamily: "'Inter', sans-serif", flexDirection: "column", gap: 16, zIndex: 9999 }}>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>Something went wrong</div>
+          <div style={{ fontSize: 14, opacity: 0.7, maxWidth: 400, textAlign: "center" }}>{this.state.error?.message}</div>
+          <button onClick={() => this.setState({ hasError: false, error: null })} style={{ padding: "10px 28px", background: "#4fc3f7", border: "none", borderRadius: 8, color: "#0d1930", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+            Try Again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 function App() {
@@ -2058,9 +2025,11 @@ function App() {
     >
       {phase === "ready" && <StartScreen username={user.username} onLogout={handleLogout} />}
       {phase === "playing" && <ScoreHUD />}
+      {phase === "playing" && <ShopUI />}
       {phase === "playing" && <SettingsMenu onLogout={handleLogout} onResetProgress={handleResetProgress} gameCompleted={gameCompleted} currentWorld={currentWorld} onWorldChange={setCurrentWorld} />}
       {phase === "playing" && <AdminPanel username={user.username} />}
 
+      <GameErrorBoundary>
       <KeyboardControls map={keyMap}>
         <Canvas
           shadows
@@ -2123,6 +2092,7 @@ function App() {
           </>
         )}
       </KeyboardControls>
+      </GameErrorBoundary>
     </div>
   );
 }

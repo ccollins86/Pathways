@@ -6,6 +6,7 @@ import { Player } from "./Player";
 import { FollowCamera } from "./FollowCamera";
 import { NPC } from "./NPC";
 import { Portal } from "./Portal";
+import { OutfitBooth } from "./OutfitBooth";
 import { useGame } from "@/lib/stores/useGame";
 
 function FactoryFloor() {
@@ -83,12 +84,19 @@ function FactoryLights() {
     <group>
       <ambientLight intensity={0.5} color="#d4c8b0" />
       <directionalLight
-        position={[10, 6, 10]}
+        position={[0, 15, -5]}
         intensity={0.6}
         color="#fff8e1"
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-left={-30}
+        shadow-camera-right={30}
+        shadow-camera-top={30}
+        shadow-camera-bottom={-30}
+        shadow-camera-near={0.5}
+        shadow-camera-far={50}
+        shadow-bias={-0.001}
       />
       <pointLight position={[-15, 3, -5]} color="#ff8a50" intensity={3} distance={12} />
       <pointLight position={[0, 3, -15]} color="#64b5f6" intensity={3} distance={12} />
@@ -233,17 +241,17 @@ function Machine({
 
   return (
     <group position={position}>
-      <mesh position={[0, 1.5, 0]} castShadow>
+      <mesh position={[0, 1.5, 0]} castShadow receiveShadow>
         <boxGeometry args={[4, 3, 3]} />
         <meshStandardMaterial color={color} roughness={0.6} metalness={0.3} />
       </mesh>
 
-      <mesh position={[0, 3.05, 0]} castShadow>
+      <mesh position={[0, 3.05, 0]} castShadow receiveShadow>
         <boxGeometry args={[4.2, 0.1, 3.2]} />
         <meshStandardMaterial color={accentColor} metalness={0.5} />
       </mesh>
 
-      <mesh position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]} receiveShadow>
         <boxGeometry args={[4.4, 0.15, 3.4]} />
         <meshStandardMaterial color="#333333" />
       </mesh>
@@ -1075,7 +1083,8 @@ function FactoryDecor() {
         </mesh>
       </group>
 
-      <HazardStripe position={[0, 0.01, 0]} width={3} length={55} />
+      <HazardStripe position={[0, 0.01, 14]} width={3} length={25} />
+      <HazardStripe position={[0, 0.01, -23]} width={3} length={10} />
 
       {[-8, 8].map((x, i) => (
         <mesh key={`lane-${i}`} position={[x, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -1341,7 +1350,13 @@ export function FactoryWorld() {
 
       <PackingTable position={[0, 0, 10]} playerPosition={playerPos} />
       <ShippingTruck position={[20, 0, 25]} playerPosition={playerPos} />
-      <FactoryPracticeBooth position={[-15, 0, 20]} playerPosition={playerPos} />
+      <FactoryPracticeBooth position={[-7, 0, 20]} playerPosition={playerPos} />
+
+      <OutfitBooth
+        position={[-15, 0, 20]}
+        playerPosition={playerPos}
+        world="factory"
+      />
 
       {factoryPortalActive && (
         <Portal

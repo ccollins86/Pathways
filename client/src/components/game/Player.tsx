@@ -4,12 +4,201 @@ import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "@/lib/stores/useGame";
 import { HOUSE_POS } from "./House";
+import { getOutfitById, OutfitItem } from "./outfitCatalog";
 
 enum Controls {
   forward = "forward",
   back = "back",
   left = "left",
   right = "right",
+}
+
+function ShirtPatternOverlay({ outfit }: Readonly<{ outfit: OutfitItem }>) {
+  const sc = outfit.secondaryColor || "#ffffff";
+  switch (outfit.pattern) {
+    case "reflective-stripes":
+      return (
+        <group>
+          <mesh position={[0, 1.25, 0.18]}>
+            <boxGeometry args={[0.62, 0.06, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.8} roughness={0.1} />
+          </mesh>
+          <mesh position={[0, 1.05, 0.18]}>
+            <boxGeometry args={[0.62, 0.06, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.8} roughness={0.1} />
+          </mesh>
+          <mesh position={[0, 1.25, -0.18]}>
+            <boxGeometry args={[0.62, 0.06, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.8} roughness={0.1} />
+          </mesh>
+          <mesh position={[0, 1.05, -0.18]}>
+            <boxGeometry args={[0.62, 0.06, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.8} roughness={0.1} />
+          </mesh>
+        </group>
+      );
+    case "wetsuit-panels":
+      return (
+        <group>
+          <mesh position={[0.31, 1.1, 0]}>
+            <boxGeometry args={[0.02, 0.78, 0.33]} />
+            <meshStandardMaterial color={sc} roughness={0.2} />
+          </mesh>
+          <mesh position={[-0.31, 1.1, 0]}>
+            <boxGeometry args={[0.02, 0.78, 0.33]} />
+            <meshStandardMaterial color={sc} roughness={0.2} />
+          </mesh>
+          <mesh position={[0, 0.72, 0.18]}>
+            <boxGeometry args={[0.3, 0.04, 0.01]} />
+            <meshStandardMaterial color={sc} roughness={0.2} />
+          </mesh>
+        </group>
+      );
+    case "name-patch":
+      return (
+        <group>
+          <mesh position={[0.15, 1.3, 0.18]}>
+            <boxGeometry args={[0.2, 0.12, 0.01]} />
+            <meshStandardMaterial color="#eeeeee" roughness={0.9} />
+          </mesh>
+          <mesh position={[0.15, 1.3, 0.185]}>
+            <boxGeometry args={[0.14, 0.04, 0.005]} />
+            <meshStandardMaterial color={sc} />
+          </mesh>
+          <mesh position={[-0.18, 1.35, 0.18]}>
+            <boxGeometry args={[0.12, 0.12, 0.01]} />
+            <meshStandardMaterial color={sc} />
+          </mesh>
+          <mesh position={[0, 0.75, 0.18]}>
+            <boxGeometry args={[0.58, 0.04, 0.01]} />
+            <meshStandardMaterial color="#424242" />
+          </mesh>
+        </group>
+      );
+    case "mystic-runes":
+      return (
+        <group>
+          <mesh position={[0, 1.3, 0.18]}>
+            <boxGeometry args={[0.08, 0.08, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.8} transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[-0.15, 1.0, 0.18]}>
+            <boxGeometry args={[0.06, 0.06, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.6} transparent opacity={0.8} />
+          </mesh>
+          <mesh position={[0.18, 1.05, 0.18]}>
+            <boxGeometry args={[0.05, 0.1, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.7} transparent opacity={0.85} />
+          </mesh>
+          <mesh position={[0, 1.15, -0.18]}>
+            <boxGeometry args={[0.1, 0.06, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.6} transparent opacity={0.8} />
+          </mesh>
+          <mesh position={[0.1, 1.35, -0.18]}>
+            <boxGeometry args={[0.05, 0.05, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.9} transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[0, 1.5, 0.18]}>
+            <boxGeometry args={[0.55, 0.02, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.5} transparent opacity={0.6} />
+          </mesh>
+        </group>
+      );
+    default:
+      return null;
+  }
+}
+
+function PantsPatternOverlay({ outfit }: Readonly<{ outfit: OutfitItem }>) {
+  const sc = outfit.secondaryColor || "#ffffff";
+  switch (outfit.pattern) {
+    case "cargo-pockets":
+      return (
+        <group>
+          <mesh position={[-0.33, 0.4, 0]}>
+            <boxGeometry args={[0.02, 0.18, 0.15]} />
+            <meshStandardMaterial color={sc} />
+          </mesh>
+          <mesh position={[0.33, 0.4, 0]}>
+            <boxGeometry args={[0.02, 0.18, 0.15]} />
+            <meshStandardMaterial color={sc} />
+          </mesh>
+          <mesh position={[-0.2, 0.25, 0.13]}>
+            <boxGeometry args={[0.12, 0.1, 0.01]} />
+            <meshStandardMaterial color={sc} />
+          </mesh>
+          <mesh position={[0.2, 0.25, 0.13]}>
+            <boxGeometry args={[0.12, 0.1, 0.01]} />
+            <meshStandardMaterial color={sc} />
+          </mesh>
+        </group>
+      );
+    case "knee-pads":
+      return (
+        <group>
+          <mesh position={[-0.2, 0.35, 0.13]}>
+            <boxGeometry args={[0.16, 0.14, 0.02]} />
+            <meshStandardMaterial color={sc} roughness={0.3} metalness={0.2} />
+          </mesh>
+          <mesh position={[0.2, 0.35, 0.13]}>
+            <boxGeometry args={[0.16, 0.14, 0.02]} />
+            <meshStandardMaterial color={sc} roughness={0.3} metalness={0.2} />
+          </mesh>
+        </group>
+      );
+    case "riveted":
+      return (
+        <group>
+          <mesh position={[-0.2, 0.7, 0.13]}>
+            <boxGeometry args={[0.04, 0.04, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.9} roughness={0.1} />
+          </mesh>
+          <mesh position={[0.2, 0.7, 0.13]}>
+            <boxGeometry args={[0.04, 0.04, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.9} roughness={0.1} />
+          </mesh>
+          <mesh position={[-0.2, 0.15, 0.13]}>
+            <boxGeometry args={[0.04, 0.04, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.9} roughness={0.1} />
+          </mesh>
+          <mesh position={[0.2, 0.15, 0.13]}>
+            <boxGeometry args={[0.04, 0.04, 0.01]} />
+            <meshStandardMaterial color={sc} metalness={0.9} roughness={0.1} />
+          </mesh>
+          <mesh position={[-0.2, 0.01, 0]}>
+            <boxGeometry args={[0.27, 0.04, 0.27]} />
+            <meshStandardMaterial color={sc} metalness={0.3} roughness={0.5} />
+          </mesh>
+          <mesh position={[0.2, 0.01, 0]}>
+            <boxGeometry args={[0.27, 0.04, 0.27]} />
+            <meshStandardMaterial color={sc} metalness={0.3} roughness={0.5} />
+          </mesh>
+        </group>
+      );
+    case "shimmer":
+      return (
+        <group>
+          <mesh position={[-0.2, 0.55, 0.13]}>
+            <boxGeometry args={[0.06, 0.15, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.6} transparent opacity={0.7} />
+          </mesh>
+          <mesh position={[0.2, 0.3, 0.13]}>
+            <boxGeometry args={[0.04, 0.2, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.5} transparent opacity={0.6} />
+          </mesh>
+          <mesh position={[-0.2, 0.2, -0.13]}>
+            <boxGeometry args={[0.05, 0.12, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.7} transparent opacity={0.7} />
+          </mesh>
+          <mesh position={[0.2, 0.6, -0.13]}>
+            <boxGeometry args={[0.06, 0.08, 0.01]} />
+            <meshStandardMaterial color={sc} emissive={sc} emissiveIntensity={0.5} transparent opacity={0.6} />
+          </mesh>
+        </group>
+      );
+    default:
+      return null;
+  }
 }
 
 interface PlayerProps {
@@ -27,6 +216,19 @@ export function Player({ onPositionUpdate }: PlayerProps) {
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
   const inBoat = useGame((s) => s.inBoat);
   const respawnTrigger = useGame((s) => s.respawnTrigger);
+  const equippedShirt = useGame((s) => s.equippedShirt);
+  const equippedPants = useGame((s) => s.equippedPants);
+
+  const shirtOutfit = equippedShirt ? getOutfitById(equippedShirt) : null;
+  const pantsOutfit = equippedPants ? getOutfitById(equippedPants) : null;
+  const shirtColor = shirtOutfit ? shirtOutfit.color : "#4caf50";
+  const pantsColor = pantsOutfit ? pantsOutfit.color : "#1a237e";
+  const shirtMetalness = shirtOutfit?.metalness ?? 0;
+  const shirtRoughness = shirtOutfit?.roughness ?? 0.5;
+  const pantsMetalness = pantsOutfit?.metalness ?? 0;
+  const pantsRoughness = pantsOutfit?.roughness ?? 0.5;
+  const shirtEmissive = shirtOutfit?.emissive ?? "#000000";
+  const pantsEmissive = pantsOutfit?.emissive ?? "#000000";
 
   useEffect(() => {
     if (respawnTrigger > 0 && groupRef.current) {
@@ -165,24 +367,26 @@ export function Player({ onPositionUpdate }: PlayerProps) {
     <group ref={groupRef} position={[0, 0, 5]}>
       <mesh position={[-0.2, 0.4, 0]} castShadow>
         <boxGeometry args={[0.25, 0.8, 0.25]} />
-        <meshStandardMaterial color={inWater ? "#1a1a1a" : "#1a237e"} />
+        <meshStandardMaterial color={inWater ? "#1a1a1a" : pantsColor} metalness={inWater ? 0 : pantsMetalness} roughness={inWater ? 0.5 : pantsRoughness} emissive={inWater ? "#000" : pantsEmissive} emissiveIntensity={0.3} />
       </mesh>
       <mesh position={[0.2, 0.4, 0]} castShadow>
         <boxGeometry args={[0.25, 0.8, 0.25]} />
-        <meshStandardMaterial color={inWater ? "#1a1a1a" : "#1a237e"} />
+        <meshStandardMaterial color={inWater ? "#1a1a1a" : pantsColor} metalness={inWater ? 0 : pantsMetalness} roughness={inWater ? 0.5 : pantsRoughness} emissive={inWater ? "#000" : pantsEmissive} emissiveIntensity={0.3} />
       </mesh>
+      {!inWater && pantsOutfit && <PantsPatternOverlay outfit={pantsOutfit} />}
       <mesh position={[0, 1.1, 0]} castShadow>
         <boxGeometry args={[0.6, 0.8, 0.35]} />
-        <meshStandardMaterial color={inWater ? "#263238" : "#4caf50"} />
+        <meshStandardMaterial color={inWater ? "#263238" : shirtColor} metalness={inWater ? 0 : shirtMetalness} roughness={inWater ? 0.5 : shirtRoughness} emissive={inWater ? "#000" : shirtEmissive} emissiveIntensity={0.3} />
       </mesh>
       <mesh position={[-0.45, 1.1, 0]} castShadow>
         <boxGeometry args={[0.2, 0.7, 0.2]} />
-        <meshStandardMaterial color={inWater ? "#263238" : "#4caf50"} />
+        <meshStandardMaterial color={inWater ? "#263238" : shirtColor} metalness={inWater ? 0 : shirtMetalness} roughness={inWater ? 0.5 : shirtRoughness} emissive={inWater ? "#000" : shirtEmissive} emissiveIntensity={0.3} />
       </mesh>
       <mesh position={[0.45, 1.1, 0]} castShadow>
         <boxGeometry args={[0.2, 0.7, 0.2]} />
-        <meshStandardMaterial color={inWater ? "#263238" : "#4caf50"} />
+        <meshStandardMaterial color={inWater ? "#263238" : shirtColor} metalness={inWater ? 0 : shirtMetalness} roughness={inWater ? 0.5 : shirtRoughness} emissive={inWater ? "#000" : shirtEmissive} emissiveIntensity={0.3} />
       </mesh>
+      {!inWater && shirtOutfit && <ShirtPatternOverlay outfit={shirtOutfit} />}
       <mesh position={[0, 1.75, 0]} castShadow>
         <boxGeometry args={[0.4, 0.4, 0.4]} />
         <meshStandardMaterial color={inWater ? "#37474f" : "#ffcc80"} />

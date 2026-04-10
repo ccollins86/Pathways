@@ -34,6 +34,14 @@ The game is built using React with TypeScript and leverages React Three Fiber fo
 5. **Game Completion:** After finishing all 4 worlds, clicking "Back to Town" uses `returnToTown()` which sets `gameCompleted: true`, moves the player back to the town world, and saves progress. The player keeps their full score and all completion flags. The HUD shows a congratulations message and "Adventure Complete" with all 4 worlds checked off. Players can still explore town freely. Use "Reset Progress" from the settings menu to start over.
 6. **World Toggle (Post-Completion):** After completing all worlds, a "Switch World" option appears in the Settings menu. Players can freely switch between Town, Ocean, Factory, and Psychic worlds. The toggle is gated by `gameCompleted` both in UI (SettingsMenu) and store (`setCurrentWorld` checks `gameCompleted`). World-specific state normalization occurs on switch (e.g., psychic phase reset to "waiting" + practice quiz reset, factory lesson phase cleared, ocean lesson phase capped). Switching to Psychic world resets `psychicPracticeCompleted` so the quiz can be retaken. PsychicLessonUI always shows the quiz button (labeled "Retake Quiz" when previously completed). Logout, reset, and new user login correctly hide this option since `gameCompleted` resets to false.
 
+**Outfit Shop System:**
+- Outfit shop booths appear in Town, Ocean, and Factory worlds. The Psychic world has a shop accessible via the "Open Shop" button in the lesson UI.
+- Players earn currency equal to points earned — currency is tracked separately and only currency is spent on purchases (points stay intact).
+- Each world offers one themed shirt and one themed pants. Walking up to a booth and pressing E opens a shop UI overlay.
+- The shop UI shows the player's currency balance, available outfits with color previews, prices, buy/equip buttons.
+- Equipped outfits change the avatar's torso/arms and legs colors. The diving suit override in Ocean World still takes priority.
+- Key files: `outfitCatalog.ts` (data), `OutfitBooth.tsx` (3D booth), `ShopUI.tsx` (overlay), store fields in `useGame.tsx` (currency, ownedOutfits, equippedShirt, equippedPants, shopOpen).
+
 ## LLM-Generated Quiz Questions
 The game dynamically generates quiz questions using OpenAI (via Replit AI Integrations) with hardcoded fallback.
 
