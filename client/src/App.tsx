@@ -227,9 +227,6 @@ function World2HUD() {
   const oceanPracticeActive = useGame((s) => s.oceanPracticeActive);
   const oceanPracticeCompleted = useGame((s) => s.oceanPracticeCompleted);
   const oceanPracticeUnlocked = useGame((s) => s.oceanPracticeUnlocked);
-  const removeDivingSuit = useGame((s) => s.removeDivingSuit);
-  const equipDivingSuit = useGame((s) => s.equipDivingSuit);
-
   if (world2Dialogue || currentSurveyIndex !== null) return null;
   if (oceanLessonPhase >= 1 && oceanLessonPhase <= 2) return null;
   if (oceanPracticeActive) return null;
@@ -391,29 +388,6 @@ function World2HUD() {
       >
         WASD / Arrows to move | E to interact{inBoat ? " | Drive to sludge & press E" : ""}
       </div>
-
-      {cleanupQuestCompleted && !inBoat && (
-        <button
-          onClick={hasDivingSuit ? removeDivingSuit : equipDivingSuit}
-          style={{
-            position: "absolute",
-            bottom: 50,
-            right: 16,
-            background: hasDivingSuit ? "rgba(231, 76, 60, 0.85)" : "rgba(41, 128, 185, 0.85)",
-            borderRadius: 8,
-            padding: "8px 16px",
-            color: "white",
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-            zIndex: 50,
-            border: "1px solid rgba(255,255,255,0.2)",
-          }}
-        >
-          {hasDivingSuit ? "Remove Wetsuit" : "Wear Wetsuit"}
-        </button>
-      )}
 
     </>
   );

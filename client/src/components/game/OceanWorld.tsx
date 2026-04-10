@@ -1035,6 +1035,8 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
   const [isNear, setIsNear] = useState(false);
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
   const equipDivingSuit = useGame((s) => s.equipDivingSuit);
+  const removeDivingSuit = useGame((s) => s.removeDivingSuit);
+  const cleanupQuestCompleted = useGame((s) => s.cleanupQuestCompleted);
   const world2Dialogue = useGame((s) => s.world2Dialogue);
   const openWorld2Dialogue = useGame((s) => s.openWorld2Dialogue);
   const stationPos: [number, number, number] = [-8, 0, 2];
@@ -1047,21 +1049,38 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
   });
 
   useEffect(() => {
-    if (hasDivingSuit || world2Dialogue) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if ((e.key === "e" || e.key === "E") && isNear) {
-        equipDivingSuit();
-        openWorld2Dialogue([
-          {
-            speaker: "System",
-            text: "You put on the diving suit! You can now explore the underwater ecosystems. Head into the ocean!",
-          },
-        ]);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isNear, hasDivingSuit, equipDivingSuit, world2Dialogue, openWorld2Dialogue]);
+    if (world2Dialogue) return;
+    if (!hasDivingSuit) {
+      const handleKey = (e: KeyboardEvent) => {
+        if ((e.key === "e" || e.key === "E") && isNear) {
+          equipDivingSuit();
+          openWorld2Dialogue([
+            {
+              speaker: "System",
+              text: "You put on the diving suit! You can now explore the underwater ecosystems. Head into the ocean!",
+            },
+          ]);
+        }
+      };
+      window.addEventListener("keydown", handleKey);
+      return () => window.removeEventListener("keydown", handleKey);
+    }
+    if (hasDivingSuit && cleanupQuestCompleted) {
+      const handleKey = (e: KeyboardEvent) => {
+        if ((e.key === "e" || e.key === "E") && isNear) {
+          removeDivingSuit();
+          openWorld2Dialogue([
+            {
+              speaker: "System",
+              text: "You took off the diving suit. You can put it back on anytime by coming back here.",
+            },
+          ]);
+        }
+      };
+      window.addEventListener("keydown", handleKey);
+      return () => window.removeEventListener("keydown", handleKey);
+    }
+  }, [isNear, hasDivingSuit, equipDivingSuit, removeDivingSuit, cleanupQuestCompleted, world2Dialogue, openWorld2Dialogue]);
 
   return (
     <group position={stationPos}>
@@ -1123,7 +1142,7 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
         {hasDivingSuit ? "Suit Equipped ✓" : "Diving Suit"}
       </Text>
 
-      {!hasDivingSuit && isNear && !world2Dialogue && (
+      {isNear && !world2Dialogue && !hasDivingSuit && (
         <Text
           position={[0, 0.3, 0.2]}
           fontSize={0.18}
@@ -1134,6 +1153,20 @@ function DivingSuitStation({ playerPosition }: { playerPosition: THREE.Vector3 }
           outlineColor="#000"
         >
           Press E to equip
+        </Text>
+      )}
+
+      {isNear && !world2Dialogue && hasDivingSuit && cleanupQuestCompleted && (
+        <Text
+          position={[0, 0.3, 0.2]}
+          fontSize={0.18}
+          color="#ffeb3b"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000"
+        >
+          Press E to remove
         </Text>
       )}
     </group>
