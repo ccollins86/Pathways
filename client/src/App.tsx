@@ -1521,7 +1521,7 @@ function PsychicRoundResultUI() {
 
 function PsychicLessonUI() {
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
-  const returnToFactory = useGame((s) => s.returnToFactory);
+  const returnToTown = useGame((s) => s.returnToTown);
 
   const openPsychicPractice = useGame((s) => s.openPsychicPractice);
   const psychicPracticeCompleted = useGame((s) => s.psychicPracticeCompleted);
@@ -1663,10 +1663,10 @@ function PsychicLessonUI() {
         {psychicPracticeCompleted && (
           <>
             <button
-              onClick={returnToFactory}
+              onClick={returnToTown}
               style={{
                 padding: "12px 32px",
-                background: "linear-gradient(135deg, #e67e22, #d35400)",
+                background: "linear-gradient(135deg, #27ae60, #1e8449)",
                 border: "none",
                 borderRadius: 8,
                 color: "white",
@@ -1677,7 +1677,7 @@ function PsychicLessonUI() {
                 letterSpacing: 1,
               }}
             >
-              Back to Factory
+              Back to Town
             </button>
           </>
         )}
