@@ -92,7 +92,13 @@ function decodeEntities(s: string): string {
 }
 
 function sanitizeText(s: string): string {
-  return stripTags(decodeEntities(s));
+  let prev = s;
+  let result = stripTags(decodeEntities(s));
+  while (result !== prev) {
+    prev = result;
+    result = stripTags(decodeEntities(result));
+  }
+  return result;
 }
 
 function sanitizeQuestion(q: Question): Question {
