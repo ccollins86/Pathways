@@ -255,6 +255,7 @@ interface GameState {
   completeEcosystemSurvey: (index: number) => void;
   completeOceanQuest: () => void;
   equipDivingSuit: () => void;
+  removeDivingSuit: () => void;
 
   startCleanupQuest: () => void;
   boardBoat: () => void;
@@ -947,6 +948,10 @@ export const useGame = create<GameState>()(
       setTimeout(() => get().saveProgress(), 0);
     },
     equipDivingSuit: () => set({ hasDivingSuit: true }),
+    removeDivingSuit: () => {
+      set({ hasDivingSuit: false });
+      setTimeout(() => get().saveProgress(), 0);
+    },
 
     startCleanupQuest: () => set({ cleanupQuestStarted: true }),
     boardBoat: () => set({ inBoat: true }),
