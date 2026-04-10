@@ -30,7 +30,6 @@ export function GameHUD() {
   const questFailed = useGame((s) => s.questFailed);
   const failReason = useGame((s) => s.failReason);
   const dropItem = useGame((s) => s.dropItem);
-  const restart = useGame((s) => s.restart);
   const retryQuest = useGame((s) => s.retryQuest);
   const practiceUnlocked = useGame((s) => s.practiceUnlocked);
   const practiceActive = useGame((s) => s.practiceActive);
