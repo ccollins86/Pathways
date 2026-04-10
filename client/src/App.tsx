@@ -215,7 +215,6 @@ function World2HUD() {
   const [hudOpen, setHudOpen] = useState(true);
   const world2Dialogue = useGame((s) => s.world2Dialogue);
   const currentSurveyIndex = useGame((s) => s.currentSurveyIndex);
-  const restart = useGame((s) => s.restart);
   const oceanQuestStarted = useGame((s) => s.oceanQuestStarted);
   const ecosystems = useGame((s) => s.ecosystems);
   const oceanQuestCompleted = useGame((s) => s.oceanQuestCompleted);
@@ -391,26 +390,6 @@ function World2HUD() {
         WASD / Arrows to move | E to interact{inBoat ? " | Drive to sludge & press E" : ""}
       </div>
 
-      <div
-        onClick={restart}
-        style={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          background: "rgba(0, 30, 60, 0.8)",
-          borderRadius: 8,
-          padding: "8px 16px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: "pointer",
-          zIndex: 50,
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        Back to Town
-      </div>
     </>
   );
 }
@@ -487,7 +466,6 @@ function World3HUD() {
   const [hudOpen, setHudOpen] = useState(true);
   const world3Dialogue = useGame((s) => s.world3Dialogue);
   const activeMachine = useGame((s) => s.activeMachine);
-  const restart = useGame((s) => s.restart);
   const factoryQuestStarted = useGame((s) => s.factoryQuestStarted);
   const hatMachineState = useGame((s) => s.hatMachineState);
   const tshirtMachineState = useGame((s) => s.tshirtMachineState);
@@ -667,26 +645,6 @@ function World3HUD() {
         WASD / Arrows to move | E to interact
       </div>
 
-      <div
-        onClick={restart}
-        style={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          background: "rgba(40, 30, 10, 0.8)",
-          borderRadius: 8,
-          padding: "8px 16px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: "pointer",
-          zIndex: 50,
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        Back to Town
-      </div>
     </>
   );
 }
@@ -1899,8 +1857,6 @@ function PsychicHUD() {
   const psychicCustomersServed = useGame((s) => s.psychicCustomersServed);
   const psychicGamePhase = useGame((s) => s.psychicGamePhase);
   const psychicRound = useGame((s) => s.psychicRound);
-  const restart = useGame((s) => s.restart);
-
   if (psychicGamePhase === "instructions" || psychicGamePhase === "transition" || psychicGamePhase === "round_win" || psychicGamePhase === "round_lose" || psychicGamePhase === "lesson" || psychicGamePhase === "practice") return null;
 
   const roundLabel = psychicRound === 1 ? "Round 1: Random" : psychicRound === 2 ? "Round 2: Sequential" : "Round 3: Binary Search";
@@ -1958,26 +1914,6 @@ function PsychicHUD() {
         )}
       </div>
 
-      <div
-        onClick={restart}
-        style={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          background: "rgba(26, 10, 46, 0.8)",
-          borderRadius: 8,
-          padding: "8px 16px",
-          color: "white",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: "pointer",
-          zIndex: 50,
-          border: "1px solid rgba(155, 89, 182, 0.3)",
-        }}
-      >
-        Back to Town
-      </div>
     </>
   );
 }
