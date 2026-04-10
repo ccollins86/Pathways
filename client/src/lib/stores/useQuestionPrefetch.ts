@@ -72,7 +72,14 @@ function getRandomFallback(
 }
 
 function stripTags(s: string): string {
-  return s.replace(/<\/?[a-zA-Z][^>]*>/g, "");
+  const tagPattern = /<\/?[a-zA-Z][^>]*>/g;
+  let prev = s;
+  let result = s.replace(tagPattern, "");
+  while (result !== prev) {
+    prev = result;
+    result = result.replace(tagPattern, "");
+  }
+  return result;
 }
 
 function decodeEntities(s: string): string {
