@@ -65,8 +65,10 @@ export function GameHUD() {
   const [lockedLessonQ, setLockedLessonQ] = useState(lessonQuestions[0]);
 
   useEffect(() => {
-    successSoundRef.current = new Audio("/sounds/success.mp3");
-    successSoundRef.current.volume = 0.5;
+    const audio = new Audio("/sounds/success.mp3");
+    audio.preload = "auto";
+    audio.volume = 0.5;
+    successSoundRef.current = audio;
   }, []);
 
   const addLessonPopup = useCallback((text: string, color: string) => {
@@ -90,12 +92,11 @@ export function GameHUD() {
         incrementFirstTry();
         lessonBonusTimerRef.current = setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
       }
-      try {
-        if (successSoundRef.current) {
-          successSoundRef.current.currentTime = 0;
-          successSoundRef.current.play().catch(() => {});
-        }
-      } catch {}
+      if (successSoundRef.current) {
+        const sound = successSoundRef.current.cloneNode() as HTMLAudioElement;
+        sound.volume = 0.5;
+        sound.play().catch(() => {});
+      }
     } else {
       setLessonQuizWrong(true);
       setLessonQuizHadWrong(true);

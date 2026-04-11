@@ -7,6 +7,8 @@ export function ScoreHUD() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [scorePopup, setScorePopup] = useState<{ amount: number; id: number } | null>(null);
   const prevScoreRef = useRef(totalScore);
+  const displayScoreRef = useRef(displayScore);
+  displayScoreRef.current = displayScore;
   const popupIdRef = useRef(0);
 
   useEffect(() => {
@@ -17,10 +19,11 @@ export function ScoreHUD() {
       popupIdRef.current += 1;
       setScorePopup({ amount: diff, id: popupIdRef.current });
 
-      const startVal = displayScore;
+      const startVal = displayScoreRef.current;
       const endVal = totalScore;
       const duration = 600;
       const startTime = Date.now();
+      let rafId: number;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
@@ -28,13 +31,19 @@ export function ScoreHUD() {
         const eased = 1 - Math.pow(1 - progress, 3);
         setDisplayScore(Math.round(startVal + (endVal - startVal) * eased));
         if (progress < 1) {
-          requestAnimationFrame(animate);
+          rafId = requestAnimationFrame(animate);
         }
       };
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
 
-      setTimeout(() => setIsAnimating(false), 400);
-      setTimeout(() => setScorePopup(null), 1200);
+      const animTimer = setTimeout(() => setIsAnimating(false), 400);
+      const popupTimer = setTimeout(() => setScorePopup(null), 1200);
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        clearTimeout(animTimer);
+        clearTimeout(popupTimer);
+      };
     }
   }, [totalScore]);
 

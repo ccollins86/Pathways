@@ -1387,17 +1387,23 @@ function PsychicRoundResultUI() {
   const failSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    successSoundRef.current = new Audio("/sounds/success.mp3");
-    failSoundRef.current = new Audio("/sounds/hit.mp3");
+    const success = new Audio("/sounds/success.mp3");
+    success.preload = "auto";
+    successSoundRef.current = success;
+    const fail = new Audio("/sounds/hit.mp3");
+    fail.preload = "auto";
+    failSoundRef.current = fail;
   }, []);
 
   useEffect(() => {
     if (psychicGamePhase === "round_win" && successSoundRef.current) {
-      successSoundRef.current.currentTime = 0;
-      successSoundRef.current.play().catch(() => {});
+      const sound = successSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = 0.5;
+      sound.play().catch(() => {});
     } else if (psychicGamePhase === "round_lose" && failSoundRef.current) {
-      failSoundRef.current.currentTime = 0;
-      failSoundRef.current.play().catch(() => {});
+      const sound = failSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = 0.3;
+      sound.play().catch(() => {});
     }
   }, [psychicGamePhase]);
 
@@ -1658,13 +1664,16 @@ function PsychicGuessingUI() {
 
   const chachingSoundRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    chachingSoundRef.current = new Audio("/sounds/success.mp3");
+    const audio = new Audio("/sounds/success.mp3");
+    audio.preload = "auto";
+    chachingSoundRef.current = audio;
   }, []);
 
   useEffect(() => {
     if (psychicGamePhase === "won" && chachingSoundRef.current) {
-      chachingSoundRef.current.currentTime = 0;
-      chachingSoundRef.current.play().catch(() => {});
+      const sound = chachingSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = 0.5;
+      sound.play().catch(() => {});
     }
   }, [psychicGamePhase]);
 

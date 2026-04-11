@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useGame, type EcosystemData, type EnvironmentalIssue } from "@/lib/stores/useGame";
 
 const ISSUE_LABELS: Record<EnvironmentalIssue, string> = {
@@ -40,8 +40,17 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
   const [allCorrect, setAllCorrect] = useState(false);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
 
-  const animalOptions = useMemo(() => generateOptions(eco.animalCount), [eco.animalCount]);
-  const plantOptions = useMemo(() => generateOptions(eco.plantCount), [eco.plantCount]);
+  useEffect(() => {
+    const audio = new Audio("/sounds/success.mp3");
+    audio.preload = "auto";
+    audio.volume = 0.5;
+    successSoundRef.current = audio;
+  }, []);
+
+  if (!eco) return null;
+
+  const animalOptions = generateOptions(eco.animalCount);
+  const plantOptions = generateOptions(eco.plantCount);
 
   const handleAnimalSelect = (count: number) => {
     setAnimalAnswer(count);
@@ -69,12 +78,11 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
       setAllCorrect(true);
       setFeedback(null);
       setStep("result");
-      if (!successSoundRef.current) {
-        successSoundRef.current = new Audio("/sounds/success.mp3");
-        successSoundRef.current.volume = 0.5;
+      if (successSoundRef.current) {
+        const sound = successSoundRef.current.cloneNode() as HTMLAudioElement;
+        sound.volume = 0.5;
+        sound.play().catch(() => {});
       }
-      successSoundRef.current.currentTime = 0;
-      successSoundRef.current.play().catch(() => {});
     } else {
       setFeedback("That's not the right issue. Look carefully at the environmental problem in this ecosystem.");
     }

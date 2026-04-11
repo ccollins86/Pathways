@@ -113,10 +113,10 @@ export function PracticeQuizBase({
     setShowHint(false);
     setFirstTryCountLocal(0);
     onResetScore?.();
-    try {
-      successSoundRef.current = new Audio("/sounds/success.mp3");
-      successSoundRef.current.volume = 0.5;
-    } catch {}
+    const audio = new Audio("/sounds/success.mp3");
+    audio.preload = "auto";
+    audio.volume = 0.5;
+    successSoundRef.current = audio;
   }, []);
 
   const addPopup = useCallback((text: string, color: string) => {
@@ -130,8 +130,9 @@ export function PracticeQuizBase({
 
   const triggerCelebration = useCallback(() => {
     if (successSoundRef.current) {
-      successSoundRef.current.currentTime = 0;
-      successSoundRef.current.play().catch(() => {});
+      const sound = successSoundRef.current.cloneNode() as HTMLAudioElement;
+      sound.volume = 0.5;
+      sound.play().catch(() => {});
     }
     setConfetti(createConfetti(theme.confettiColors));
     setShowConfetti(true);
