@@ -1392,12 +1392,10 @@ function PsychicRoundResultUI() {
   }, []);
 
   useEffect(() => {
-    if (psychicGamePhase === "round_win" && successSoundRef.current) {
-      successSoundRef.current.currentTime = 0;
-      successSoundRef.current.play().catch(() => {});
-    } else if (psychicGamePhase === "round_lose" && failSoundRef.current) {
-      failSoundRef.current.currentTime = 0;
-      failSoundRef.current.play().catch(() => {});
+    if (psychicGamePhase === "round_win") {
+      successSoundRef.current?.play().catch(() => {});
+    } else if (psychicGamePhase === "round_lose") {
+      failSoundRef.current?.play().catch(() => {});
     }
   }, [psychicGamePhase]);
 
@@ -1662,9 +1660,8 @@ function PsychicGuessingUI() {
   }, []);
 
   useEffect(() => {
-    if (psychicGamePhase === "won" && chachingSoundRef.current) {
-      chachingSoundRef.current.currentTime = 0;
-      chachingSoundRef.current.play().catch(() => {});
+    if (psychicGamePhase === "won") {
+      chachingSoundRef.current?.play().catch(() => {});
     }
   }, [psychicGamePhase]);
 
