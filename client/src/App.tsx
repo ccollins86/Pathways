@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useState, useCallback, useEffect, useRef, Component } from "react";
+import { createPreloadedAudio, playPreloadedSound } from "@/lib/playSound";
 import type { ErrorInfo, ReactNode } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
@@ -1387,23 +1388,15 @@ function PsychicRoundResultUI() {
   const failSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const success = new Audio("/sounds/success.mp3");
-    success.preload = "auto";
-    successSoundRef.current = success;
-    const fail = new Audio("/sounds/hit.mp3");
-    fail.preload = "auto";
-    failSoundRef.current = fail;
+    successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
+    failSoundRef.current = createPreloadedAudio("/sounds/hit.mp3", 0.3);
   }, []);
 
   useEffect(() => {
-    if (psychicGamePhase === "round_win" && successSoundRef.current) {
-      const sound = successSoundRef.current.cloneNode() as HTMLAudioElement;
-      sound.volume = 0.5;
-      sound.play().catch(() => {});
-    } else if (psychicGamePhase === "round_lose" && failSoundRef.current) {
-      const sound = failSoundRef.current.cloneNode() as HTMLAudioElement;
-      sound.volume = 0.3;
-      sound.play().catch(() => {});
+    if (psychicGamePhase === "round_win") {
+      playPreloadedSound(successSoundRef.current, 0.5);
+    } else if (psychicGamePhase === "round_lose") {
+      playPreloadedSound(failSoundRef.current, 0.3);
     }
   }, [psychicGamePhase]);
 
@@ -1664,16 +1657,12 @@ function PsychicGuessingUI() {
 
   const chachingSoundRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    const audio = new Audio("/sounds/success.mp3");
-    audio.preload = "auto";
-    chachingSoundRef.current = audio;
+    chachingSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
   }, []);
 
   useEffect(() => {
-    if (psychicGamePhase === "won" && chachingSoundRef.current) {
-      const sound = chachingSoundRef.current.cloneNode() as HTMLAudioElement;
-      sound.volume = 0.5;
-      sound.play().catch(() => {});
+    if (psychicGamePhase === "won") {
+      playPreloadedSound(chachingSoundRef.current, 0.5);
     }
   }, [psychicGamePhase]);
 

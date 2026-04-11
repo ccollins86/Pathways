@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useGame, type EcosystemData, type EnvironmentalIssue } from "@/lib/stores/useGame";
+import { createPreloadedAudio, playPreloadedSound } from "@/lib/playSound";
 
 const ISSUE_LABELS: Record<EnvironmentalIssue, string> = {
   trash: "Lots of trash and debris",
@@ -41,10 +42,7 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio("/sounds/success.mp3");
-    audio.preload = "auto";
-    audio.volume = 0.5;
-    successSoundRef.current = audio;
+    successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
   }, []);
 
   if (!eco) return null;
@@ -78,11 +76,7 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
       setAllCorrect(true);
       setFeedback(null);
       setStep("result");
-      if (successSoundRef.current) {
-        const sound = successSoundRef.current.cloneNode() as HTMLAudioElement;
-        sound.volume = 0.5;
-        sound.play().catch(() => {});
-      }
+      playPreloadedSound(successSoundRef.current, 0.5);
     } else {
       setFeedback("That's not the right issue. Look carefully at the environmental problem in this ecosystem.");
     }
