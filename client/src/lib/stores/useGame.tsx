@@ -1169,7 +1169,8 @@ export const useGame = create<GameState>()(
       const colors = ["#e53935", "#1e88e5", "#43a047", "#8e24aa", "#f4511e", "#00897b", "#d81b60", "#5e35b1", "#fb8c00", "#3949ab"];
       const name = names[Math.floor(Math.random() * names.length)];
       const color = colors[Math.floor(Math.random() * colors.length)];
-      const favoriteNumber = Math.floor(Math.random() * 100) + 1;
+      const { psychicRound } = get();
+      const favoriteNumber = psychicRound === 3 ? Math.floor(Math.random() * 100) + 1 : 100;
       set({
         psychicCustomer: { name, color, favoriteNumber },
         psychicGuesses: [],
