@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useGame } from "@/lib/stores/useGame";
-import { createPreloadedAudio, playPreloadedSound } from "@/lib/playSound";
 import { useQuestionPrefetch } from "@/lib/stores/useQuestionPrefetch";
 import { TOWN_LESSON_QUESTIONS } from "./townQuestions";
 
@@ -66,7 +65,8 @@ export function GameHUD() {
   const [lockedLessonQ, setLockedLessonQ] = useState(lessonQuestions[0]);
 
   useEffect(() => {
-    successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
+    successSoundRef.current = new Audio("/sounds/success.mp3");
+    successSoundRef.current.volume = 0.5;
   }, []);
 
   const addLessonPopup = useCallback((text: string, color: string) => {
@@ -90,7 +90,12 @@ export function GameHUD() {
         incrementFirstTry();
         lessonBonusTimerRef.current = setTimeout(() => addLessonPopup("+5 First Try!", "#facc15"), 600);
       }
-      playPreloadedSound(successSoundRef.current, 0.5);
+      try {
+        if (successSoundRef.current) {
+          successSoundRef.current.currentTime = 0;
+          successSoundRef.current.play().catch(() => {});
+        }
+      } catch {}
     } else {
       setLessonQuizWrong(true);
       setLessonQuizHadWrong(true);

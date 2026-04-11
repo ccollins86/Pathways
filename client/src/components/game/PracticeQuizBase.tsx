@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { createPreloadedAudio, playPreloadedSound } from "@/lib/playSound";
 
 export interface Question {
   id: number;
@@ -114,7 +113,10 @@ export function PracticeQuizBase({
     setShowHint(false);
     setFirstTryCountLocal(0);
     onResetScore?.();
-    successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
+    try {
+      successSoundRef.current = new Audio("/sounds/success.mp3");
+      successSoundRef.current.volume = 0.5;
+    } catch {}
   }, []);
 
   const addPopup = useCallback((text: string, color: string) => {
@@ -127,7 +129,10 @@ export function PracticeQuizBase({
   }, []);
 
   const triggerCelebration = useCallback(() => {
-    playPreloadedSound(successSoundRef.current, 0.5);
+    if (successSoundRef.current) {
+      successSoundRef.current.currentTime = 0;
+      successSoundRef.current.play().catch(() => {});
+    }
     setConfetti(createConfetti(theme.confettiColors));
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 1200);

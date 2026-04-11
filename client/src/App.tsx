@@ -1,6 +1,5 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useState, useCallback, useEffect, useRef, Component } from "react";
-import { createPreloadedAudio, playPreloadedSound } from "@/lib/playSound";
 import type { ErrorInfo, ReactNode } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { Game } from "./components/game/Game";
@@ -1388,15 +1387,17 @@ function PsychicRoundResultUI() {
   const failSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
-    failSoundRef.current = createPreloadedAudio("/sounds/hit.mp3", 0.3);
+    successSoundRef.current = new Audio("/sounds/success.mp3");
+    failSoundRef.current = new Audio("/sounds/hit.mp3");
   }, []);
 
   useEffect(() => {
-    if (psychicGamePhase === "round_win") {
-      playPreloadedSound(successSoundRef.current, 0.5);
-    } else if (psychicGamePhase === "round_lose") {
-      playPreloadedSound(failSoundRef.current, 0.3);
+    if (psychicGamePhase === "round_win" && successSoundRef.current) {
+      successSoundRef.current.currentTime = 0;
+      successSoundRef.current.play().catch(() => {});
+    } else if (psychicGamePhase === "round_lose" && failSoundRef.current) {
+      failSoundRef.current.currentTime = 0;
+      failSoundRef.current.play().catch(() => {});
     }
   }, [psychicGamePhase]);
 
@@ -1657,12 +1658,13 @@ function PsychicGuessingUI() {
 
   const chachingSoundRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    chachingSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
+    chachingSoundRef.current = new Audio("/sounds/success.mp3");
   }, []);
 
   useEffect(() => {
-    if (psychicGamePhase === "won") {
-      playPreloadedSound(chachingSoundRef.current, 0.5);
+    if (psychicGamePhase === "won" && chachingSoundRef.current) {
+      chachingSoundRef.current.currentTime = 0;
+      chachingSoundRef.current.play().catch(() => {});
     }
   }, [psychicGamePhase]);
 

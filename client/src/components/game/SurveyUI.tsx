@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useGame, type EcosystemData, type EnvironmentalIssue } from "@/lib/stores/useGame";
-import { createPreloadedAudio, playPreloadedSound } from "@/lib/playSound";
 
 const ISSUE_LABELS: Record<EnvironmentalIssue, string> = {
   trash: "Lots of trash and debris",
@@ -40,14 +39,9 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [allCorrect, setAllCorrect] = useState(false);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
-  const [animalOptions] = useState(() => eco ? generateOptions(eco.animalCount) : []);
-  const [plantOptions] = useState(() => eco ? generateOptions(eco.plantCount) : []);
 
-  useEffect(() => {
-    successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
-  }, []);
-
-  if (!eco) return null;
+  const animalOptions = useMemo(() => generateOptions(eco.animalCount), [eco.animalCount]);
+  const plantOptions = useMemo(() => generateOptions(eco.plantCount), [eco.plantCount]);
 
   const handleAnimalSelect = (count: number) => {
     setAnimalAnswer(count);
@@ -75,7 +69,12 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
       setAllCorrect(true);
       setFeedback(null);
       setStep("result");
-      playPreloadedSound(successSoundRef.current, 0.5);
+      if (!successSoundRef.current) {
+        successSoundRef.current = new Audio("/sounds/success.mp3");
+        successSoundRef.current.volume = 0.5;
+      }
+      successSoundRef.current.currentTime = 0;
+      successSoundRef.current.play().catch(() => {});
     } else {
       setFeedback("That's not the right issue. Look carefully at the environmental problem in this ecosystem.");
     }
