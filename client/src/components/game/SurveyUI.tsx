@@ -40,15 +40,14 @@ function SurveyUIInner({ ecosystemIndex }: { ecosystemIndex: number }) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [allCorrect, setAllCorrect] = useState(false);
   const successSoundRef = useRef<HTMLAudioElement | null>(null);
+  const [animalOptions] = useState(() => eco ? generateOptions(eco.animalCount) : []);
+  const [plantOptions] = useState(() => eco ? generateOptions(eco.plantCount) : []);
 
   useEffect(() => {
     successSoundRef.current = createPreloadedAudio("/sounds/success.mp3", 0.5);
   }, []);
 
   if (!eco) return null;
-
-  const animalOptions = generateOptions(eco.animalCount);
-  const plantOptions = generateOptions(eco.plantCount);
 
   const handleAnimalSelect = (count: number) => {
     setAnimalAnswer(count);
