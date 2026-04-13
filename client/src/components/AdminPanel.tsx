@@ -32,6 +32,10 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
       dialogueIndex: 0,
       activeNpc: null as string | null,
       shopOpen: null as GameWorld | null,
+      practiceActive: false,
+      oceanPracticeActive: false,
+      factoryPracticeActive: false,
+      psychicPracticeActive: false,
     };
 
     switch (world) {
