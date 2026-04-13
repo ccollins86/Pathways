@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ADMIN_USERNAMES } from "../lib/adminConfig";
-import { useGame, GameWorld } from "../lib/stores/useGame";
+import { useGame, GameWorld, generateEcosystems, generateSludgePatches } from "../lib/stores/useGame";
 
 interface AdminPanelProps {
   username: string;
@@ -31,7 +31,7 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
       activeDialogue: null as { speaker: string; text: string }[] | null,
       dialogueIndex: 0,
       activeNpc: null as string | null,
-      shopOpen: null as string | null,
+      shopOpen: null as GameWorld | null,
     };
 
     switch (world) {
@@ -82,6 +82,8 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
           hasDivingSuit: false,
           cleanupQuestStarted: false,
           inBoat: false,
+          ecosystems: generateEcosystems(),
+          sludgePatches: generateSludgePatches(),
           cleanupQuestCompleted: false,
           oceanLessonPhase: 0,
           oceanPracticeUnlocked: false,
