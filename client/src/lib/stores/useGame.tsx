@@ -39,7 +39,7 @@ export interface SludgePatch {
 
 const ISSUE_TYPES: EnvironmentalIssue[] = ["trash", "nets", "oil_spill"];
 
-function generateSludgePatches(): SludgePatch[] {
+export function generateSludgePatches(): SludgePatch[] {
   return [
     { position: [-15, -0.2, -20], cleaned: false },
     { position: [10, -0.2, -25], cleaned: false },
@@ -52,7 +52,7 @@ function generateSludgePatches(): SludgePatch[] {
   ];
 }
 
-function generateEcosystems(): EcosystemData[] {
+export function generateEcosystems(): EcosystemData[] {
   const baseEcosystems = [
     { name: "Coral Reef", position: [-30, -1, -30] as [number, number, number], baseAnimals: 5, plantCount: 4 },
     { name: "Kelp Forest", position: [35, -1, -25] as [number, number, number], baseAnimals: 4, plantCount: 6 },

@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { ADMIN_USERNAMES } from "../lib/adminConfig";
-import { useGame, GameWorld } from "../lib/stores/useGame";
-import { useQuestionPrefetch } from "../lib/stores/useQuestionPrefetch";
-import { TOWN_QUESTIONS, TOWN_LESSON_QUESTIONS } from "./game/townQuestions";
-import { OCEAN_QUESTIONS } from "./game/oceanQuestions";
-import { FACTORY_QUESTIONS } from "./game/factoryQuestions";
-import { PSYCHIC_QUESTIONS } from "./game/psychicQuestions";
+import { useGame, GameWorld, generateEcosystems, generateSludgePatches } from "../lib/stores/useGame";
 
 interface AdminPanelProps {
   username: string;
@@ -27,16 +22,16 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
 
   if (!isAdmin) return null;
 
-  const handleSkipToPractice = (world: GameWorld) => {
-    const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+  const handleGoToWorld = (world: GameWorld) => {
     const setState = useGame.setState;
 
-    const clearAllPractice = {
+    const commonState = {
       phase: "playing" as const,
       currentWorld: world,
       activeDialogue: null as { speaker: string; text: string }[] | null,
       dialogueIndex: 0,
       activeNpc: null as string | null,
+      shopOpen: null as GameWorld | null,
       practiceActive: false,
       oceanPracticeActive: false,
       factoryPracticeActive: false,
@@ -45,63 +40,105 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
 
     switch (world) {
       case "town":
-        prefetch("town", TOWN_QUESTIONS);
-        prefetch("town-lesson", TOWN_LESSON_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          practiceUnlocked: true,
-          practiceActive: true,
+          ...commonState,
+          talkedToDan: false,
+          talkedToBob: false,
+          knownDisaster: null,
+          reportedToDan: false,
+          carriedItem: null,
+          consumedItems: new Set<string>(),
+          hurricaneTasks: {
+            frontDoorSandbagged: false,
+            backDoorSandbagged: false,
+            window1Boarded: false,
+            window2Boarded: false,
+          },
+          wildfireTasks: {
+            houseSprayed: false,
+            vegetationCleared: false,
+          },
+          earthquakeTasks: {
+            furnitureStrapped: false,
+            gasShutOff: false,
+          },
+          questCompleted: false,
+          questFailed: false,
+          failReason: null,
+          tasksActive: false,
+          practiceUnlocked: false,
+          practiceActive: false,
           practiceScore: 0,
           practiceCompleted: false,
+          portalActive: false,
+          respawnTrigger: 0,
         });
         break;
 
       case "ocean":
-        prefetch("ocean", OCEAN_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          oceanPracticeUnlocked: true,
-          oceanPracticeActive: true,
-          oceanPracticeScore: 0,
-          oceanPracticeCompleted: false,
-          oceanLessonPhase: 0,
-          currentSurveyIndex: null as number | null,
+          ...commonState,
           world2Dialogue: null as { speaker: string; text: string }[] | null,
           world2DialogueIndex: 0,
+          oceanQuestStarted: false,
+          currentSurveyIndex: null as number | null,
+          oceanQuestCompleted: false,
+          hasDivingSuit: false,
+          cleanupQuestStarted: false,
+          inBoat: false,
+          ecosystems: generateEcosystems(),
+          sludgePatches: generateSludgePatches(),
+          cleanupQuestCompleted: false,
+          oceanLessonPhase: 0,
+          oceanPracticeUnlocked: false,
+          oceanPracticeActive: false,
+          oceanPracticeScore: 0,
+          oceanPracticeCompleted: false,
+          oceanPortalActive: false,
         });
         break;
 
       case "factory":
-        prefetch("factory", FACTORY_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          factoryPracticeUnlocked: true,
-          factoryPracticeActive: true,
-          factoryPracticeScore: 0,
-          factoryPracticeCompleted: false,
-          factoryLessonPhase: 0,
-          activeMachine: null as "hat" | "tshirt" | "jacket" | null,
+          ...commonState,
           world3Dialogue: null as { speaker: string; text: string }[] | null,
           world3DialogueIndex: 0,
+          factoryQuestStarted: false,
+          activeMachine: null as "hat" | "tshirt" | "jacket" | null,
+          hatMachineState: "idle" as const,
+          tshirtMachineState: "idle" as const,
+          jacketMachineState: "idle" as const,
+          carryingProduct: null,
+          carryingBox: null,
+          factoryOrderComplete: false,
+          factoryLessonPhase: 0,
+          factoryPracticeUnlocked: false,
+          factoryPracticeActive: false,
+          factoryPracticeScore: 0,
+          factoryPracticeCompleted: false,
+          factoryPortalActive: false,
         });
         break;
 
       case "psychic":
-        prefetch("psychic", PSYCHIC_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          psychicPracticeActive: true,
-          psychicPracticeScore: 0,
-          psychicPracticeCompleted: false,
-          psychicGamePhase: "waiting" as const,
+          ...commonState,
+          psychicBalance: 0,
           psychicCustomer: null,
           psychicGuesses: [],
           psychicGuessesRemaining: 10,
-          psychicGuessHint: null,
+          psychicGamePhase: "instructions" as const,
+          psychicCustomersServed: 0,
+          psychicRound: 1,
+          psychicSequentialStart: null,
           psychicLastGuess: null,
           psychicBinaryMin: 1,
           psychicBinaryMax: 100,
-          psychicSequentialStart: null,
+          psychicGuessHint: null,
+          psychicPracticeActive: false,
+          psychicPracticeScore: 0,
+          psychicPracticeCompleted: false,
+          psychicWorldBonusAwarded: false,
         });
         break;
     }
@@ -176,12 +213,12 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
             </button>
           </div>
           <div style={{ color: "#64748b", fontSize: 10, marginBottom: 2 }}>
-            Skip to practice:
+            Go to world:
           </div>
           {WORLDS.map(({ label, world }) => (
             <button
               key={world}
-              onClick={() => handleSkipToPractice(world)}
+              onClick={() => handleGoToWorld(world)}
               style={{
                 background: "rgba(51, 65, 85, 0.6)",
                 color: "#e2e8f0",
