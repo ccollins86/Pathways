@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { ADMIN_USERNAMES } from "../lib/adminConfig";
 import { useGame, GameWorld } from "../lib/stores/useGame";
-import { useQuestionPrefetch } from "../lib/stores/useQuestionPrefetch";
-import { TOWN_QUESTIONS, TOWN_LESSON_QUESTIONS } from "./game/townQuestions";
-import { OCEAN_QUESTIONS } from "./game/oceanQuestions";
-import { FACTORY_QUESTIONS } from "./game/factoryQuestions";
-import { PSYCHIC_QUESTIONS } from "./game/psychicQuestions";
 
 interface AdminPanelProps {
   username: string;
@@ -27,43 +22,42 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
 
   if (!isAdmin) return null;
 
-  const handleSkipToPractice = (world: GameWorld) => {
-    const prefetch = useQuestionPrefetch.getState().prefetchQuestions;
+  const handleGoToWorld = (world: GameWorld) => {
     const setState = useGame.setState;
 
-    const clearAllPractice = {
+    const baseState = {
       phase: "playing" as const,
       currentWorld: world,
       activeDialogue: null as { speaker: string; text: string }[] | null,
       dialogueIndex: 0,
       activeNpc: null as string | null,
       practiceActive: false,
+      practiceUnlocked: false,
+      practiceScore: 0,
+      practiceCompleted: false,
       oceanPracticeActive: false,
+      oceanPracticeUnlocked: false,
+      oceanPracticeScore: 0,
+      oceanPracticeCompleted: false,
       factoryPracticeActive: false,
+      factoryPracticeUnlocked: false,
+      factoryPracticeScore: 0,
+      factoryPracticeCompleted: false,
       psychicPracticeActive: false,
+      psychicPracticeScore: 0,
+      psychicPracticeCompleted: false,
     };
 
     switch (world) {
       case "town":
-        prefetch("town", TOWN_QUESTIONS);
-        prefetch("town-lesson", TOWN_LESSON_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          practiceUnlocked: true,
-          practiceActive: true,
-          practiceScore: 0,
-          practiceCompleted: false,
+          ...baseState,
         });
         break;
 
       case "ocean":
-        prefetch("ocean", OCEAN_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          oceanPracticeUnlocked: true,
-          oceanPracticeActive: true,
-          oceanPracticeScore: 0,
-          oceanPracticeCompleted: false,
+          ...baseState,
           oceanLessonPhase: 0,
           currentSurveyIndex: null as number | null,
           world2Dialogue: null as { speaker: string; text: string }[] | null,
@@ -72,13 +66,8 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
         break;
 
       case "factory":
-        prefetch("factory", FACTORY_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          factoryPracticeUnlocked: true,
-          factoryPracticeActive: true,
-          factoryPracticeScore: 0,
-          factoryPracticeCompleted: false,
+          ...baseState,
           factoryLessonPhase: 0,
           activeMachine: null as "hat" | "tshirt" | "jacket" | null,
           world3Dialogue: null as { speaker: string; text: string }[] | null,
@@ -87,12 +76,8 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
         break;
 
       case "psychic":
-        prefetch("psychic", PSYCHIC_QUESTIONS);
         setState({
-          ...clearAllPractice,
-          psychicPracticeActive: true,
-          psychicPracticeScore: 0,
-          psychicPracticeCompleted: false,
+          ...baseState,
           psychicGamePhase: "waiting" as const,
           psychicCustomer: null,
           psychicGuesses: [],
@@ -176,12 +161,12 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
             </button>
           </div>
           <div style={{ color: "#64748b", fontSize: 10, marginBottom: 2 }}>
-            Skip to practice:
+            Go to world:
           </div>
           {WORLDS.map(({ label, world }) => (
             <button
               key={world}
-              onClick={() => handleSkipToPractice(world)}
+              onClick={() => handleGoToWorld(world)}
               style={{
                 background: "rgba(51, 65, 85, 0.6)",
                 color: "#e2e8f0",
