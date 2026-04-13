@@ -212,8 +212,6 @@ export function Player({ onPositionUpdate }: PlayerProps) {
   const speed = 8;
   const dropItem = useGame((s) => s.dropItem);
   const activeDialogue = useGame((s) => s.activeDialogue);
-  const activeMachine = useGame((s) => s.activeMachine);
-  const shopOpen = useGame((s) => s.shopOpen);
   const currentWorld = useGame((s) => s.currentWorld);
   const hasDivingSuit = useGame((s) => s.hasDivingSuit);
   const inBoat = useGame((s) => s.inBoat);
@@ -251,8 +249,6 @@ export function Player({ onPositionUpdate }: PlayerProps) {
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-
-    if (activeDialogue || activeMachine || shopOpen) return;
 
     const { forward, back, left, right } = getKeys();
     const direction = new THREE.Vector3();

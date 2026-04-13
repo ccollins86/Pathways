@@ -158,25 +158,6 @@ function unwrapQuestionArray(parsed: unknown): unknown[] {
   throw new TypeError("Response is not an array");
 }
 
-function hasDuplicateConditions(code: string): boolean {
-  const conditionPattern = /(?:if|else\s+if)\s*\(([^)]+)\)/g;
-  const conditions: string[] = [];
-  let match;
-  while ((match = conditionPattern.exec(code)) !== null) {
-    const normalized = match[1].replace(/\s+/g, " ").trim().toLowerCase();
-    if (conditions.includes(normalized)) {
-      return true;
-    }
-    conditions.push(normalized);
-  }
-  return false;
-}
-
-function hasDuplicateOptions(options: string[]): boolean {
-  const normalized = options.map((o) => o.trim().toLowerCase());
-  return new Set(normalized).size !== normalized.length;
-}
-
 function validateRawQuestions(raw: unknown[]): GeneratedQuestion[] {
   const questions: GeneratedQuestion[] = [];
   for (let i = 0; i < raw.length; i++) {
@@ -191,20 +172,11 @@ function validateRawQuestions(raw: unknown[]): GeneratedQuestion[] {
       q.correctIndex <= 3 &&
       typeof q.explanation === "string"
     ) {
-      const opts = (q.options as unknown[]).map(String);
-      if (hasDuplicateOptions(opts)) {
-        console.warn(`Question ${i + 1} rejected: duplicate answer options`);
-        continue;
-      }
-      if (hasDuplicateConditions(q.code)) {
-        console.warn(`Question ${i + 1} rejected: duplicate conditions in code snippet`);
-        continue;
-      }
       questions.push({
-        id: questions.length + 1,
+        id: i + 1,
         code: q.code,
         question: q.question,
-        options: opts,
+        options: (q.options as unknown[]).map(String),
         correctIndex: q.correctIndex,
         explanation: q.explanation,
         hint: typeof q.hint === "string" ? q.hint : "Think carefully about the code.",
@@ -233,8 +205,6 @@ CRITICAL RULES:
 5. Questions should be beginner-friendly but require careful reading of code
 6. Make the code snippets realistic and educational
 7. Vary the correct answer positions across questions (don't always use the same index)
-8. NEVER repeat the same condition in a code snippet — every if, else-if, and else branch must test a DIFFERENT condition. For example, do NOT write two branches that both check the same variable for the same value
-9. Every branch in an if/else-if/else chain must be unique — no two branches should have identical or equivalent conditions
 
 Return a JSON object with a "questions" key containing an array of question objects. Each object must have: id (number), code (string), question (string), options (array of 4 distinct strings), correctIndex (0-3), explanation (string), hint (string). Do not include any markdown formatting.`;
 

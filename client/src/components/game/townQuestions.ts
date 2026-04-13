@@ -182,17 +182,17 @@ if (disaster === "hurricane") {
     id: 3,
     code: `let danger = "flood";
 
-if (danger === "tornado") {
-  action = "take shelter";
+if (danger === "flood") {
+  action = "evacuate";
 } else if (danger === "flood") {
   action = "sandBag";
 } else {
   action = "stay";
 }`,
-    question: "What is action set to?",
-    options: ['"take shelter"', '"sandBag"', '"stay"', "Nothing — it's undefined"],
-    correctIndex: 1,
-    explanation: '"flood" doesn\'t match "tornado", so the first branch is skipped. The else-if checks for "flood" which matches, so action is set to "sandBag".',
-    hint: "Check each condition from top to bottom. Does the value of danger match the first condition? If not, try the next one.",
+    question: 'There are two conditions checking for "flood". What is action?',
+    options: ['"evacuate"', '"sandBag"', '"stay"', '"evacuate" and "sandBag"'],
+    correctIndex: 0,
+    explanation: 'Even though both conditions check for "flood", only the FIRST matching branch runs. Once "evacuate" is assigned, all remaining branches are skipped.',
+    hint: "When multiple conditions could match, think about which one the computer checks first.",
   },
 ];
