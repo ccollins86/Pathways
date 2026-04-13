@@ -25,68 +25,114 @@ export function AdminPanel({ username }: Readonly<AdminPanelProps>) {
   const handleGoToWorld = (world: GameWorld) => {
     const setState = useGame.setState;
 
-    const baseState = {
+    const commonState = {
       phase: "playing" as const,
       currentWorld: world,
       activeDialogue: null as { speaker: string; text: string }[] | null,
       dialogueIndex: 0,
       activeNpc: null as string | null,
-      practiceActive: false,
-      practiceUnlocked: false,
-      practiceScore: 0,
-      practiceCompleted: false,
-      oceanPracticeActive: false,
-      oceanPracticeUnlocked: false,
-      oceanPracticeScore: 0,
-      oceanPracticeCompleted: false,
-      factoryPracticeActive: false,
-      factoryPracticeUnlocked: false,
-      factoryPracticeScore: 0,
-      factoryPracticeCompleted: false,
-      psychicPracticeActive: false,
-      psychicPracticeScore: 0,
-      psychicPracticeCompleted: false,
+      shopOpen: null as string | null,
     };
 
     switch (world) {
       case "town":
         setState({
-          ...baseState,
+          ...commonState,
+          talkedToDan: false,
+          talkedToBob: false,
+          knownDisaster: null,
+          reportedToDan: false,
+          carriedItem: null,
+          consumedItems: new Set<string>(),
+          hurricaneTasks: {
+            frontDoorSandbagged: false,
+            backDoorSandbagged: false,
+            window1Boarded: false,
+            window2Boarded: false,
+          },
+          wildfireTasks: {
+            houseSprayed: false,
+            vegetationCleared: false,
+          },
+          earthquakeTasks: {
+            furnitureStrapped: false,
+            gasShutOff: false,
+          },
+          questCompleted: false,
+          questFailed: false,
+          failReason: null,
+          tasksActive: false,
+          practiceUnlocked: false,
+          practiceActive: false,
+          practiceScore: 0,
+          practiceCompleted: false,
+          portalActive: false,
+          respawnTrigger: 0,
         });
         break;
 
       case "ocean":
         setState({
-          ...baseState,
-          oceanLessonPhase: 0,
-          currentSurveyIndex: null as number | null,
+          ...commonState,
           world2Dialogue: null as { speaker: string; text: string }[] | null,
           world2DialogueIndex: 0,
+          oceanQuestStarted: false,
+          currentSurveyIndex: null as number | null,
+          oceanQuestCompleted: false,
+          hasDivingSuit: false,
+          cleanupQuestStarted: false,
+          inBoat: false,
+          cleanupQuestCompleted: false,
+          oceanLessonPhase: 0,
+          oceanPracticeUnlocked: false,
+          oceanPracticeActive: false,
+          oceanPracticeScore: 0,
+          oceanPracticeCompleted: false,
+          oceanPortalActive: false,
         });
         break;
 
       case "factory":
         setState({
-          ...baseState,
-          factoryLessonPhase: 0,
-          activeMachine: null as "hat" | "tshirt" | "jacket" | null,
+          ...commonState,
           world3Dialogue: null as { speaker: string; text: string }[] | null,
           world3DialogueIndex: 0,
+          factoryQuestStarted: false,
+          activeMachine: null as "hat" | "tshirt" | "jacket" | null,
+          hatMachineState: "idle" as const,
+          tshirtMachineState: "idle" as const,
+          jacketMachineState: "idle" as const,
+          carryingProduct: null,
+          carryingBox: null,
+          factoryOrderComplete: false,
+          factoryLessonPhase: 0,
+          factoryPracticeUnlocked: false,
+          factoryPracticeActive: false,
+          factoryPracticeScore: 0,
+          factoryPracticeCompleted: false,
+          factoryPortalActive: false,
         });
         break;
 
       case "psychic":
         setState({
-          ...baseState,
-          psychicGamePhase: "waiting" as const,
+          ...commonState,
+          psychicBalance: 0,
           psychicCustomer: null,
           psychicGuesses: [],
           psychicGuessesRemaining: 10,
-          psychicGuessHint: null,
+          psychicGamePhase: "instructions" as const,
+          psychicCustomersServed: 0,
+          psychicRound: 1,
+          psychicSequentialStart: null,
           psychicLastGuess: null,
           psychicBinaryMin: 1,
           psychicBinaryMax: 100,
-          psychicSequentialStart: null,
+          psychicGuessHint: null,
+          psychicPracticeActive: false,
+          psychicPracticeScore: 0,
+          psychicPracticeCompleted: false,
+          psychicWorldBonusAwarded: false,
         });
         break;
     }
